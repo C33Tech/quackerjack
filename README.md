@@ -1,5 +1,5 @@
 # `Quackerjack`
-# A YouTube Comment Thread Analyzer
+## A YouTube Comment Thread Analyzer
 
 A CLI script, written in Go, that takes a YouTube video ID and generates a report about the content of the comment stream.
 
