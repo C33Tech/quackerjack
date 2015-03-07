@@ -14,6 +14,7 @@ aren't
 as
 at
 b
+back
 be
 because
 been
@@ -25,6 +26,8 @@ both
 but
 by
 c
+call
+can
 can't
 cannot
 could
@@ -41,6 +44,7 @@ down
 during
 e
 each
+ever
 f
 few
 first
@@ -48,6 +52,7 @@ for
 from
 further
 g
+get
 h
 had
 hadn't
@@ -122,8 +127,10 @@ out
 over
 own
 p
+play
 q
 r
+really
 s
 s
 same

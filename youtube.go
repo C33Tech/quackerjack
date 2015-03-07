@@ -164,7 +164,7 @@ type VideoMetadata struct {
 
 func GetVideoInfo(video_id string) VideoMetadata {
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: YouTubeKey},
+		Transport: &transport.APIKey{Key: *YouTubeKey},
 	}
 
 	youtubeService, err := youtube.New(client)
