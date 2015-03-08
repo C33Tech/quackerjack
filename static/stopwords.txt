@@ -99,6 +99,7 @@ let's
 like
 m
 make
+man
 me
 more
 most
@@ -134,6 +135,7 @@ really
 s
 s
 same
+series
 shan't
 she
 she'd
@@ -173,6 +175,7 @@ until
 up
 v
 very
+video
 w
 was
 wasn't

@@ -5,19 +5,22 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"net/http"
 	"os"
 	"strings"
+
+	"github.com/skratchdot/open-golang/open"
 )
 
 // Flags
 var VideoId = flag.String("video", "", "The YouTube video id.")
-var OutputDir = flag.String("out", "", "The output file (default: std out).")
 var YouTubeKey = flag.String("ytkey", "", "Google API key.")
 var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
 var Verbose = flag.Bool("verbose", false, "Extra logging to std out")
-var TrainingFiles = flag.String("training", "", "Training text files.")
 var RedisServer = flag.String("redis", "", "Redis server and port.")
-var ConfigFile = flag.String("config", "", "Config file.")
+var WebServer = flag.Bool("server", false, "Run as a web server.")
+var Port = flag.String("port", "8000", "Port for web server to run.")
+var TrainingFiles = flag.String("training", "", "Training text files.")
 
 func LogMsg(msg string) {
 	if *Verbose {
@@ -25,7 +28,12 @@ func LogMsg(msg string) {
 	}
 }
 
+type WebError struct {
+	Error string
+}
+
 type Report struct {
+	VideoId                string
 	TotalComments          uint64
 	CollectedComments      int
 	CommentCoveragePercent float64
@@ -33,6 +41,57 @@ type Report struct {
 	VideoTitle             string
 	Keywords               []string
 	Sentiment              []SentimentTag
+}
+
+func webHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path[1:] == "api" {
+		vid := r.URL.Query().Get("vid")
+
+		var jsonBytes []byte
+
+		if vid != "" {
+			jsonBytes = runReport(vid)
+		} else {
+			jsonBytes, _ = json.Marshal(WebError{Error: "Missing video id."})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonBytes)
+	} else {
+		http.ServeFile(w, r, "static/gui/index.html")
+	}
+}
+
+func runReport(vid string) []byte {
+	// Poll the data sources...
+	metadata := GetVideoInfo(vid)
+	comments := GetComments_v2(vid)
+
+	// Create Report
+	report := Report{}
+
+	// Set video metadata
+	report.VideoId = vid
+	report.TotalComments = metadata.TotalComments
+	report.ChannelTitle = metadata.ChannelTitle
+	report.VideoTitle = metadata.Title
+
+	// Set comments returned
+	report.CollectedComments = len(comments)
+	report.CommentCoveragePercent = math.Ceil((float64(report.CollectedComments) / float64(report.TotalComments)) * float64(100))
+
+	// Set Keywords
+	report.Keywords = GetKeywords(comments)
+
+	// Sentiment Tagging
+	if *RedisServer != "" {
+		report.Sentiment = GetSentimentSummary(comments)
+	}
+
+	reportJson, _ := json.Marshal(report)
+
+	// Output Report
+	return reportJson
 }
 
 func main() {
@@ -54,7 +113,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *VideoId == "" {
+	if !*WebServer && *VideoId == "" {
 		fmt.Println("Video ID is required.")
 		os.Exit(1)
 	}
@@ -66,31 +125,14 @@ func main() {
 		}
 	}
 
-	// Poll the data sources...
-	metadata := GetVideoInfo(*VideoId)
-	comments := GetComments_v2(*VideoId)
+	if *WebServer {
+		fmt.Println("Web server running on " + *Port)
 
-	// Create Report
-	report := Report{}
+		open.Start("http://localhost:" + *Port)
 
-	// Set video metadata
-	report.TotalComments = metadata.TotalComments
-	report.ChannelTitle = metadata.ChannelTitle
-	report.VideoTitle = metadata.Title
-
-	// Set comments returned
-	report.CollectedComments = len(comments)
-	report.CommentCoveragePercent = math.Ceil((float64(report.CollectedComments) / float64(report.TotalComments)) * float64(100))
-
-	// Set Keywords
-	report.Keywords = GetKeywords(comments)
-
-	// Sentiment Tagging
-	if *RedisServer != "" {
-		report.Sentiment = GetSentimentSummary(comments)
+		http.HandleFunc("/", webHandler)
+		http.ListenAndServe(":"+*Port, nil)
+	} else {
+		fmt.Println(string(runReport(*VideoId)))
 	}
-
-	reportJson, _ := json.Marshal(report)
-	// Output Report
-	fmt.Println(string(reportJson))
 }

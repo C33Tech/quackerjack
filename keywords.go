@@ -23,7 +23,7 @@ func GetKeywords(comments []Comment) []string {
 
 	sorted := sortedKeys(idx)
 
-	return sorted[:9]
+	return sorted[:10]
 }
 
 func getWords(text string) []string {
