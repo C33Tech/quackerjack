@@ -14,8 +14,6 @@ The report includes:
 
 ## Installation
 
-`export YOUTUBE_KEY=xxxxxxxxxxxxxxx`
-
 `go get github.com/mikeflynn/quackerjack`
 
 ## Flags
@@ -40,8 +38,7 @@ The report includes:
 
 `quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -video [video id] [-verbose]`
 
-## To Do
+## Future Additions
 
-* Optional sentiment analysis using Google's Prediction API.
 * Top commenters list.
 * More comment stats (avg per day, biggest commenting day, ...)
