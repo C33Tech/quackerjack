@@ -20,21 +20,21 @@ The report includes:
 
 ## Flags
 
--video XXXX _YouTube video id_
+`-video XXXX` _YouTube video id_
 
--ytkey xxxxxxxxxxxxxxxx _Your Google API key with access to the YouTube Data API_
+`-ytkey xxxxxxxxxxxxxxxx` _Your Google API key with access to the YouTube Data API_
 
--stopwords /xxx/yy/zz.txt _A comma delimitated list of additional stop word text files not in config_
+`-stopwords /xxx/yy/zz.txt` _A comma delimitated list of additional stop word text files not in config_
 
--verbose _Standard boolean flag for extra logging to std out._
+`-verbose` _Standard boolean flag for extra logging to std out._
 
--training /xxx/yy/zz.txt _Load a list of training words for the semantic analysis._
+`-training /xxx/yy/zz.txt` _Load a list of training words for the semantic analysis._
 
--redis "127.0.0.1:6379" _A string containing the host and port of the redis server._
+`-redis "127.0.0.1:6379"` _A string containing the host and port of the redis server._
 
--server _Start the web interface rather than having the JSON get dumpped to std out._
+`-server` _Start the web interface rather than having the JSON get dumpped to std out._
 
--port 8000 _Override the web server port._
+`-port 8000` _Override the web server port._
 
 ## Running
 
