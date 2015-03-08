@@ -3,7 +3,7 @@
 
 A CLI script, written in Go, that takes a YouTube video ID and generates a report about the content of the comment stream.
 
-![Web GUI](/static/web_gui.png)
+![Web GUI](/static/web-gui.png)
 
 The report includes:
 * The total number of comments and how many were collected.
