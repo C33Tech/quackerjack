@@ -3,12 +3,10 @@
 
 A CLI script, written in Go, that takes a YouTube video ID and generates a report about the content of the comment stream.
 
-![Quackerjack](/static/quackerjack.png)
+![Web GUI](/static/web_gui.png)
 
 The report includes:
-* The total number of comments.
-* The average number of comments a day.
-* The top commenters (based on subscribers)
+* The total number of comments and how many were collected.
 * The top keywords from the comments.
 * The sentiment analysis of the comments.
 
@@ -42,3 +40,8 @@ The report includes:
 
 * Top commenters list.
 * More comment stats (avg per day, biggest commenting day, ...)
+
+## Who is Quackerjack?
+
+He's a villain from Darkwing Duck.
+
