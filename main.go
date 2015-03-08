@@ -63,29 +63,50 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func runReport(vid string) []byte {
-	// Poll the data sources...
-	metadata := GetVideoInfo(vid)
-	comments := GetComments_v2(vid)
 
 	// Create Report
 	report := Report{}
 
-	// Set video metadata
-	report.VideoId = vid
-	report.TotalComments = metadata.TotalComments
-	report.ChannelTitle = metadata.ChannelTitle
-	report.VideoTitle = metadata.Title
+	done := make(chan bool)
+
+	// Poll the data sources...
+	go func() {
+		metadata := GetVideoInfo(vid)
+		// Set video metadata
+		report.VideoId = vid
+		report.TotalComments = metadata.TotalComments
+		report.ChannelTitle = metadata.ChannelTitle
+		report.VideoTitle = metadata.Title
+
+		done <- true
+	}()
+
+	// Fetch the comments
+	comments := GetComments_v2(vid)
 
 	// Set comments returned
 	report.CollectedComments = len(comments)
 	report.CommentCoveragePercent = math.Ceil((float64(report.CollectedComments) / float64(report.TotalComments)) * float64(100))
 
 	// Set Keywords
-	report.Keywords = GetKeywords(comments)
+	go func() {
+		report.Keywords = GetKeywords(comments)
+
+		done <- true
+	}()
 
 	// Sentiment Tagging
-	if *RedisServer != "" {
-		report.Sentiment = GetSentimentSummary(comments)
+	go func() {
+		if *RedisServer != "" {
+			report.Sentiment = GetSentimentSummary(comments)
+		}
+
+		done <- true
+	}()
+
+	// Wait for everything to finish up
+	for i := 0; i < 3; i++ {
+		<-done
 	}
 
 	reportJson, _ := json.Marshal(report)
