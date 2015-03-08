@@ -28,11 +28,13 @@ The report includes:
 
 -verbose _Standard boolean flag for extra logging to std out._
 
--training /xxx/yy/zz.txt _A list of training words for the semantic analysis._
+-training /xxx/yy/zz.txt _Load a list of training words for the semantic analysis._
 
 -redis "127.0.0.1:6379" _A string containing the host and port of the redis server._
 
--config /xxx/yy/zz.config _A YAML file with any of the above parameters set._
+-server _Start the web interface rather than having the JSON get dumpped to std out._
+
+-port 8000 _Override the web server port._
 
 ## Running
 
