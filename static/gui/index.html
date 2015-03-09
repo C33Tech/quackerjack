@@ -8,6 +8,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+  <style type="text/css">
+    .bignums { margin-bottom: 20px; font-size: 40px; text-align: center; }
+    .bignums span.desc { font-size: 14px; display: block; }
+    #loading { display: none; width: 85%; margin: 30px auto; font-size: 30px; text-align: center; color: #999; }
+    #report { display: none; }
+    #report .progress { margin-top: 30px; }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -43,19 +50,31 @@
       </div><!--/.container-fluid -->
     </nav>
 
-    <div id="loading" style="display: none; width: 85%; margin: 30px auto; font-size: 30px; text-align: center; color: #999">
+    <div id="loading">
       Reading comments... (Yikes, some of these are crazy!)
-      <div class="progress" style="margin-top: 30px;">
+      <div class="progress">
           <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
           </div>
         </div>
     </div>
 
-    <div id="report" style="display: none">
+    <div id="report">
       <h1 id="video_title"></h1>
       <h4 id="channel_title"></h4>
 
       <hr />
+
+      <div class="row bignums">
+        <div class="col-xs-4">
+          <span id="total_comments">0</span>
+          <span class="desc">Total Comments</span>
+        </div>
+        <div class="col-xs-4">
+          <span id="comments_per_day">0</span>
+          <span class="desc">Comments Per Day</span>
+        </div>
+        <div class="col-xs-4"></div>
+      </div>
 
       <div class="progress">
         <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
@@ -96,6 +115,8 @@
     jQuery("#report").show();
     jQuery("#video_title").text(decodeURIComponent(json.VideoTitle));
     jQuery("#channel_title").text(decodeURIComponent(json.ChannelTitle));
+    jQuery("#total_comments").text(decodeURIComponent(json.TotalComments));
+    jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
 
     jQuery(".progress-bar").attr('aria-valuenow', json.CommentCoveragePercent)
                            .css({'width': json.CommentCoveragePercent+'%'})

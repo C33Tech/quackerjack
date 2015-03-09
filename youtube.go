@@ -160,6 +160,7 @@ type VideoMetadata struct {
 	ChannelId     string
 	ChannelTitle  string
 	TotalComments uint64
+	PublishedAt   string
 }
 
 func GetVideoInfo(video_id string) VideoMetadata {
@@ -185,6 +186,7 @@ func GetVideoInfo(video_id string) VideoMetadata {
 		ChannelId:     video.Snippet.ChannelId,
 		ChannelTitle:  video.Snippet.ChannelTitle,
 		TotalComments: video.Statistics.CommentCount,
+		PublishedAt:   video.Snippet.PublishedAt,
 	}
 }
 

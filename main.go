@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/skratchdot/open-golang/open"
 )
@@ -35,8 +36,10 @@ type WebError struct {
 type Report struct {
 	VideoId                string
 	TotalComments          uint64
+	PublishedAt            string
 	CollectedComments      int
 	CommentCoveragePercent float64
+	CommentAvgPerDay       float64
 	ChannelTitle           string
 	VideoTitle             string
 	Keywords               []string
@@ -77,6 +80,7 @@ func runReport(vid string) []byte {
 		report.TotalComments = metadata.TotalComments
 		report.ChannelTitle = metadata.ChannelTitle
 		report.VideoTitle = metadata.Title
+		report.PublishedAt = metadata.PublishedAt
 
 		done <- true
 	}()
@@ -108,6 +112,11 @@ func runReport(vid string) []byte {
 	for i := 0; i < 3; i++ {
 		<-done
 	}
+
+	// Calculate Average Daily Comments
+	t, _ := time.Parse(time.RFC3339Nano, report.PublishedAt)
+	delta := time.Now().Sub(t)
+	report.CommentAvgPerDay = float64(report.TotalComments) / (float64(delta.Hours()) / float64(24))
 
 	reportJson, _ := json.Marshal(report)
 
