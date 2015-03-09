@@ -10,6 +10,11 @@ The report includes:
 * The top keywords from the comments.
 * The sentiment analysis of the comments.
 
+## Requirements
+
+* go (brew, apt-get or https://golang.org/doc/install)
+* redis (brew, apt-get or http://redis.io/topics/quickstart)
+
 ## Installation
 
 `go get github.com/mikeflynn/quackerjack`
@@ -32,14 +37,17 @@ The report includes:
 
 `-port 8000` _Override the web server port._
 
+## Training
+
+Before you can analyze any comments, you'll need to train your semantic engine by starting up your Redis server and loading the supplied training data.
+
+`quackerjack -training ./static/training/afinn-111.csv`
+
+You can always add in your own training data by creating a csv file with two fields: word, tag (in between -5 and 5)
+
 ## Running
 
 `quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -video [video id] [-verbose]`
-
-## Future Additions
-
-* Top commenters list.
-* More comment stats (avg per day, biggest commenting day, ...)
 
 ## Who is Quackerjack?
 
