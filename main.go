@@ -35,6 +35,7 @@ type WebError struct {
 
 type Report struct {
 	VideoId                string
+	VideoViews             uint64
 	TotalComments          uint64
 	PublishedAt            string
 	CollectedComments      int
@@ -77,6 +78,7 @@ func runReport(vid string) []byte {
 		metadata := GetVideoInfo(vid)
 		// Set video metadata
 		report.VideoId = vid
+		report.VideoViews = metadata.VideoViews
 		report.TotalComments = metadata.TotalComments
 		report.ChannelTitle = metadata.ChannelTitle
 		report.VideoTitle = metadata.Title

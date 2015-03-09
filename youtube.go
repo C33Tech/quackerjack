@@ -157,6 +157,7 @@ func GetComments_v2(video_id string) []Comment {
 
 type VideoMetadata struct {
 	Title         string
+	VideoViews    uint64
 	ChannelId     string
 	ChannelTitle  string
 	TotalComments uint64
@@ -187,6 +188,7 @@ func GetVideoInfo(video_id string) VideoMetadata {
 		ChannelTitle:  video.Snippet.ChannelTitle,
 		TotalComments: video.Statistics.CommentCount,
 		PublishedAt:   video.Snippet.PublishedAt,
+		VideoViews:    video.Statistics.ViewCount,
 	}
 }
 

@@ -66,6 +66,10 @@
 
       <div class="row bignums">
         <div class="col-xs-4">
+          <span id="video_views">0</span>
+          <span class="desc">Video Views</span>
+        </div>
+        <div class="col-xs-4">
           <span id="total_comments">0</span>
           <span class="desc">Total Comments</span>
         </div>
@@ -73,7 +77,6 @@
           <span id="comments_per_day">0</span>
           <span class="desc">Comments Per Day</span>
         </div>
-        <div class="col-xs-4"></div>
       </div>
 
       <div class="progress">
@@ -117,6 +120,7 @@
     jQuery("#channel_title").text(decodeURIComponent(json.ChannelTitle));
     jQuery("#total_comments").text(decodeURIComponent(json.TotalComments));
     jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
+    jQuery("#video_views").text(decodeURIComponent(json.VideoViews));
 
     jQuery(".progress-bar").attr('aria-valuenow', json.CommentCoveragePercent)
                            .css({'width': json.CommentCoveragePercent+'%'})
