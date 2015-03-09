@@ -12,8 +12,8 @@ The report includes:
 
 ## Requirements
 
-* go (brew, apt-get or https://golang.org/doc/install)
-* redis (brew, apt-get or http://redis.io/topics/quickstart)
+* go (`brew`, `apt-get` or https://golang.org/doc/install)
+* redis (`brew`, `apt-get` or http://redis.io/topics/quickstart)
 
 ## Installation
 
