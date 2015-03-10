@@ -13,28 +13,45 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
-// Flags
-var VideoId = flag.String("video", "", "The YouTube video id.")
+// Command Line Flags:
+
+// The target YouTube video ID
+var VideoID = flag.String("video", "", "The YouTube video id.")
+
+// The Google API key
 var YouTubeKey = flag.String("ytkey", "", "Google API key.")
+
+// A list of stopword files to assist in keyword extraction
 var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
+
+// Standard verbose flag.
 var Verbose = flag.Bool("verbose", false, "Extra logging to std out")
+
+// The server and port for the required redis server
 var RedisServer = flag.String("redis", "127.0.0.1:6379", "Redis server and port.")
+
+// Changes the output from stdout and starts a web server
 var WebServer = flag.Bool("server", false, "Run as a web server.")
+
+// The preferred web server port
 var Port = flag.String("port", "8000", "Port for web server to run.")
+
+// Sentiment training file paths to be ingested in to redis.
 var TrainingFiles = flag.String("training", "", "Training text files.")
 
+// stdout messaging if the verbose flag is set.
 func LogMsg(msg string) {
 	if *Verbose {
 		fmt.Printf(msg)
 	}
 }
 
-type WebError struct {
+type webError struct {
 	Error string
 }
 
-type Report struct {
-	VideoId                string
+type report struct {
+	VideoID                string
 	VideoViews             uint64
 	TotalComments          uint64
 	PublishedAt            string
@@ -56,7 +73,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 		if vid != "" {
 			jsonBytes = runReport(vid)
 		} else {
-			jsonBytes, _ = json.Marshal(WebError{Error: "Missing video id."})
+			jsonBytes, _ = json.Marshal(webError{Error: "Missing video id."})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -69,7 +86,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 func runReport(vid string) []byte {
 
 	// Create Report
-	report := Report{}
+	theReport := report{}
 
 	done := make(chan bool)
 
@@ -77,26 +94,26 @@ func runReport(vid string) []byte {
 	go func() {
 		metadata := GetVideoInfo(vid)
 		// Set video metadata
-		report.VideoId = vid
-		report.VideoViews = metadata.VideoViews
-		report.TotalComments = metadata.TotalComments
-		report.ChannelTitle = metadata.ChannelTitle
-		report.VideoTitle = metadata.Title
-		report.PublishedAt = metadata.PublishedAt
+		theReport.VideoID = vid
+		theReport.VideoViews = metadata.VideoViews
+		theReport.TotalComments = metadata.TotalComments
+		theReport.ChannelTitle = metadata.ChannelTitle
+		theReport.VideoTitle = metadata.Title
+		theReport.PublishedAt = metadata.PublishedAt
 
 		done <- true
 	}()
 
 	// Fetch the comments
-	comments := GetComments_v2(vid)
+	comments := GetCommentsV2(vid)
 
 	// Set comments returned
-	report.CollectedComments = len(comments)
-	report.CommentCoveragePercent = math.Ceil((float64(report.CollectedComments) / float64(report.TotalComments)) * float64(100))
+	theReport.CollectedComments = len(comments)
+	theReport.CommentCoveragePercent = math.Ceil((float64(theReport.CollectedComments) / float64(theReport.TotalComments)) * float64(100))
 
 	// Set Keywords
 	go func() {
-		report.Keywords = GetKeywords(comments)
+		theReport.Keywords = GetKeywords(comments)
 
 		done <- true
 	}()
@@ -104,7 +121,7 @@ func runReport(vid string) []byte {
 	// Sentiment Tagging
 	go func() {
 		if *RedisServer != "" {
-			report.Sentiment = GetSentimentSummary(comments)
+			theReport.Sentiment = GetSentimentSummary(comments)
 		}
 
 		done <- true
@@ -116,14 +133,14 @@ func runReport(vid string) []byte {
 	}
 
 	// Calculate Average Daily Comments
-	t, _ := time.Parse(time.RFC3339Nano, report.PublishedAt)
+	t, _ := time.Parse(time.RFC3339Nano, theReport.PublishedAt)
 	delta := time.Now().Sub(t)
-	report.CommentAvgPerDay = float64(report.TotalComments) / (float64(delta.Hours()) / float64(24))
+	theReport.CommentAvgPerDay = float64(theReport.TotalComments) / (float64(delta.Hours()) / float64(24))
 
-	reportJson, _ := json.Marshal(report)
+	reportJSON, _ := json.Marshal(theReport)
 
 	// Output Report
-	return reportJson
+	return reportJSON
 }
 
 func main() {
@@ -145,7 +162,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !*WebServer && *VideoId == "" {
+	if !*WebServer && *VideoID == "" {
 		fmt.Println("Video ID is required.")
 		os.Exit(1)
 	}
@@ -165,6 +182,6 @@ func main() {
 		http.HandleFunc("/", webHandler)
 		http.ListenAndServe(":"+*Port, nil)
 	} else {
-		fmt.Println(string(runReport(*VideoId)))
+		fmt.Println(string(runReport(*VideoID)))
 	}
 }

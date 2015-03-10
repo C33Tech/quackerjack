@@ -10,7 +10,6 @@ import (
 )
 
 // YT Comments (v2) JSON struct
-
 type YoutubeFeed struct {
 	Version  string `json:"version"`
 	Encoding string `json:"encoding"`
@@ -18,7 +17,7 @@ type YoutubeFeed struct {
 		Xmlns           string `json:"xmlns"`
 		XmlnsOpenSearch string `json:"xmlns$openSearch"`
 		XmlnsYt         string `json:"xmlns$yt"`
-		Id              struct {
+		ID              struct {
 			T string `json:"$t"`
 		} `json:"id"`
 		Updated struct {
@@ -59,7 +58,7 @@ type YoutubeFeed struct {
 			T int `json:"$t"`
 		} `json:"openSearch$itemsPerPage"`
 		Entry []struct {
-			Id struct {
+			ID struct {
 				T string `json:"$t"`
 			} `json:"id"`
 			Published struct {
@@ -93,10 +92,10 @@ type YoutubeFeed struct {
 					T string `json:"$t"`
 				} `json:"uri"`
 			} `json:"author"`
-			YtChannelId struct {
+			YtChannelID struct {
 				T string `json:"$t"`
 			} `json:"yt$channelId"`
-			YtGooglePlusUserId struct {
+			YtGooglePlusUserID struct {
 				T string `json:"$t"`
 			} `json:"yt$googlePlusUserId"`
 			YtReplyCount struct {
@@ -110,20 +109,20 @@ type YoutubeFeed struct {
 }
 
 // Distilled Comment Type
-
 type Comment struct {
-	Id         string
+	ID         string
 	Published  string
 	Title      string
 	Content    string
 	AuthorName string
 }
 
-func GetComments_v2(video_id string) []Comment {
+// Pull the comments for a given YouTube video
+func GetCommentsV2(videoID string) []Comment {
 	var comments = []Comment{}
 	var feed YoutubeFeed
 
-	url := "https://gdata.youtube.com/feeds/api/videos/" + video_id + "/comments?v=2&alt=json"
+	url := "https://gdata.youtube.com/feeds/api/videos/" + videoID + "/comments?v=2&alt=json"
 
 	for url != "" {
 		data, hasErr := fetchJSON(url)
@@ -133,7 +132,7 @@ func GetComments_v2(video_id string) []Comment {
 
 			for _, entry := range feed.Feed.Entry {
 				thisComment := Comment{
-					Id:         entry.Id.T,
+					ID:         entry.ID.T,
 					Published:  entry.Published.T,
 					Title:      entry.Title.T,
 					Content:    entry.Content.T,
@@ -155,16 +154,18 @@ func GetComments_v2(video_id string) []Comment {
 	return comments
 }
 
+// A distilled record of video metadata
 type VideoMetadata struct {
 	Title         string
 	VideoViews    uint64
-	ChannelId     string
+	ChannelID     string
 	ChannelTitle  string
 	TotalComments uint64
 	PublishedAt   string
 }
 
-func GetVideoInfo(video_id string) VideoMetadata {
+// Returns a subset of video information from the YouTube API
+func GetVideoInfo(videoID string) VideoMetadata {
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: *YouTubeKey},
 	}
@@ -174,7 +175,7 @@ func GetVideoInfo(video_id string) VideoMetadata {
 		panic(err)
 	}
 
-	call := youtubeService.Videos.List("id,snippet,statistics").Id(video_id)
+	call := youtubeService.Videos.List("id,snippet,statistics").Id(videoID)
 	resp, err := call.Do()
 	if err != nil {
 		panic(err)
@@ -184,7 +185,7 @@ func GetVideoInfo(video_id string) VideoMetadata {
 
 	return VideoMetadata{
 		Title:         video.Snippet.Title,
-		ChannelId:     video.Snippet.ChannelId,
+		ChannelID:     video.Snippet.ChannelId,
 		ChannelTitle:  video.Snippet.ChannelTitle,
 		TotalComments: video.Statistics.CommentCount,
 		PublishedAt:   video.Snippet.PublishedAt,

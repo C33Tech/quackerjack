@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Takes an array of Comments and returns a list of the top 10 most frequent words.
 func GetKeywords(comments []Comment) []string {
 	idx := make(map[string]int)
 
@@ -41,6 +42,7 @@ func isStopWord(needle string) bool {
 
 var stopWords = make(map[string]bool)
 
+// Takes list of paths and reads the contents in to the stopWords array.
 func LoadStopWords(path string) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -78,7 +80,7 @@ func sortedKeys(m map[string]int) []string {
 	sm.m = m
 	sm.s = make([]string, len(m))
 	i := 0
-	for key, _ := range m {
+	for key := range m {
 		sm.s[i] = key
 		i++
 	}
