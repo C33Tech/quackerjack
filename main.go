@@ -15,10 +15,10 @@ import (
 
 // Command Line Flags:
 
-// The target YouTube video ID
+// The VideoID from the target YouTube video.
 var VideoID = flag.String("video", "", "The YouTube video id.")
 
-// The Google API key
+// The YouTubeKey is a Google API key with access to YouTube's Data API
 var YouTubeKey = flag.String("ytkey", "", "Google API key.")
 
 // A list of stopword files to assist in keyword extraction
@@ -39,7 +39,7 @@ var Port = flag.String("port", "8000", "Port for web server to run.")
 // Sentiment training file paths to be ingested in to redis.
 var TrainingFiles = flag.String("training", "", "Training text files.")
 
-// stdout messaging if the verbose flag is set.
+// LogMsg takes a message and pipes it to stdout if the verbose flag is set.
 func LogMsg(msg string) {
 	if *Verbose {
 		fmt.Printf(msg)
