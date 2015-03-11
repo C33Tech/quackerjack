@@ -9,7 +9,7 @@ import (
 	youtube "google.golang.org/api/youtube/v3"
 )
 
-// YouTubeFeed represents the YT Comments (v2) feed JSON structure
+// YoutubeFeed represents the YT Comments (v2) feed JSON structure
 type YoutubeFeed struct {
 	Version  string `json:"version"`
 	Encoding string `json:"encoding"`
