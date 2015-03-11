@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Takes an array of Comments and returns a list of the top 10 most frequent words.
+// GetKeywords takes an array of Comments and returns a list of the top 10 most frequent words.
 func GetKeywords(comments []Comment) []string {
 	idx := make(map[string]int)
 
@@ -42,7 +42,7 @@ func isStopWord(needle string) bool {
 
 var stopWords = make(map[string]bool)
 
-// Takes list of paths and reads the contents in to the stopWords array.
+// LoadStopWords takes list of paths and reads the contents in to the stopWords array.
 func LoadStopWords(path string) {
 	file, err := os.Open(path)
 	if err != nil {

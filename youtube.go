@@ -9,7 +9,7 @@ import (
 	youtube "google.golang.org/api/youtube/v3"
 )
 
-// YT Comments (v2) JSON struct
+// YouTubeFeed represents the YT Comments (v2) feed JSON structure
 type YoutubeFeed struct {
 	Version  string `json:"version"`
 	Encoding string `json:"encoding"`
@@ -108,7 +108,7 @@ type YoutubeFeed struct {
 	} `json:"feed"`
 }
 
-// Distilled Comment Type
+// Comment is the distilled comment dataset
 type Comment struct {
 	ID         string
 	Published  string
@@ -117,7 +117,7 @@ type Comment struct {
 	AuthorName string
 }
 
-// Pull the comments for a given YouTube video
+// GetCommentsV2 pulls the comments for a given YouTube video
 func GetCommentsV2(videoID string) []Comment {
 	var comments = []Comment{}
 	var feed YoutubeFeed
@@ -154,7 +154,7 @@ func GetCommentsV2(videoID string) []Comment {
 	return comments
 }
 
-// A distilled record of video metadata
+// VideoMetadata is a distilled record of YouTube video metadata
 type VideoMetadata struct {
 	Title         string
 	VideoViews    uint64
@@ -164,7 +164,7 @@ type VideoMetadata struct {
 	PublishedAt   string
 }
 
-// Returns a subset of video information from the YouTube API
+// GetVideoInfo returns a subset of video information from the YouTube API
 func GetVideoInfo(videoID string) VideoMetadata {
 	client := &http.Client{
 		Transport: &transport.APIKey{Key: *YouTubeKey},
