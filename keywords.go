@@ -24,7 +24,12 @@ func GetKeywords(comments []Comment) []string {
 
 	sorted := sortedKeys(idx)
 
-	return sorted[:10]
+	max := 10
+	if len(sorted) < 10 {
+		max = len(sorted)
+	}
+
+	return sorted[:max]
 }
 
 func getWords(text string) []string {

@@ -181,16 +181,20 @@ func GetVideoInfo(videoID string) VideoMetadata {
 		panic(err)
 	}
 
-	video := resp.Items[0]
+	if len(resp.Items) > 0 {
+		video := resp.Items[0]
 
-	return VideoMetadata{
-		Title:         video.Snippet.Title,
-		ChannelID:     video.Snippet.ChannelId,
-		ChannelTitle:  video.Snippet.ChannelTitle,
-		TotalComments: video.Statistics.CommentCount,
-		PublishedAt:   video.Snippet.PublishedAt,
-		VideoViews:    video.Statistics.ViewCount,
+		return VideoMetadata{
+			Title:         video.Snippet.Title,
+			ChannelID:     video.Snippet.ChannelId,
+			ChannelTitle:  video.Snippet.ChannelTitle,
+			TotalComments: video.Statistics.CommentCount,
+			PublishedAt:   video.Snippet.PublishedAt,
+			VideoViews:    video.Statistics.ViewCount,
+		}
 	}
+
+	return VideoMetadata{}
 }
 
 func fetchJSON(url string) ([]byte, bool) {

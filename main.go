@@ -107,6 +107,19 @@ func runReport(vid string) []byte {
 	// Fetch the comments
 	comments := GetCommentsV2(vid)
 
+	// If we don't get an comments back, wait for the metadata call to return and send an error.
+	if len(comments) == 0 {
+		<-done
+
+		noCommentsError := "No comments found for this video."
+		if theReport.VideoTitle == "" {
+			noCommentsError = "Invalid YouTube video ID."
+		}
+
+		errorJSON, _ := json.Marshal(webError{Error: noCommentsError})
+		return errorJSON
+	}
+
 	// Set comments returned
 	theReport.CollectedComments = len(comments)
 	theReport.CommentCoveragePercent = math.Ceil((float64(theReport.CollectedComments) / float64(theReport.TotalComments)) * float64(100))
