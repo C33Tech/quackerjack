@@ -154,16 +154,23 @@
 
   window.onload = function() {
     var vid = getURLParameter('vid');
-    jQuery("form input").val(vid);
+    var jsonStr = getURLParameter('json');
     if(vid) {
-      jQuery("#loading").fadeIn(500);
-      jQuery.getJSON("/api?vid="+vid, function(resp) {
-        if(!resp.error) {
-          jQuery("#loading").fadeOut(500, function() {
-            drawReport(resp);
-          });
-        }
-      });
+      jQuery("form input").val(vid);
+      if(vid) {
+        jQuery("#loading").fadeIn(500);
+        jQuery.getJSON("/api?vid="+vid, function(resp) {
+          if(!resp.error) {
+            jQuery("#loading").fadeOut(500, function() {
+              drawReport(resp);
+            });
+          }
+        });
+      }
+    } else if(jsonStr) {
+      var jsonObj = JSON.parse(jsonStr);
+      drawReport(jsonObj);
+      jQuery("form input").val(jsonObj.VideoID);
     }
   }
   </script>
