@@ -169,8 +169,10 @@
       }
     } else if(jsonStr) {
       var jsonObj = JSON.parse(jsonStr);
-      drawReport(jsonObj);
-      jQuery("form input").val(jsonObj.VideoID);
+      if(jsonObj) {
+        drawReport(jsonObj);
+        jQuery("nav").hide();
+      }
     }
   }
   </script>

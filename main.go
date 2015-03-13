@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/skratchdot/open-golang/open"
+	//"github.com/skratchdot/open-golang/open"
 )
 
 // Command Line Flags:
@@ -190,7 +190,7 @@ func main() {
 	if *WebServer {
 		fmt.Println("Web server running on " + *Port)
 
-		open.Start("http://localhost:" + *Port)
+		//open.Start("http://localhost:" + *Port)
 
 		http.HandleFunc("/", webHandler)
 		http.ListenAndServe(":"+*Port, nil)
