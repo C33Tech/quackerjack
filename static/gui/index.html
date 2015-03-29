@@ -114,13 +114,13 @@
   }
 
   function drawReport(json) {
-    jQuery("nav input").val(json.VideoId);
+    jQuery("nav input").val(json.PostId);
     jQuery("#report").show();
-    jQuery("#video_title").text(decodeURIComponent(json.VideoTitle));
-    jQuery("#channel_title").text(decodeURIComponent(json.ChannelTitle));
-    jQuery("#total_comments").text(decodeURIComponent(json.TotalComments));
+    jQuery("#video_title").text(decodeURIComponent(json.YouTubeMetadata.VideoTitle));
+    jQuery("#channel_title").text(decodeURIComponent(json.YouTubeMetadata.ChannelTitle));
+    jQuery("#total_comments").text(decodeURIComponent(json.YouTubeMetadata.TotalComments));
     jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
-    jQuery("#video_views").text(decodeURIComponent(json.VideoViews));
+    jQuery("#video_views").text(decodeURIComponent(json.YouTubeMetadata.VideoViews));
 
     jQuery(".progress-bar").attr('aria-valuenow', json.CommentCoveragePercent)
                            .css({'width': json.CommentCoveragePercent+'%'})

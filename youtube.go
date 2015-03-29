@@ -9,8 +9,92 @@ import (
 	youtube "google.golang.org/api/youtube/v3"
 )
 
-// YoutubeFeed represents the YT Comments (v2) feed JSON structure
-type YoutubeFeed struct {
+// YouTubeVideo is a distilled record of YouTube video metadata
+type YouTubeVideo struct {
+	ID            string
+	Title         string
+	VideoViews    uint64
+	ChannelID     string
+	ChannelTitle  string
+	TotalComments uint64
+	PublishedAt   string
+}
+
+// YouTubeGetCommentsV2 pulls the comments for a given YouTube video
+func (ytv YouTubeVideo) GetComments() []Comment {
+	videoID := ytv.ID
+	var comments = []Comment{}
+	var feed youTubeFeed
+
+	url := "https://gdata.youtube.com/feeds/api/videos/" + videoID + "/comments?v=2&alt=json"
+
+	for url != "" {
+		data, hasErr := fetchJSON(url)
+
+		if hasErr == false {
+			json.Unmarshal(data, &feed)
+
+			for _, entry := range feed.Feed.Entry {
+				thisComment := Comment{
+					ID:         entry.ID.T,
+					Published:  entry.Published.T,
+					Title:      entry.Title.T,
+					Content:    entry.Content.T,
+					AuthorName: entry.Author[0].Name.T,
+				}
+
+				comments = append(comments, thisComment)
+			}
+
+			url = ""
+			for _, link := range feed.Feed.Link {
+				if link.Rel == "next" {
+					url = link.Href
+				}
+			}
+		}
+	}
+
+	return comments
+}
+
+// GetMetadata returns a subset of video information from the YouTube API
+func (ytv *YouTubeVideo) GetMetadata() bool {
+	videoID := ytv.ID
+
+	client := &http.Client{
+		Transport: &transport.APIKey{Key: *YouTubeKey},
+	}
+
+	youtubeService, err := youtube.New(client)
+	if err != nil {
+		panic(err)
+	}
+
+	call := youtubeService.Videos.List("id,snippet,statistics").Id(videoID)
+	resp, err := call.Do()
+	if err != nil {
+		panic(err)
+	}
+
+	if len(resp.Items) > 0 {
+		video := resp.Items[0]
+
+		ytv.Title = video.Snippet.Title
+		ytv.ChannelID = video.Snippet.ChannelId
+		ytv.ChannelTitle = video.Snippet.ChannelTitle
+		ytv.TotalComments = video.Statistics.CommentCount
+		ytv.PublishedAt = video.Snippet.PublishedAt
+		ytv.VideoViews = video.Statistics.ViewCount
+
+		return true
+	}
+
+	return false
+}
+
+// youTubeFeed represents the YT Comments (v2) feed JSON structure
+type youTubeFeed struct {
 	Version  string `json:"version"`
 	Encoding string `json:"encoding"`
 	Feed     struct {
@@ -106,95 +190,6 @@ type YoutubeFeed struct {
 			} `json:"yt$videoid"`
 		} `json:"entry"`
 	} `json:"feed"`
-}
-
-// Comment is the distilled comment dataset
-type Comment struct {
-	ID         string
-	Published  string
-	Title      string
-	Content    string
-	AuthorName string
-}
-
-// GetCommentsV2 pulls the comments for a given YouTube video
-func GetCommentsV2(videoID string) []Comment {
-	var comments = []Comment{}
-	var feed YoutubeFeed
-
-	url := "https://gdata.youtube.com/feeds/api/videos/" + videoID + "/comments?v=2&alt=json"
-
-	for url != "" {
-		data, hasErr := fetchJSON(url)
-
-		if hasErr == false {
-			json.Unmarshal(data, &feed)
-
-			for _, entry := range feed.Feed.Entry {
-				thisComment := Comment{
-					ID:         entry.ID.T,
-					Published:  entry.Published.T,
-					Title:      entry.Title.T,
-					Content:    entry.Content.T,
-					AuthorName: entry.Author[0].Name.T,
-				}
-
-				comments = append(comments, thisComment)
-			}
-
-			url = ""
-			for _, link := range feed.Feed.Link {
-				if link.Rel == "next" {
-					url = link.Href
-				}
-			}
-		}
-	}
-
-	return comments
-}
-
-// VideoMetadata is a distilled record of YouTube video metadata
-type VideoMetadata struct {
-	Title         string
-	VideoViews    uint64
-	ChannelID     string
-	ChannelTitle  string
-	TotalComments uint64
-	PublishedAt   string
-}
-
-// GetVideoInfo returns a subset of video information from the YouTube API
-func GetVideoInfo(videoID string) VideoMetadata {
-	client := &http.Client{
-		Transport: &transport.APIKey{Key: *YouTubeKey},
-	}
-
-	youtubeService, err := youtube.New(client)
-	if err != nil {
-		panic(err)
-	}
-
-	call := youtubeService.Videos.List("id,snippet,statistics").Id(videoID)
-	resp, err := call.Do()
-	if err != nil {
-		panic(err)
-	}
-
-	if len(resp.Items) > 0 {
-		video := resp.Items[0]
-
-		return VideoMetadata{
-			Title:         video.Snippet.Title,
-			ChannelID:     video.Snippet.ChannelId,
-			ChannelTitle:  video.Snippet.ChannelTitle,
-			TotalComments: video.Statistics.CommentCount,
-			PublishedAt:   video.Snippet.PublishedAt,
-			VideoViews:    video.Statistics.ViewCount,
-		}
-	}
-
-	return VideoMetadata{}
 }
 
 func fetchJSON(url string) ([]byte, bool) {

@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	//"github.com/skratchdot/open-golang/open"
+	//"github.com/kr/pretty"
 )
 
 // Command Line Flags:
@@ -51,17 +51,32 @@ type webError struct {
 }
 
 type report struct {
-	VideoID                string
-	VideoViews             uint64
-	TotalComments          uint64
+	ID                     string
+	Type                   string
+	Title                  string
 	PublishedAt            string
+	TotalComments          uint64
 	CollectedComments      int
 	CommentCoveragePercent float64
 	CommentAvgPerDay       float64
-	ChannelTitle           string
-	VideoTitle             string
 	Keywords               []string
 	Sentiment              []SentimentTag
+	Metadata               Post
+}
+
+// Post is the interface for all the various post types (YouTubeVideo, etc...)
+type Post interface {
+	GetComments() []Comment
+	GetMetadata() bool
+}
+
+// Comment is the distilled comment dataset
+type Comment struct {
+	ID         string
+	Published  string
+	Title      string
+	Content    string
+	AuthorName string
 }
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,32 +102,33 @@ func runReport(vid string) []byte {
 
 	// Create Report
 	theReport := report{}
+	theReport.Type = "youtube"
+	theReport.ID = vid
+
+	thePost := YouTubeVideo{ID: vid}
 
 	done := make(chan bool)
 
 	// Poll the data sources...
 	go func() {
-		metadata := GetVideoInfo(vid)
-		// Set video metadata
-		theReport.VideoID = vid
-		theReport.VideoViews = metadata.VideoViews
-		theReport.TotalComments = metadata.TotalComments
-		theReport.ChannelTitle = metadata.ChannelTitle
-		theReport.VideoTitle = metadata.Title
-		theReport.PublishedAt = metadata.PublishedAt
+		_ = thePost.GetMetadata()
+
+		theReport.Title = thePost.Title
+		theReport.PublishedAt = thePost.PublishedAt
+		theReport.TotalComments = thePost.TotalComments
 
 		done <- true
 	}()
 
 	// Fetch the comments
-	comments := GetCommentsV2(vid)
+	comments := thePost.GetComments()
 
 	// If we don't get an comments back, wait for the metadata call to return and send an error.
 	if len(comments) == 0 {
 		<-done
 
 		noCommentsError := "No comments found for this video."
-		if theReport.VideoTitle == "" {
+		if theReport.Title == "" {
 			noCommentsError = "Invalid YouTube video ID."
 		}
 
@@ -150,7 +166,10 @@ func runReport(vid string) []byte {
 	delta := time.Now().Sub(t)
 	theReport.CommentAvgPerDay = float64(theReport.TotalComments) / (float64(delta.Hours()) / float64(24))
 
-	reportJSON, _ := json.Marshal(theReport)
+	reportJSON, err := json.Marshal(theReport)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	// Output Report
 	return reportJSON
@@ -189,8 +208,6 @@ func main() {
 
 	if *WebServer {
 		fmt.Println("Web server running on " + *Port)
-
-		//open.Start("http://localhost:" + *Port)
 
 		http.HandleFunc("/", webHandler)
 		http.ListenAndServe(":"+*Port, nil)
