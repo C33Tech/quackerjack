@@ -105,7 +105,8 @@ func runReport(vid string) []byte {
 	theReport.Type = "youtube"
 	theReport.ID = vid
 
-	thePost := YouTubeVideo{ID: vid}
+	thePost := new(YouTubeVideo)
+	thePost.ID = vid
 
 	done := make(chan bool)
 
@@ -116,6 +117,7 @@ func runReport(vid string) []byte {
 		theReport.Title = thePost.Title
 		theReport.PublishedAt = thePost.PublishedAt
 		theReport.TotalComments = thePost.TotalComments
+		theReport.Metadata = thePost
 
 		done <- true
 	}()
