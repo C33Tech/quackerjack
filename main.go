@@ -7,6 +7,8 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -15,11 +17,14 @@ import (
 
 // Command Line Flags:
 
-// The VideoID from the target YouTube video.
-var VideoID = flag.String("video", "", "The YouTube video id.")
+// The PostURL from the target YouTube video.
+var PostURL = flag.String("post", "", "The target post url (YouTube or Instagram).")
 
 // The YouTubeKey is a Google API key with access to YouTube's Data API
 var YouTubeKey = flag.String("ytkey", "", "Google API key.")
+
+// The YouTubeKey is a Google API key with access to YouTube's Data API
+var InstagramKey = flag.String("igkey", "", "Instagram API key.")
 
 // A list of stopword files to assist in keyword extraction
 var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
@@ -79,14 +84,36 @@ type Comment struct {
 	AuthorName string
 }
 
+func parseURL(url string) (string, string) {
+	sites := map[string]string{
+		"instagram": "instag\\.?ram(\\.com)?/p/([\\w]*)/?",
+		"youtube":   "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
+	}
+
+	var domain, id string
+
+	for d, rstr := range sites {
+		r, _ := regexp.Compile(rstr)
+		matches := r.FindStringSubmatch(url)
+		if len(matches) > 0 {
+			domain = d
+			id = matches[len(matches)-1]
+			break
+		}
+	}
+
+	return domain, id
+}
+
 func webHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[1:] == "api" {
-		vid := r.URL.Query().Get("vid")
+		postUrl := r.URL.Query().Get("vid")
+		domain, pid := parseURL(postUrl)
 
 		var jsonBytes []byte
 
-		if vid != "" {
-			jsonBytes = runReport(vid)
+		if pid != "" {
+			jsonBytes = runReport(domain, pid)
 		} else {
 			jsonBytes, _ = json.Marshal(webError{Error: "Missing video id."})
 		}
@@ -98,27 +125,39 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func runReport(vid string) []byte {
-
+func runReport(domain string, pid string) []byte {
 	// Create Report
 	theReport := report{}
-	theReport.Type = "youtube"
-	theReport.ID = vid
+	var thePost Post
 
-	thePost := new(YouTubeVideo)
-	thePost.ID = vid
+	switch domain {
+	case "youtube":
+		thePost = &YouTubeVideo{ID: pid}
+	case "instagram":
+		thePost = &InstagramPic{ShortCode: pid}
+	}
 
 	done := make(chan bool)
 
 	// Poll the data sources...
 	go func() {
 		_ = thePost.GetMetadata()
+		theReport.Type = reflect.TypeOf(thePost).String()
 
-		theReport.Title = thePost.Title
-		theReport.PublishedAt = thePost.PublishedAt
-		theReport.TotalComments = thePost.TotalComments
-		theReport.Metadata = thePost
-
+		switch p := thePost.(type) {
+		case *YouTubeVideo:
+			theReport.ID = p.ID
+			theReport.Title = p.Title
+			theReport.PublishedAt = p.PublishedAt
+			theReport.TotalComments = p.TotalComments
+			theReport.Metadata = p
+		case *InstagramPic:
+			theReport.ID = p.ID
+			theReport.Title = p.Caption
+			theReport.PublishedAt = p.PublishedAt
+			theReport.TotalComments = p.TotalComments
+			theReport.Metadata = p
+		}
 		done <- true
 	}()
 
@@ -190,15 +229,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Check for required params and run
-	if *YouTubeKey == "" {
-		fmt.Println("A Google API key with YouTube API access is required.")
+	if !*WebServer && *PostURL == "" {
+		fmt.Println("Post URL is required.")
 		os.Exit(1)
 	}
 
-	if !*WebServer && *VideoID == "" {
-		fmt.Println("Video ID is required.")
+	// Parse the PostURL to discover the domain and ID.
+	postDomain, postID := parseURL(*PostURL)
+	if postDomain == "" || postID == "" {
+		fmt.Println("Unable to parse post url.")
 		os.Exit(1)
+	}
+
+	// Check for required params and run
+	if postDomain == "youtube" {
+		if *YouTubeKey == "" {
+			fmt.Println("A Google API key with YouTube API access is required.")
+			os.Exit(1)
+		}
+	} else if postDomain == "instagram" {
+		if *InstagramKey == "" {
+			fmt.Println("An Instagram API key is required.")
+			os.Exit(1)
+		}
 	}
 
 	if *StopWordFiles != "" {
@@ -214,6 +267,6 @@ func main() {
 		http.HandleFunc("/", webHandler)
 		http.ListenAndServe(":"+*Port, nil)
 	} else {
-		fmt.Println(string(runReport(*VideoID)))
+		fmt.Println(string(runReport(postDomain, postID)))
 	}
 }
