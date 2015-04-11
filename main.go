@@ -126,7 +126,14 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonBytes)
 	} else {
-		http.ServeFile(w, r, "static/gui/index.html")
+		data, err := Asset("static/gui/index.html")
+		if err != nil {
+			fmt.Println("Web GUI asset not found!")
+			os.Exit(1)
+		}
+
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(data)
 	}
 }
 
@@ -137,8 +144,16 @@ func runReport(domain string, pid string) []byte {
 
 	switch domain {
 	case "youtube":
+		if *YouTubeKey == "" {
+			return jsonError("API key for YouTube not configured.")
+		}
+
 		thePost = &YouTubeVideo{ID: pid}
 	case "instagram":
+		if *InstagramKey == "" {
+			return jsonError("API key for Instagram not configured.")
+		}
+
 		thePost = &InstagramPic{ShortCode: pid}
 	}
 
@@ -228,28 +243,32 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !*WebServer && *PostURL == "" {
-		fmt.Println("Post URL is required.")
-		os.Exit(1)
-	}
+	var postDomain, postID string
 
-	// Parse the PostURL to discover the domain and ID.
-	postDomain, postID := parseURL(*PostURL)
-	if postDomain == "" || postID == "" {
-		fmt.Println("Unable to parse post url.")
-		os.Exit(1)
-	}
+	if !*WebServer {
+		if *PostURL == "" {
+			fmt.Println("Post URL is required.")
+			os.Exit(1)
+		} else {
+			// Parse the PostURL to discover the domain and ID.
+			postDomain, postID = parseURL(*PostURL)
+			if postDomain == "" || postID == "" {
+				fmt.Println("Unable to parse post url.")
+				os.Exit(1)
+			}
 
-	// Check for required params and run
-	if postDomain == "youtube" {
-		if *YouTubeKey == "" {
-			fmt.Println("A Google API key with YouTube API access is required.")
-			os.Exit(1)
-		}
-	} else if postDomain == "instagram" {
-		if *InstagramKey == "" {
-			fmt.Println("An Instagram API key is required.")
-			os.Exit(1)
+			// Check for required params and run
+			if postDomain == "youtube" {
+				if *YouTubeKey == "" {
+					fmt.Println("A Google API key with YouTube API access is required.")
+					os.Exit(1)
+				}
+			} else if postDomain == "instagram" {
+				if *InstagramKey == "" {
+					fmt.Println("An Instagram API key is required.")
+					os.Exit(1)
+				}
+			}
 		}
 	}
 
