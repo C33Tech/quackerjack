@@ -84,6 +84,11 @@ type Comment struct {
 	AuthorName string
 }
 
+func jsonError(msg string) []byte {
+	errorJSON, _ := json.Marshal(webError{Error: msg})
+	return errorJSON
+}
+
 func parseURL(url string) (string, string) {
 	sites := map[string]string{
 		"instagram": "instag\\.?ram(\\.com)?/p/([\\w]*)/?",
@@ -137,49 +142,43 @@ func runReport(domain string, pid string) []byte {
 		thePost = &InstagramPic{ShortCode: pid}
 	}
 
-	done := make(chan bool)
+	// Fetch the metadata
+	flag := thePost.GetMetadata()
 
-	// Poll the data sources...
-	go func() {
-		_ = thePost.GetMetadata()
-		theReport.Type = reflect.TypeOf(thePost).String()
+	if !flag {
+		return jsonError("Could not fetch metadata.")
+	}
 
-		switch p := thePost.(type) {
-		case *YouTubeVideo:
-			theReport.ID = p.ID
-			theReport.Title = p.Title
-			theReport.PublishedAt = p.PublishedAt
-			theReport.TotalComments = p.TotalComments
-			theReport.Metadata = p
-		case *InstagramPic:
-			theReport.ID = p.ID
-			theReport.Title = p.Caption
-			theReport.PublishedAt = p.PublishedAt
-			theReport.TotalComments = p.TotalComments
-			theReport.Metadata = p
-		}
-		done <- true
-	}()
+	theReport.Type = reflect.TypeOf(thePost).String()
+
+	switch p := thePost.(type) {
+	case *YouTubeVideo:
+		theReport.ID = p.ID
+		theReport.Title = p.Title
+		theReport.PublishedAt = p.PublishedAt
+		theReport.TotalComments = p.TotalComments
+		theReport.Metadata = p
+	case *InstagramPic:
+		theReport.ID = p.ID
+		theReport.Title = p.Caption
+		theReport.PublishedAt = p.PublishedAt
+		theReport.TotalComments = p.TotalComments
+		theReport.Metadata = p
+	}
 
 	// Fetch the comments
 	comments := thePost.GetComments()
 
 	// If we don't get an comments back, wait for the metadata call to return and send an error.
 	if len(comments) == 0 {
-		<-done
-
-		noCommentsError := "No comments found for this video."
-		if theReport.Title == "" {
-			noCommentsError = "Invalid YouTube video ID."
-		}
-
-		errorJSON, _ := json.Marshal(webError{Error: noCommentsError})
-		return errorJSON
+		return jsonError("No comments found for this post.")
 	}
 
 	// Set comments returned
 	theReport.CollectedComments = len(comments)
 	theReport.CommentCoveragePercent = math.Ceil((float64(theReport.CollectedComments) / float64(theReport.TotalComments)) * float64(100))
+
+	done := make(chan bool)
 
 	// Set Keywords
 	go func() {
@@ -198,7 +197,7 @@ func runReport(domain string, pid string) []byte {
 	}()
 
 	// Wait for everything to finish up
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 2; i++ {
 		<-done
 	}
 
