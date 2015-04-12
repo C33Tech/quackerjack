@@ -1,5 +1,5 @@
 # `Quackerjack`
-## A YouTube Comment Thread Analyzer
+## A YouTube Comment Thread Analyzer, version 2.0
 
 A CLI script, written in Go, that takes a YouTube video ID and generates a report about the content of the comment stream.
 
@@ -19,13 +19,19 @@ The report includes:
 
 `go get github.com/mikeflynn/quackerjack`
 
+## Running
+
+`quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -video [video id] [-verbose]`
+
 ## Flags
 
-`-video XXXX` _YouTube video id_
+`-post XXXX` _YouTube, or Instagram post URL._
 
-`-ytkey xxxxxxxxxxxxxxxx` _Your Google API key with access to the YouTube Data API_
+`-ytkey xxxxxxxxxxxxxxxx` _Your Google API key with access to the YouTube Data API._
 
-`-stopwords /xxx/yy/zz.txt` _A comma delimitated list of additional stop word text files not in config_
+`-igkey xxxxxxxxxxxxxxxx` _Your Instagram API key with._
+
+`-stopwords /xxx/yy/zz.txt` _A comma delimitated list of additional stop word text files not in config._
 
 `-verbose` _Standard boolean flag for extra logging to std out._
 
@@ -45,9 +51,17 @@ Before you can analyze any comments, you'll need to train your semantic engine b
 
 You can always add in your own training data by creating a csv file with two fields: word, tag (in between -5 and 5)
 
-## Running
+## Development
 
-`quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -video [video id] [-verbose]`
+If you want to dig in to the code, you can clone this repo...
+
+`git clone https://github.com/mikeflynn/quackerjack.git`
+
+...tweak until your heart's content, and then build your new version with the included Makefile...
+
+`make`
+
+...which installs all the dependencies, formats your code and builds the web GUI HTML file in to go code, then generates a `quackerjack` binary.
 
 ## Who is Quackerjack?
 
