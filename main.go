@@ -7,7 +7,6 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -57,6 +56,7 @@ type webError struct {
 
 type report struct {
 	ID                     string
+	URL                    string
 	Type                   string
 	Title                  string
 	PublishedAt            string
@@ -112,13 +112,12 @@ func parseURL(url string) (string, string) {
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[1:] == "api" {
-		postUrl := r.URL.Query().Get("vid")
-		domain, pid := parseURL(postUrl)
+		postURL := r.URL.Query().Get("vid")
 
 		var jsonBytes []byte
 
-		if pid != "" {
-			jsonBytes = runReport(domain, pid)
+		if postURL != "" {
+			jsonBytes = runReport(postURL)
 		} else {
 			jsonBytes, _ = json.Marshal(webError{Error: "Missing video id."})
 		}
@@ -137,9 +136,15 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func runReport(domain string, pid string) []byte {
+func runReport(postURL string) []byte {
+	// Parse URL
+	domain, pid := parseURL(postURL)
+	if domain == "" || pid == "" {
+		return jsonError("Unable to parse post url.")
+	}
+
 	// Create Report
-	theReport := report{}
+	theReport := report{URL: postURL}
 	var thePost Post
 
 	switch domain {
@@ -164,16 +169,16 @@ func runReport(domain string, pid string) []byte {
 		return jsonError("Could not fetch metadata.")
 	}
 
-	theReport.Type = reflect.TypeOf(thePost).String()
-
 	switch p := thePost.(type) {
 	case *YouTubeVideo:
+		theReport.Type = "YouTubeVideo"
 		theReport.ID = p.ID
 		theReport.Title = p.Title
 		theReport.PublishedAt = p.PublishedAt
 		theReport.TotalComments = p.TotalComments
 		theReport.Metadata = p
 	case *InstagramPic:
+		theReport.Type = "InstagramPic"
 		theReport.ID = p.ID
 		theReport.Title = p.Caption
 		theReport.PublishedAt = p.PublishedAt
@@ -243,33 +248,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	var postDomain, postID string
-
-	if !*WebServer {
-		if *PostURL == "" {
-			fmt.Println("Post URL is required.")
-			os.Exit(1)
-		} else {
-			// Parse the PostURL to discover the domain and ID.
-			postDomain, postID = parseURL(*PostURL)
-			if postDomain == "" || postID == "" {
-				fmt.Println("Unable to parse post url.")
-				os.Exit(1)
-			}
-
-			// Check for required params and run
-			if postDomain == "youtube" {
-				if *YouTubeKey == "" {
-					fmt.Println("A Google API key with YouTube API access is required.")
-					os.Exit(1)
-				}
-			} else if postDomain == "instagram" {
-				if *InstagramKey == "" {
-					fmt.Println("An Instagram API key is required.")
-					os.Exit(1)
-				}
-			}
-		}
+	if !*WebServer && *PostURL == "" {
+		fmt.Println("Post URL is required.")
+		os.Exit(1)
 	}
 
 	if *StopWordFiles != "" {
@@ -285,6 +266,6 @@ func main() {
 		http.HandleFunc("/", webHandler)
 		http.ListenAndServe(":"+*Port, nil)
 	} else {
-		fmt.Println(string(runReport(postDomain, postID)))
+		fmt.Println(string(runReport(*PostURL)))
 	}
 }

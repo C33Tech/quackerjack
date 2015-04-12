@@ -28,12 +28,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">YouTube Comment Report</a>
+          <a class="navbar-brand" href="#">Quackerjack Comment Report</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <form class="navbar-form navbar-left" role="search" method="get">
             <div class="form-group">
-              <input type="text" class="form-control" placeholder="Video ID" name="vid">
+              <input type="text" class="form-control" placeholder="Post URL" name="vid">
             </div>
             <button type="submit" class="btn btn-default">Run</button>
           </form>
@@ -60,7 +60,9 @@
 
     <div id="report">
       <h1 id="video_title"></h1>
-      <h4 id="channel_title"></h4>
+      <h4>
+        <span id="channel_title"></span> on <span id="network_title"></span>
+      </h4>
 
       <hr />
 
@@ -113,15 +115,33 @@
     return (data ? data : defaultData);
   }
 
-  function drawReport(json) {
-    jQuery("nav input").val(json.PostId);
-    jQuery("#report").show();
-    jQuery("#video_title").text(decodeURIComponent(json.YouTubeMetadata.VideoTitle));
-    jQuery("#channel_title").text(decodeURIComponent(json.YouTubeMetadata.ChannelTitle));
-    jQuery("#total_comments").text(decodeURIComponent(json.YouTubeMetadata.TotalComments));
-    jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
-    jQuery("#video_views").text(decodeURIComponent(json.YouTubeMetadata.VideoViews));
+  function truncate(str, max) {
+    if(str.length > max) {
+      str = str.substring(0, max) + "...";
+    }
 
+    return str;
+  }
+
+  function drawReport(json) {
+    console.log(json);
+    jQuery("nav input").val(json.URL);
+    jQuery("#report").show();
+    if (json.Type == 'YouTubeVideo') {
+      jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.VideoTitle), 50));
+      jQuery("#channel_title").text(decodeURIComponent(json.Metadata.ChannelTitle));
+      jQuery("#network_title").text("YouTube");
+      jQuery("#total_comments").text(decodeURIComponent(json.Metadata.TotalComments));
+      jQuery("#video_views").text(decodeURIComponent(json.Metadata.VideoViews));
+    } else if (json.Type == 'InstagramPic') {
+      jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.Caption), 50));
+      jQuery("#channel_title").text(decodeURIComponent(json.Metadata.UserName));
+      jQuery("#network_title").text("Instagram");
+      jQuery("#total_comments").text(decodeURIComponent(json.Metadata.TotalComments));
+      jQuery("#video_views").text(decodeURIComponent(json.Metadata.TotalLikes));
+    }
+
+    jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
     jQuery(".progress-bar").attr('aria-valuenow', json.CommentCoveragePercent)
                            .css({'width': json.CommentCoveragePercent+'%'})
                            .text('Comments Analyzed: '+json.CommentCoveragePercent+'%');
