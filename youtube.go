@@ -21,9 +21,9 @@ type YouTubeVideo struct {
 }
 
 // YouTubeGetCommentsV2 pulls the comments for a given YouTube video
-func (ytv YouTubeVideo) GetComments() []Comment {
+func (ytv YouTubeVideo) GetComments() CommentList {
 	videoID := ytv.ID
-	var comments = []Comment{}
+	var comments = []*Comment{}
 	var feed youTubeFeed
 
 	url := "https://gdata.youtube.com/feeds/api/videos/" + videoID + "/comments?v=2&alt=json"
@@ -35,7 +35,7 @@ func (ytv YouTubeVideo) GetComments() []Comment {
 			json.Unmarshal(data, &feed)
 
 			for _, entry := range feed.Feed.Entry {
-				thisComment := Comment{
+				thisComment := &Comment{
 					ID:         entry.ID.T,
 					Published:  entry.Published.T,
 					Title:      entry.Title.T,
@@ -55,7 +55,7 @@ func (ytv YouTubeVideo) GetComments() []Comment {
 		}
 	}
 
-	return comments
+	return CommentList{Comments: comments}
 }
 
 // GetMetadata returns a subset of video information from the YouTube API

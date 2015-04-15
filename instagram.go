@@ -56,19 +56,19 @@ func (ig *InstagramPic) GetMetadata() bool {
 	return false
 }
 
-func (ig InstagramPic) GetComments() []Comment {
+func (ig InstagramPic) GetComments() CommentList {
 	if instagramApi == nil {
 		instagramApi = instagram.New(*InstagramKey, "")
 	}
 
 	var resp *instagram.CommentsResponse
-	var comments = []Comment{}
+	var comments = []*Comment{}
 
 	resp, _ = instagramApi.GetMediaComments(ig.ID, url.Values{})
 
 	if resp != new(instagram.CommentsResponse) {
 		for _, entry := range resp.Comments {
-			thisComment := Comment{
+			thisComment := &Comment{
 				ID:         entry.Id,
 				Published:  string(entry.CreatedTime),
 				Content:    entry.Text,
@@ -79,5 +79,5 @@ func (ig InstagramPic) GetComments() []Comment {
 		}
 	}
 
-	return comments
+	return CommentList{Comments: comments}
 }

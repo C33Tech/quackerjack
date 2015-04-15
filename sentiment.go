@@ -5,11 +5,11 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	//"strconv"
 
 	"github.com/eaigner/shield"
+	//"github.com/kr/pretty"
 )
 
 var buf bytes.Buffer
@@ -58,6 +58,8 @@ func LoadTrainingData(path string) {
 
 // GetSentiment classifies a single string of text. Returns the tag it matched.
 func GetSentiment(text string) string {
+	InitShield()
+
 	tag, err := shieldInstance.Classify(text)
 	if err == nil {
 		return tag
@@ -70,30 +72,4 @@ func GetSentiment(text string) string {
 type SentimentTag struct {
 	Name    string
 	Percent float64
-}
-
-// GetSentimentSummary is a wrapper to classify an array of comments.
-func GetSentimentSummary(comments []Comment) []SentimentTag {
-	InitShield()
-
-	tags := map[string]int{}
-
-	for _, comment := range comments {
-		tag := GetSentiment(comment.Content)
-
-		tags[tag]++
-	}
-
-	result := []SentimentTag{}
-
-	for tag, count := range tags {
-		st := SentimentTag{
-			Name:    tag,
-			Percent: math.Ceil((float64(count) / float64(len(comments))) * float64(100)),
-		}
-
-		result = append(result, st)
-	}
-
-	return result
 }

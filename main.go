@@ -10,8 +10,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	//"github.com/kr/pretty"
 )
 
 // Command Line Flags:
@@ -61,7 +59,7 @@ type report struct {
 	Title                  string
 	PublishedAt            string
 	TotalComments          uint64
-	CollectedComments      int
+	CollectedComments      uint64
 	CommentCoveragePercent float64
 	CommentAvgPerDay       float64
 	Keywords               []string
@@ -71,17 +69,8 @@ type report struct {
 
 // Post is the interface for all the various post types (YouTubeVideo, etc...)
 type Post interface {
-	GetComments() []Comment
+	GetComments() CommentList
 	GetMetadata() bool
-}
-
-// Comment is the distilled comment dataset
-type Comment struct {
-	ID         string
-	Published  string
-	Title      string
-	Content    string
-	AuthorName string
 }
 
 func jsonError(msg string) []byte {
@@ -190,19 +179,19 @@ func runReport(postURL string) []byte {
 	comments := thePost.GetComments()
 
 	// If we don't get an comments back, wait for the metadata call to return and send an error.
-	if len(comments) == 0 {
+	if comments.IsEmpty() {
 		return jsonError("No comments found for this post.")
 	}
 
 	// Set comments returned
-	theReport.CollectedComments = len(comments)
+	theReport.CollectedComments = comments.GetTotal()
 	theReport.CommentCoveragePercent = math.Ceil((float64(theReport.CollectedComments) / float64(theReport.TotalComments)) * float64(100))
 
 	done := make(chan bool)
 
 	// Set Keywords
 	go func() {
-		theReport.Keywords = GetKeywords(comments)
+		theReport.Keywords = comments.GetKeywords()
 
 		done <- true
 	}()
@@ -210,7 +199,7 @@ func runReport(postURL string) []byte {
 	// Sentiment Tagging
 	go func() {
 		if *RedisServer != "" {
-			theReport.Sentiment = GetSentimentSummary(comments)
+			theReport.Sentiment = comments.GetSentimentSummary()
 		}
 
 		done <- true

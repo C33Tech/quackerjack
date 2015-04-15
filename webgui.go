@@ -76,7 +76,7 @@ func static_gui_index_html() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindata_file_info{name: "static/gui/index.html", size: 7310, mode: os.FileMode(420), modTime: time.Unix(1428816580, 0)}
+	info := bindata_file_info{name: "static/gui/index.html", size: 7310, mode: os.FileMode(420), modTime: time.Unix(1428822699, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }

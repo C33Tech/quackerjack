@@ -9,7 +9,7 @@ import (
 )
 
 // GetKeywords takes an array of Comments and returns a list of the top 10 most frequent words.
-func GetKeywords(comments []Comment) []string {
+func GetKeywords(comments []*Comment) []string {
 	idx := make(map[string]int)
 
 	for _, comment := range comments {
