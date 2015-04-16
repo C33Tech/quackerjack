@@ -173,9 +173,11 @@
       jQuery("#keywords").append('<tr><td>'+y+'.</td><td>'+json.Keywords[x]+'</td></tr>');
     }
 
-    json.SampleComments.forEach(function(v, i, a) {
-      jQuery("#sampling").append('<div class="comment"><h4><a href="'+userLink(v.AuthorName, json.Type)+'">@'+v.AuthorName+'</a></h4><p>'+v.Content+'</p></div>')
-    });
+    if (json.SampleComments) {
+      json.SampleComments.forEach(function(v, i, a) {
+        jQuery("#sampling").append('<div class="comment"><h4><a href="'+userLink(v.AuthorName, json.Type)+'">@'+v.AuthorName+'</a></h4><p>'+v.Content+'</p></div>')
+      });
+    }
 
     var dp = {};
     for (var x in json.Sentiment) {

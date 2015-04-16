@@ -110,7 +110,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 		if postURL != "" {
 			jsonBytes = runReport(postURL)
 		} else {
-			jsonBytes, _ = json.Marshal(webError{Error: "Missing video id."})
+			jsonBytes, _ = json.Marshal(webError{Error: "Missing post URL."})
 		}
 
 		w.Header().Set("Content-Type", "application/json")
