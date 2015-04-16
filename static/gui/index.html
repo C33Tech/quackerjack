@@ -15,7 +15,7 @@
     #report { display: none; }
     #report .progress { margin-top: 30px; }
     #header { background-size: 100%; background-position: center; padding: 5px; }
-    .stroke { color: #fff; text-shadow: #000 0px 0px 2px; -webkit-font-smoothing: antialiased; }
+    .stroke { color: #fff; text-shadow: #000 0px 0px 5px; -webkit-font-smoothing: antialiased; }
     .comment { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 0px 0px 15px 0px; }
     .comment h4 { margin: 0px 0px 10px 0px; padding: 0px 0px 10px 0px; border-bottom: 1px solid #ccc; }
     .comment p { font-family: monospace; }
@@ -73,11 +73,7 @@
         <hr />
 
         <div class="row bignums">
-          <div class="col-xs-4">
-            <span id="avg_sentiment">--</span>
-            <span class="desc">Average Comment</span>
-          </div>
-          <div class="col-xs-4">
+          <div class="col-xs-4 col-xs-offset-4">
             <span id="total_comments">0</span>
             <span class="desc">Total Comments</span>
           </div>
@@ -146,7 +142,6 @@
   }
 
   function drawReport(json) {
-    console.log(json);
     jQuery("nav input").val(json.URL);
     jQuery("#report").show();
     if (json.Type == 'YouTubeVideo') {
@@ -190,6 +185,9 @@
       dp[n] = p;
     }
 
+    var ctx = document.getElementById("myChart").getContext("2d");
+
+    // Bar Chart
     var data = {
       labels: ["Terrible!", "Sucks", "Bad", "Not Good", "Eh", "Neutral", "OK", "Good", "Like It", "Loved It", "Awesome!"],
       datasets: [
@@ -199,7 +197,6 @@
         }
       ]
     }
-    var ctx = document.getElementById("myChart").getContext("2d");
     var myBarChart = new Chart(ctx).Bar(data, {scaleShowGridLines: false, responsive: true, maintainAspectRatio: false});
   }
 
