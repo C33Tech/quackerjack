@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"time"
 
 	"code.google.com/p/google-api-go-client/googleapi/transport"
 	youtube "google.golang.org/api/youtube/v3"
@@ -17,6 +19,7 @@ type YouTubeVideo struct {
 	ChannelID     string
 	ChannelTitle  string
 	TotalComments uint64
+	Thumbnail     string
 	PublishedAt   string
 }
 
@@ -80,12 +83,15 @@ func (ytv *YouTubeVideo) GetMetadata() bool {
 	if len(resp.Items) > 0 {
 		video := resp.Items[0]
 
+		t, _ := time.Parse(time.RFC3339Nano, video.Snippet.PublishedAt)
+
 		ytv.Title = video.Snippet.Title
 		ytv.ChannelID = video.Snippet.ChannelId
 		ytv.ChannelTitle = video.Snippet.ChannelTitle
 		ytv.TotalComments = video.Statistics.CommentCount
-		ytv.PublishedAt = video.Snippet.PublishedAt
+		ytv.PublishedAt = strconv.FormatInt(t.Unix(), 10)
 		ytv.VideoViews = video.Statistics.ViewCount
+		ytv.Thumbnail = video.Snippet.Thumbnails.High.Url
 
 		return true
 	}

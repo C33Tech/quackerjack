@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -65,6 +66,7 @@ type report struct {
 	Keywords               []string
 	Sentiment              []SentimentTag
 	Metadata               Post
+	SampleComments         []*Comment
 }
 
 // Post is the interface for all the various post types (YouTubeVideo, etc...)
@@ -210,8 +212,12 @@ func runReport(postURL string) []byte {
 		<-done
 	}
 
+	// Pull a few sample comments
+	theReport.SampleComments = comments.GetRandom(3)
+
 	// Calculate Average Daily Comments
-	t, _ := time.Parse(time.RFC3339Nano, theReport.PublishedAt)
+	timestamp, _ := strconv.ParseInt(theReport.PublishedAt, 10, 64)
+	t := time.Unix(timestamp, 0)
 	delta := time.Now().Sub(t)
 	theReport.CommentAvgPerDay = float64(theReport.TotalComments) / (float64(delta.Hours()) / float64(24))
 

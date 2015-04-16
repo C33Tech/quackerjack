@@ -17,6 +17,7 @@ type InstagramPic struct {
 	UserID        string
 	UserName      string
 	TotalComments uint64
+	Thumbnail     string
 	PublishedAt   string
 }
 
@@ -49,6 +50,7 @@ func (ig *InstagramPic) GetMetadata() bool {
 		ig.UserName = resp.Media.User.Username
 		ig.TotalComments = uint64(resp.Media.Comments.Count)
 		ig.PublishedAt = string(resp.Media.CreatedTime)
+		ig.Thumbnail = resp.Media.Images.StandardResolution.Url
 
 		return true
 	}

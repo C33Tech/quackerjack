@@ -69,6 +69,15 @@ func (this *CommentList) GetSentimentSummary() []SentimentTag {
 	return summary
 }
 
-func (this *CommentList) GetRandom() *Comment {
-	return this.Comments[rand.Intn(len(this.Comments))]
+func (this *CommentList) GetRandom(count int) []*Comment {
+	seed := rand.NewSource(42)
+	rnum := rand.New(seed)
+
+	resp := []*Comment{}
+
+	for i := 0; i < count; i++ {
+		resp = append(resp, this.Comments[rnum.Intn(len(this.Comments))])
+	}
+
+	return resp
 }

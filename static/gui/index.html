@@ -14,6 +14,11 @@
     #loading { display: none; width: 85%; margin: 30px auto; font-size: 30px; text-align: center; color: #999; }
     #report { display: none; }
     #report .progress { margin-top: 30px; }
+    #header { background-size: 100%; background-position: center; padding: 5px; }
+    .stroke { color: #fff; text-shadow: #000 0px 0px 2px; -webkit-font-smoothing: antialiased; }
+    .comment { border: 1px solid #ccc; border-radius: 10px; padding: 10px; margin: 0px 0px 15px 0px; }
+    .comment h4 { margin: 0px 0px 10px 0px; padding: 0px 0px 10px 0px; border-bottom: 1px solid #ccc; }
+    .comment p { font-family: monospace; }
   </style>
 </head>
 <body>
@@ -59,25 +64,27 @@
     </div>
 
     <div id="report">
-      <h1 id="video_title"></h1>
-      <h4>
-        <span id="channel_title"></span> on <span id="network_title"></span>
-      </h4>
+      <div id="header" class="stroke">
+        <h1 id="video_title"></h1>
+        <h4>
+          <span id="channel_title"></span> on <span id="network_title"></span>
+        </h4>
 
-      <hr />
+        <hr />
 
-      <div class="row bignums">
-        <div class="col-xs-4">
-          <span id="video_views">0</span>
-          <span class="desc">Video Views</span>
-        </div>
-        <div class="col-xs-4">
-          <span id="total_comments">0</span>
-          <span class="desc">Total Comments</span>
-        </div>
-        <div class="col-xs-4">
-          <span id="comments_per_day">0</span>
-          <span class="desc">Comments Per Day</span>
+        <div class="row bignums">
+          <div class="col-xs-4">
+            <span id="avg_sentiment">--</span>
+            <span class="desc">Average Comment</span>
+          </div>
+          <div class="col-xs-4">
+            <span id="total_comments">0</span>
+            <span class="desc">Total Comments</span>
+          </div>
+          <div class="col-xs-4">
+            <span id="comments_per_day">0</span>
+            <span class="desc">Comments Per Day</span>
+          </div>
         </div>
       </div>
 
@@ -94,9 +101,14 @@
           </table>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-md-5">
           <h5>Comment Scores</h5>
           <canvas id="myChart" width="100%" height="300"></canvas>
+        </div>
+
+        <div class="col-md-4">
+          <h5>Example Comments</h5>
+          <div id="sampling"></div>
         </div>
       </div>
     </div>
@@ -123,22 +135,37 @@
     return str;
   }
 
+  function userLink(username, type) {
+    if(type == 'YouTubeVideo') {
+      return "http://youtube.com/user/" + username;
+    } else if(type == 'InstagramPic') {
+      return "http://instagram.com/" + username;
+    }
+
+    return "#";
+  }
+
   function drawReport(json) {
     console.log(json);
     jQuery("nav input").val(json.URL);
     jQuery("#report").show();
     if (json.Type == 'YouTubeVideo') {
-      jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.VideoTitle), 50));
+      jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.Title), 50));
       jQuery("#channel_title").text(decodeURIComponent(json.Metadata.ChannelTitle));
       jQuery("#network_title").text("YouTube");
       jQuery("#total_comments").text(decodeURIComponent(json.Metadata.TotalComments));
-      jQuery("#video_views").text(decodeURIComponent(json.Metadata.VideoViews));
+      jQuery("#header").css({
+        "background-image": "url('"+decodeURIComponent(json.Metadata.Thumbnail)+"')"
+      });
     } else if (json.Type == 'InstagramPic') {
       jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.Caption), 50));
       jQuery("#channel_title").text(decodeURIComponent(json.Metadata.UserName));
       jQuery("#network_title").text("Instagram");
       jQuery("#total_comments").text(decodeURIComponent(json.Metadata.TotalComments));
       jQuery("#video_views").text(decodeURIComponent(json.Metadata.TotalLikes));
+      jQuery("#header").css({
+        "background-image": "url('"+decodeURIComponent(json.Metadata.Thumbnail)+"')"
+      });
     }
 
     jQuery("#comments_per_day").text(json.CommentAvgPerDay.toFixed(2));
@@ -150,6 +177,10 @@
       var y = parseInt(x) + 1;
       jQuery("#keywords").append('<tr><td>'+y+'.</td><td>'+json.Keywords[x]+'</td></tr>');
     }
+
+    json.SampleComments.forEach(function(v, i, a) {
+      jQuery("#sampling").append('<div class="comment"><h4><a href="'+userLink(v.AuthorName, json.Type)+'">@'+v.AuthorName+'</a></h4><p>'+v.Content+'</p></div>')
+    });
 
     var dp = {};
     for (var x in json.Sentiment) {
