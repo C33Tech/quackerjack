@@ -1,7 +1,7 @@
 # `Quackerjack`
 ## A YouTube Comment Thread Analyzer v2.0
 
-A CLI script, written in Go, that takes a YouTube video ID and generates a report about the content of the comment stream.
+A CLI script, written in Go, that takes a YouTube video (or Instagram post) URL and generates a report about the content of the comment stream.
 
 ![Web GUI](/static/web-gui.png)
 
@@ -9,6 +9,7 @@ The report includes:
 * The total number of comments and how many were collected.
 * The top keywords from the comments.
 * The sentiment analysis of the comments.
+* A random sampling of the comments.
 
 ## Requirements
 
@@ -21,7 +22,11 @@ The report includes:
 
 ## Running
 
-`quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -video [video id] [-verbose]`
+The script can be run via the command line, which will return a JSON object of the resulting data:
+
+`quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -post [post url] [-verbose]`
+
+You can also run quackerjack as a web service. Add the `-server` flag to start a web server that has two endpoints on port 8080: `/` is a simple web interface where you can enter post urls and it displays the results in a visual report. `/api` is the JSON web service route which takes a `?vid=` param and retuns a JSON response.
 
 ## Flags
 
