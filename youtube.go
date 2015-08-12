@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"time"
@@ -27,34 +25,53 @@ type YouTubeVideo struct {
 func (ytv YouTubeVideo) GetComments() CommentList {
 	videoID := ytv.ID
 	var comments = []*Comment{}
-	var feed youTubeFeed
 
-	url := "https://gdata.youtube.com/feeds/api/videos/" + videoID + "/comments?v=2&alt=json"
+	client := &http.Client{
+		Transport: &transport.APIKey{Key: *YouTubeKey},
+	}
 
-	for url != "" {
-		data, hasErr := fetchJSON(url)
+	youtubeService, err := youtube.New(client)
+	if err != nil {
+		panic(err)
+	}
 
-		if hasErr == false {
-			json.Unmarshal(data, &feed)
+	pageToken := ""
+	for pageToken != "EOL" {
+		results, err := youtubeService.CommentThreads.List("id,snippet,replies").TextFormat("plainText").MaxResults(100).VideoId(videoID).PageToken(pageToken).Do()
 
-			for _, entry := range feed.Feed.Entry {
-				thisComment := &Comment{
-					ID:         entry.ID.T,
-					Published:  entry.Published.T,
-					Title:      entry.Title.T,
-					Content:    entry.Content.T,
-					AuthorName: entry.Author[0].Name.T,
+		if err != nil {
+			panic(err)
+		}
+
+		if len(results.Items) > 0 {
+			for _, item := range results.Items {
+
+				tempComments := []*youtube.Comment{}
+				tempComments = append(tempComments, item.Snippet.TopLevelComment)
+
+				if item.Replies != nil {
+					for _, reply := range item.Replies.Comments {
+						tempComments = append(tempComments, reply)
+					}
 				}
 
-				comments = append(comments, thisComment)
-			}
+				for _, c := range tempComments {
+					thisComment := &Comment{
+						ID:         c.Id,
+						Published:  c.Snippet.PublishedAt,
+						Title:      "",
+						Content:    c.Snippet.TextOriginal,
+						AuthorName: c.Snippet.AuthorDisplayName,
+					}
 
-			url = ""
-			for _, link := range feed.Feed.Link {
-				if link.Rel == "next" {
-					url = link.Href
+					comments = append(comments, thisComment)
 				}
 			}
+		}
+
+		pageToken = results.NextPageToken
+		if pageToken == "" {
+			pageToken = "EOL"
 		}
 	}
 
@@ -97,116 +114,4 @@ func (ytv *YouTubeVideo) GetMetadata() bool {
 	}
 
 	return false
-}
-
-// youTubeFeed represents the YT Comments (v2) feed JSON structure
-type youTubeFeed struct {
-	Version  string `json:"version"`
-	Encoding string `json:"encoding"`
-	Feed     struct {
-		Xmlns           string `json:"xmlns"`
-		XmlnsOpenSearch string `json:"xmlns$openSearch"`
-		XmlnsYt         string `json:"xmlns$yt"`
-		ID              struct {
-			T string `json:"$t"`
-		} `json:"id"`
-		Updated struct {
-			T string `json:"$t"`
-		} `json:"updated"`
-		Category []struct {
-			Scheme string `json:"scheme"`
-			Term   string `json:"term"`
-		} `json:"category"`
-		Logo struct {
-			T string `json:"$t"`
-		} `json:"logo"`
-		Link []struct {
-			Rel  string `json:"rel"`
-			Type string `json:"type"`
-			Href string `json:"href"`
-		} `json:"link"`
-		Author []struct {
-			Name struct {
-				T string `json:"$t"`
-			} `json:"name"`
-			Uri struct {
-				T string `json:"$t"`
-			} `json:"uri"`
-		} `json:"author"`
-		Generator struct {
-			T       string `json:"$t"`
-			Version string `json:"version"`
-			Uri     string `json:"uri"`
-		} `json:"generator"`
-		OpenSearchTotalResults struct {
-			T int `json:"$t"`
-		} `json:"openSearchTotalResults"`
-		OpenSearchStartIndex struct {
-			T int `json:"$t"`
-		} `json:"openSearch$startIndex"`
-		OpenSearchItemsPerPage struct {
-			T int `json:"$t"`
-		} `json:"openSearch$itemsPerPage"`
-		Entry []struct {
-			ID struct {
-				T string `json:"$t"`
-			} `json:"id"`
-			Published struct {
-				T string `json:"$t"`
-			} `json:"published"`
-			Updated struct {
-				T string `json:"$t"`
-			} `json:"updated"`
-			Category []struct {
-				Scheme string `json:"scheme"`
-				Term   string `json:"term"`
-			} `json:"category"`
-			Title struct {
-				T    string `json:"$t"`
-				Type string `json:"type"`
-			} `json:"title"`
-			Content struct {
-				T    string `json:"$t"`
-				Type string `json:"type"`
-			} `json:"content"`
-			Link []struct {
-				Rel  string `json:"rel"`
-				Type string `json:"type"`
-				Href string `json:"href"`
-			} `json:"link"`
-			Author []struct {
-				Name struct {
-					T string `json:"$t"`
-				} `json:"name"`
-				Uri struct {
-					T string `json:"$t"`
-				} `json:"uri"`
-			} `json:"author"`
-			YtChannelID struct {
-				T string `json:"$t"`
-			} `json:"yt$channelId"`
-			YtGooglePlusUserID struct {
-				T string `json:"$t"`
-			} `json:"yt$googlePlusUserId"`
-			YtReplyCount struct {
-				T int `json:"$t"`
-			} `json:"yt$replyCount"`
-			YtVideoid struct {
-				T string `json:"$t"`
-			} `json:"yt$videoid"`
-		} `json:"entry"`
-	} `json:"feed"`
-}
-
-func fetchJSON(url string) ([]byte, bool) {
-	r, _ := http.Get(url)
-	defer r.Body.Close()
-
-	body, err := ioutil.ReadAll(r.Body)
-
-	if err == nil {
-		return body, false
-	}
-
-	return []byte{}, true
 }
