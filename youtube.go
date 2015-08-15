@@ -60,7 +60,7 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 						ID:         c.Id,
 						Published:  c.Snippet.PublishedAt,
 						Title:      "",
-						Content:    c.Snippet.TextOriginal,
+						Content:    c.Snippet.TextDisplay,
 						AuthorName: c.Snippet.AuthorDisplayName,
 					}
 
