@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"math/rand"
+	"sort"
 )
 
 // Comment is the distilled comment dataset
@@ -13,6 +14,7 @@ type Comment struct {
 	Content    string
 	AuthorName string
 	Sentiment  string
+	Likes      int64
 }
 
 type CommentList struct {
@@ -43,7 +45,7 @@ func (this *CommentList) GetTotal() uint64 {
 	return uint64(len(this.Comments))
 }
 
-func (this *CommentList) GetKeywords() []string {
+func (this *CommentList) GetKeywords() map[string]int {
 	return GetKeywords(this.Comments)
 }
 
@@ -77,6 +79,25 @@ func (this *CommentList) GetRandom(count int) []*Comment {
 
 	for i := 0; i < count; i++ {
 		resp = append(resp, this.Comments[rnum.Intn(len(this.Comments))])
+	}
+
+	return resp
+}
+
+type ByLikes []*Comment
+
+func (a ByLikes) Len() int           { return len(a) }
+func (a ByLikes) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByLikes) Less(i, j int) bool { return a[i].Likes > a[j].Likes }
+
+func (this *CommentList) GetMostLiked(count int) []*Comment {
+	bl := ByLikes(this.Comments)
+	sort.Sort(bl)
+
+	resp := []*Comment{}
+
+	for i := 0; i < count; i++ {
+		resp = append(resp, bl[i])
 	}
 
 	return resp

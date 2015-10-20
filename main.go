@@ -63,10 +63,11 @@ type report struct {
 	CollectedComments      uint64
 	CommentCoveragePercent float64
 	CommentAvgPerDay       float64
-	Keywords               []string
+	Keywords               map[string]int
 	Sentiment              []SentimentTag
 	Metadata               Post
 	SampleComments         []*Comment
+	TopComments            []*Comment
 }
 
 // Post is the interface for all the various post types (YouTubeVideo, etc...)
@@ -214,6 +215,11 @@ func runReport(postURL string) []byte {
 
 	// Pull a few sample comments
 	theReport.SampleComments = comments.GetRandom(3)
+
+	// Pull the top liked comments
+	if theReport.Type == "YouTubeVideo" {
+		theReport.TopComments = comments.GetMostLiked(3)
+	}
 
 	// Calculate Average Daily Comments
 	timestamp, _ := strconv.ParseInt(theReport.PublishedAt, 10, 64)

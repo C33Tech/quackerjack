@@ -62,6 +62,7 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 						Title:      "",
 						Content:    c.Snippet.TextDisplay,
 						AuthorName: c.Snippet.AuthorDisplayName,
+						Likes:      c.Snippet.LikeCount,
 					}
 
 					comments = append(comments, thisComment)

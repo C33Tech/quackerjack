@@ -103,7 +103,7 @@
         </div>
 
         <div class="col-md-4">
-          <h5>Example Comments</h5>
+          <h5 id="sampling_header">Example Comments</h5>
           <div id="sampling"></div>
         </div>
       </div>
@@ -168,12 +168,26 @@
                            .css({'width': json.CommentCoveragePercent+'%'})
                            .text('Comments Analyzed: '+json.CommentCoveragePercent+'%');
 
+    // Sort the keyword list
+    sortable = []
     for (var x in json.Keywords) {
-      var y = parseInt(x) + 1;
-      jQuery("#keywords").append('<tr><td>'+y+'.</td><td>'+json.Keywords[x]+'</td></tr>');
+      sortable.push([x, json.Keywords[x]]);
     }
 
-    if (json.SampleComments) {
+    sortable.sort(function(a, b) {return b[1] - a[1]})
+
+    y = 0
+    for (var x in sortable) {
+      y++;
+      jQuery("#keywords").append('<tr><td>'+y+'.</td><td>'+sortable[x][0]+' ('+sortable[x][1]+')</td></tr>');
+    }
+
+    if (json.TopComments) {
+      jQuery("#sampling_header").text("Top Comments")
+      json.TopComments.forEach(function(v, i, a) {
+        jQuery("#sampling").append('<div class="comment"><h4><a href="'+userLink(v.AuthorName, json.Type)+'">@'+v.AuthorName+'</a> ('+v.Likes+' likes)</h4><p>'+v.Content+'</p></div>')
+      });
+    } else if (json.SampleComments) {
       json.SampleComments.forEach(function(v, i, a) {
         jQuery("#sampling").append('<div class="comment"><h4><a href="'+userLink(v.AuthorName, json.Type)+'">@'+v.AuthorName+'</a></h4><p>'+v.Content+'</p></div>')
       });
@@ -212,6 +226,7 @@
         jQuery.getJSON("/api?vid="+vid, function(resp) {
           if(!resp.error) {
             jQuery("#loading").fadeOut(500, function() {
+              window.json = resp;
               drawReport(resp);
             });
           }
