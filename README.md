@@ -1,7 +1,7 @@
-# `Quackerjack` v2.0
+# `Quackerjack` v2.1
 ## A Comment Thread Analyzer and Report Generator
 
-A CLI script, written in Go, that takes a YouTube video (or Instagram post) URL and generates a report about the content of the comment stream.
+A CLI script, written in Go, that takes a YouTube video (or Instagram and Facebook posts) URL and generates a report about the content of the comment stream.
 
 ![Web GUI](/static/web-gui.png)
 
@@ -34,7 +34,11 @@ You can also run quackerjack as a web service. Add the `-server` flag to start a
 
 `-ytkey xxxxxxxxxxxxxxxx` _Your Google API key with access to the YouTube Data API._
 
-`-igkey xxxxxxxxxxxxxxxx` _Your Instagram API key with._
+`-igkey xxxxxxxxxxxxxxxx` _Your Instagram API key._
+
+`-fbkey xxxxxxxxxxxxxxxx` _Your Facebook API key._
+
+`-fbsecret xxxxxxxxxxxxx` _Your Facebook API secret code._
 
 `-stopwords /xxx/yy/zz.txt` _A comma delimitated list of additional stop word text files not in config._
 
