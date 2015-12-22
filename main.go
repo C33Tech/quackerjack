@@ -24,6 +24,10 @@ var YouTubeKey = flag.String("ytkey", "", "Google API key.")
 // The YouTubeKey is a Google API key with access to YouTube's Data API
 var InstagramKey = flag.String("igkey", "", "Instagram API key.")
 
+// The YouTubeKey is a Google API key with access to YouTube's Data API
+var FacebookKey = flag.String("fbkey", "", "Facebook API key.")
+var FacebookSecret = flag.String("fbsecret", "", "Facebook Secret")
+
 // A list of stopword files to assist in keyword extraction
 var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
 
@@ -81,25 +85,26 @@ func jsonError(msg string) []byte {
 	return errorJSON
 }
 
-func parseURL(url string) (string, string) {
+func parseURL(url string) (string, []string) {
 	sites := map[string]string{
 		"instagram": "instag\\.?ram(\\.com)?/p/([\\w]*)/?",
 		"youtube":   "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
+		"facebook":  "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
 	}
 
-	var domain, id string
+	var domain string
+	var matches []string
 
 	for d, rstr := range sites {
 		r, _ := regexp.Compile(rstr)
-		matches := r.FindStringSubmatch(url)
+		matches = r.FindStringSubmatch(url)
 		if len(matches) > 0 {
 			domain = d
-			id = matches[len(matches)-1]
 			break
 		}
 	}
 
-	return domain, id
+	return domain, matches
 }
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
@@ -130,8 +135,8 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 
 func runReport(postURL string) []byte {
 	// Parse URL
-	domain, pid := parseURL(postURL)
-	if domain == "" || pid == "" {
+	domain, urlParts := parseURL(postURL)
+	if domain == "" || len(urlParts) == 0 {
 		return jsonError("Unable to parse post url.")
 	}
 
@@ -145,13 +150,19 @@ func runReport(postURL string) []byte {
 			return jsonError("API key for YouTube not configured.")
 		}
 
-		thePost = &YouTubeVideo{ID: pid}
+		thePost = &YouTubeVideo{ID: urlParts[len(urlParts)-1]}
 	case "instagram":
 		if *InstagramKey == "" {
 			return jsonError("API key for Instagram not configured.")
 		}
 
-		thePost = &InstagramPic{ShortCode: pid}
+		thePost = &InstagramPic{ShortCode: urlParts[len(urlParts)-1]}
+	case "facebook":
+		if *FacebookKey == "" || *FacebookSecret == "" {
+			return jsonError("Missing Facebook API credentials.")
+		}
+
+		thePost = &FacebookPost{PageName: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
 	}
 
 	// Fetch the metadata
@@ -173,6 +184,13 @@ func runReport(postURL string) []byte {
 		theReport.Type = "InstagramPic"
 		theReport.ID = p.ID
 		theReport.Title = p.Caption
+		theReport.PublishedAt = p.PublishedAt
+		theReport.TotalComments = p.TotalComments
+		theReport.Metadata = p
+	case *FacebookPost:
+		theReport.Type = "FacebookPost"
+		theReport.ID = p.ID
+		//theReport.Title = p.Title
 		theReport.PublishedAt = p.PublishedAt
 		theReport.TotalComments = p.TotalComments
 		theReport.Metadata = p
