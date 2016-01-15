@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
-	//"io/ioutil"
 )
 
 type VineSession struct {
@@ -160,7 +158,7 @@ func (this *VineSession) vineRequest(path string) (*http.Response, error) {
 	u.Scheme = "https"
 	u.Host = "vine.co/api"
 
-	fmt.Println(u.String())
+	//fmt.Println(u.String())
 
 	r, _ := http.NewRequest("GET", u.String(), nil)
 	r.Header.Add("vine-session-id", this.SessionID)
