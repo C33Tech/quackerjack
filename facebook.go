@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/kr/pretty"
+	//"github.com/kr/pretty"
 )
 
 type FacebookPost struct {
@@ -47,7 +47,7 @@ func (this *FacebookPost) GetMetadata() bool {
 
 func (this FacebookPost) GetComments() CommentList {
 	this.GetPageID()
-	pretty.Println(this)
+
 	var comments = []*Comment{}
 	after := ""
 

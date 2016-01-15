@@ -24,9 +24,13 @@ var YouTubeKey = flag.String("ytkey", "", "Google API key.")
 // The YouTubeKey is a Google API key with access to YouTube's Data API
 var InstagramKey = flag.String("igkey", "", "Instagram API key.")
 
-// The YouTubeKey is a Google API key with access to YouTube's Data API
+// Facebook Config...
 var FacebookKey = flag.String("fbkey", "", "Facebook API key.")
 var FacebookSecret = flag.String("fbsecret", "", "Facebook Secret")
+
+// Vine Config...
+var VineUsername = flag.String("vnuser", "", "Vine Username")
+var VinePassword = flag.String("vnpassword", "", "Vine Password")
 
 // A list of stopword files to assist in keyword extraction
 var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
@@ -90,6 +94,7 @@ func parseURL(url string) (string, []string) {
 		"instagram": "instag\\.?ram(\\.com)?/p/([\\w]*)/?",
 		"youtube":   "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
 		"facebook":  "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
+		"vine":      "vine\\.co/v/([\\w]*)?",
 	}
 
 	var domain string
@@ -163,6 +168,12 @@ func runReport(postURL string) []byte {
 		}
 
 		thePost = &FacebookPost{PageName: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
+	case "vine":
+		if *VineUsername == "" || *VinePassword == "" {
+			return jsonError("Missing Vine user credentials.")
+		}
+
+		thePost = &VineVideo{ShortCode: urlParts[len(urlParts)-1]}
 	}
 
 	// Fetch the metadata
@@ -191,6 +202,12 @@ func runReport(postURL string) []byte {
 		theReport.Type = "FacebookPost"
 		theReport.ID = p.ID
 		//theReport.Title = p.Title
+		theReport.PublishedAt = p.PublishedAt
+		theReport.TotalComments = p.TotalComments
+		theReport.Metadata = p
+	case *VineVideo:
+		theReport.Type = "VineVideo"
+		theReport.ID = p.ID
 		theReport.PublishedAt = p.PublishedAt
 		theReport.TotalComments = p.TotalComments
 		theReport.Metadata = p
