@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"code.google.com/p/google-api-go-client/googleapi/transport"
+	"github.com/google/google-api-go-client/googleapi/transport"
 	youtube "google.golang.org/api/youtube/v3"
 )
 
