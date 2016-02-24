@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	//"strconv"
+	"time"
 
 	"github.com/eaigner/shield"
 	//"github.com/kr/pretty"
@@ -22,6 +22,16 @@ func InitShield() {
 			shield.NewEnglishTokenizer(),
 			shield.NewRedisStore(*RedisServer, "", log.New(&buf, "logger: ", log.Lshortfile), ""),
 		)
+
+		// Start process to monitor redis connection
+		go func() {
+			for {
+				shieldInstance.TestConnection()
+
+				d, _ := time.ParseDuration("1h")
+				time.Sleep(d)
+			}
+		}()
 	}
 }
 
