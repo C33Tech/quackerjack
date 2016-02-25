@@ -2,8 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
-	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"os"
@@ -13,47 +12,10 @@ import (
 	"time"
 )
 
-// Command Line Flags:
-
-// The PostURL from the target YouTube video.
-var PostURL = flag.String("post", "", "The target post url (YouTube or Instagram).")
-
-// The YouTubeKey is a Google API key with access to YouTube's Data API
-var YouTubeKey = flag.String("ytkey", "", "Google API key.")
-
-// The YouTubeKey is a Google API key with access to YouTube's Data API
-var InstagramKey = flag.String("igkey", "", "Instagram API key.")
-
-// Facebook Config...
-var FacebookKey = flag.String("fbkey", "", "Facebook API key.")
-var FacebookSecret = flag.String("fbsecret", "", "Facebook Secret")
-
-// Vine Config...
-var VineUsername = flag.String("vnuser", "", "Vine Username")
-var VinePassword = flag.String("vnpassword", "", "Vine Password")
-
-// A list of stopword files to assist in keyword extraction
-var StopWordFiles = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
-
-// Standard verbose flag.
-var Verbose = flag.Bool("verbose", false, "Extra logging to std out")
-
-// The server and port for the required redis server
-var RedisServer = flag.String("redis", "127.0.0.1:6379", "Redis server and port.")
-
-// Changes the output from stdout and starts a web server
-var WebServer = flag.Bool("server", false, "Run as a web server.")
-
-// The preferred web server port
-var Port = flag.String("port", "8000", "Port for web server to run.")
-
-// Sentiment training file paths to be ingested in to redis.
-var TrainingFiles = flag.String("training", "", "Training text files.")
-
 // LogMsg takes a message and pipes it to stdout if the verbose flag is set.
 func LogMsg(msg string) {
-	if *Verbose {
-		fmt.Printf(msg)
+	if GetConfigBool("verbose") {
+		log.Printf(msg)
 	}
 }
 
@@ -91,7 +53,7 @@ func jsonError(msg string) []byte {
 
 func parseURL(url string) (string, []string) {
 	sites := map[string]string{
-		"instagram": "instag\\.?ram(\\.com)?/p/([\\w]*)/?",
+		"instagram": "instag\\.?ram(\\.com)?/p/([\\w\\-]*)/?",
 		"youtube":   "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
 		"facebook":  "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
 		"vine":      "vine\\.co/v/([\\w]*)?",
@@ -129,7 +91,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		data, err := Asset("static/gui/index.html")
 		if err != nil {
-			fmt.Println("Web GUI asset not found!")
+			LogMsg("Web GUI asset not found!")
 			os.Exit(1)
 		}
 
@@ -151,25 +113,25 @@ func runReport(postURL string) []byte {
 
 	switch domain {
 	case "youtube":
-		if *YouTubeKey == "" {
+		if GetConfigString("ytkey") == "" {
 			return jsonError("API key for YouTube not configured.")
 		}
 
 		thePost = &YouTubeVideo{ID: urlParts[len(urlParts)-1]}
 	case "instagram":
-		if *InstagramKey == "" {
+		if GetConfigString("igkey") == "" {
 			return jsonError("API key for Instagram not configured.")
 		}
 
 		thePost = &InstagramPic{ShortCode: urlParts[len(urlParts)-1]}
 	case "facebook":
-		if *FacebookKey == "" || *FacebookSecret == "" {
+		if GetConfigString("fbkey") == "" || GetConfigString("fbsecret") == "" {
 			return jsonError("Missing Facebook API credentials.")
 		}
 
 		thePost = &FacebookPost{PageName: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
 	case "vine":
-		if *VineUsername == "" || *VinePassword == "" {
+		if GetConfigString("vnuser") == "" || GetConfigString("vnpassword") == "" {
 			return jsonError("Missing Vine user credentials.")
 		}
 
@@ -236,7 +198,7 @@ func runReport(postURL string) []byte {
 
 	// Sentiment Tagging
 	go func() {
-		if *RedisServer != "" {
+		if GetConfigString("redis") != "" {
 			theReport.Sentiment = comments.GetSentimentSummary()
 		}
 
@@ -264,7 +226,7 @@ func runReport(postURL string) []byte {
 
 	reportJSON, err := json.Marshal(theReport)
 	if err != nil {
-		fmt.Println(err)
+		LogMsg(err.Error())
 	}
 
 	// Output Report
@@ -272,11 +234,11 @@ func runReport(postURL string) []byte {
 }
 
 func main() {
-	flag.Parse()
+	LoadConfig()
 
 	// Check if they want to upload training data to the semantic engine
-	if *RedisServer != "" && *TrainingFiles != "" {
-		trainingFiles := strings.Split(*TrainingFiles, ",")
+	if GetConfigString("redis") != "" && GetConfigString("training") != "" {
+		trainingFiles := strings.Split(GetConfigString("training"), ",")
 		for _, path := range trainingFiles {
 			LoadTrainingData(path)
 		}
@@ -284,24 +246,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !*WebServer && *PostURL == "" {
-		fmt.Println("Post URL is required.")
+	if !GetConfigBool("server") && GetConfigString("post") == "" {
+		LogMsg("Post URL is required.")
 		os.Exit(1)
 	}
 
-	if *StopWordFiles != "" {
-		swFiles := strings.Split(*StopWordFiles, ",")
+	if GetConfigString("stopwords") != "" {
+		swFiles := strings.Split(GetConfigString("stopwords"), ",")
 		for _, path := range swFiles {
 			LoadStopWords(path)
 		}
 	}
 
-	if *WebServer {
-		fmt.Println("Web server running on " + *Port)
+	if GetConfigBool("server") {
+		LogMsg("Web server running on " + GetConfigString("port"))
 
 		http.HandleFunc("/", webHandler)
-		http.ListenAndServe(":"+*Port, nil)
+		http.ListenAndServe(":"+GetConfigString("port"), nil)
 	} else {
-		fmt.Println(string(runReport(*PostURL)))
+		LogMsg(string(runReport(GetConfigString("post"))))
 	}
 }

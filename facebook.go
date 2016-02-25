@@ -114,7 +114,7 @@ func fbRequest(path string) (*http.Response, error) {
 	u.Host = "graph.facebook.com"
 
 	query := u.Query()
-	query.Add("access_token", *FacebookKey+"|"+*FacebookSecret)
+	query.Add("access_token", GetConfigString("fbkey")+"|"+GetConfigString("fbsecret"))
 	u.RawQuery = query.Encode()
 
 	response, err := http.Get(u.String())

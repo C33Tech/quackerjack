@@ -26,7 +26,7 @@ var instagramPostResponse *instagram.MediaResponse
 
 func (ig *InstagramPic) GetMetadata() bool {
 	if instagramApi == nil {
-		instagramApi = instagram.New(*InstagramKey, "")
+		instagramApi = instagram.New(GetConfigString("igkey"), "")
 	}
 
 	var resp *instagram.MediaResponse
@@ -39,7 +39,7 @@ func (ig *InstagramPic) GetMetadata() bool {
 		return false
 	}
 
-	if resp != (*instagram.MediaResponse)(nil) {
+	if resp.Media != nil {
 		ig.ID = resp.Media.Id
 		parts := strings.Split(resp.Media.Link, "/")
 		ig.ShortCode = parts[len(parts)-2]
@@ -53,6 +53,8 @@ func (ig *InstagramPic) GetMetadata() bool {
 		ig.Thumbnail = resp.Media.Images.StandardResolution.Url
 
 		return true
+	} else {
+		LogMsg("Unable to pull metadata for Instagram post.")
 	}
 
 	return false
@@ -60,7 +62,7 @@ func (ig *InstagramPic) GetMetadata() bool {
 
 func (ig InstagramPic) GetComments() CommentList {
 	if instagramApi == nil {
-		instagramApi = instagram.New(*InstagramKey, "")
+		instagramApi = instagram.New(GetConfigString("igkey"), "")
 	}
 
 	var resp *instagram.CommentsResponse

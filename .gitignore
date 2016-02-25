@@ -1,4 +1,5 @@
 quackerjack
+quackerjack.cnf
 *_stopwords.txt
 /*.sh
 .DS_Store

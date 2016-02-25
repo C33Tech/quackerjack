@@ -17,7 +17,12 @@ var vineSession *VineSession = new(VineSession)
 
 func InitVine() bool {
 	if vineSession.SessionID == "" {
-		vineSession, _ = authVine(*VineUsername, *VinePassword)
+		var err error
+		vineSession, err = authVine(GetConfigString("vnuser"), GetConfigString("vnpassword"))
+		if err != nil {
+			LogMsg(err.Error())
+			return false
+		}
 	}
 
 	if vineSession.SessionID != "" {

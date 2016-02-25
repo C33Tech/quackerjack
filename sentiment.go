@@ -20,7 +20,7 @@ func InitShield() {
 	if shieldInstance == nil {
 		shieldInstance = shield.New(
 			shield.NewEnglishTokenizer(),
-			shield.NewRedisStore(*RedisServer, "", log.New(&buf, "logger: ", log.Lshortfile), ""),
+			shield.NewRedisStore(GetConfigString("redis"), "", log.New(&buf, "logger: ", log.Lshortfile), ""),
 		)
 
 		// Start process to monitor redis connection

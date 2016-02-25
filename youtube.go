@@ -27,7 +27,7 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 	var comments = []*Comment{}
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: *YouTubeKey},
+		Transport: &transport.APIKey{Key: GetConfigString("ytkey")},
 	}
 
 	youtubeService, err := youtube.New(client)
@@ -84,7 +84,7 @@ func (ytv *YouTubeVideo) GetMetadata() bool {
 	videoID := ytv.ID
 
 	client := &http.Client{
-		Transport: &transport.APIKey{Key: *YouTubeKey},
+		Transport: &transport.APIKey{Key: GetConfigString("ytkey")},
 	}
 
 	youtubeService, err := youtube.New(client)
