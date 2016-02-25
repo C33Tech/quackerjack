@@ -19,6 +19,7 @@ func InitVine() bool {
 	if vineSession.SessionID == "" {
 		var err error
 		vineSession, err = authVine(GetConfigString("vnuser"), GetConfigString("vnpassword"))
+
 		if err != nil {
 			LogMsg(err.Error())
 			return false
@@ -50,31 +51,37 @@ func (this *VineVideo) GetMetadata() bool {
 		return false
 	}
 
-	resp, err := vineSession.vineRequest("/timelines/posts/s/" + this.ShortCode)
+	var err error
+	var resp *http.Response
+
+	resp, err = vineSession.vineRequest("/timelines/posts/s/" + this.ShortCode)
+	if err != nil {
+		LogMsg(err.Error())
+		return false
+	}
+
+	defer resp.Body.Close()
+
+	var respJson VinePostResp
+
+	//contents, _ := ioutil.ReadAll(resp.Body)
+	//fmt.Println(string(contents))
+
+	decoder := json.NewDecoder(resp.Body)
+	err = decoder.Decode(&respJson)
+
 	if err == nil {
-		defer resp.Body.Close()
+		this.ID = strconv.FormatInt(respJson.Data.Records[0].PostID, 10)
+		this.Caption = respJson.Data.Records[0].Description
+		this.VideoViews = uint64(respJson.Data.Records[0].Loops.Count)
+		this.UserID = respJson.Data.Records[0].UserID
+		this.UserName = respJson.Data.Records[0].Username
+		this.TotalComments = respJson.Data.Records[0].Comments.Count
+		this.TotalLikes = respJson.Data.Records[0].Likes.Count
+		this.Thumbnail = respJson.Data.Records[0].ThumbnailUrl
+		this.PublishedAt = respJson.Data.Records[0].Created
 
-		var respJson VinePostResp
-
-		//contents, _ := ioutil.ReadAll(resp.Body)
-		//fmt.Println(string(contents))
-
-		decoder := json.NewDecoder(resp.Body)
-		err := decoder.Decode(&respJson)
-
-		if err == nil {
-			this.ID = strconv.FormatInt(respJson.Data.Records[0].PostID, 10)
-			this.Caption = respJson.Data.Records[0].Description
-			this.VideoViews = uint64(respJson.Data.Records[0].Loops.Count)
-			this.UserID = respJson.Data.Records[0].UserID
-			this.UserName = respJson.Data.Records[0].Username
-			this.TotalComments = respJson.Data.Records[0].Comments.Count
-			this.TotalLikes = respJson.Data.Records[0].Likes.Count
-			this.Thumbnail = respJson.Data.Records[0].ThumbnailUrl
-			this.PublishedAt = respJson.Data.Records[0].Created
-
-			return true
-		}
+		return true
 	}
 
 	return false
@@ -161,17 +168,25 @@ func (this *VineSession) vineRequest(path string) (*http.Response, error) {
 	}
 
 	u.Scheme = "https"
-	u.Host = "vine.co/api"
+	u.Host = "vine.co"
+	u.Path = "/api" + u.Path
 
-	//fmt.Println(u.String())
+	//LogMsg(u.String())
 
-	r, _ := http.NewRequest("GET", u.String(), nil)
+	r, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		LogMsg(err.Error())
+		return nil, err
+	}
+
 	r.Header.Add("vine-session-id", this.SessionID)
 	client := &http.Client{}
 	resp, err := client.Do(r)
 
-	if resp.Status != "200 OK" {
+	if err != nil {
 		return nil, err
+	} else if resp.Status != "200 OK" {
+		return nil, errors.New("Vine request was unsuccessful (" + resp.Status + "): " + u.String())
 	} else {
 		return resp, nil
 	}
@@ -300,8 +315,10 @@ type VinePostResp struct {
 }
 
 type VineAuthResp struct {
-	Code string `json:"code"`
-	Data struct {
+	Code    string `json:"code"`
+	Success bool   `json:"success"`
+	Error   string `json:"error"`
+	Data    struct {
 		Username    string      `json:"username"`
 		AvatarURL   string      `json:"avatarUrl"`
 		clientFlags interface{} `json:"clientFlags"`
