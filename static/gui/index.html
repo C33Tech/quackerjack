@@ -163,7 +163,7 @@
       });
     } else if (json.Type == 'FacebookPost') {
       jQuery("#video_title").text(truncate(decodeURIComponent(json.Metadata.Caption), 50));
-      jQuery("#channel_title").text(decodeURIComponent(json.Metadata.UserName));
+      jQuery("#channel_title").text(decodeURIComponent(json.Metadata.PageName));
       jQuery("#network_title").text("Facebook");
       jQuery("#total_comments").text(decodeURIComponent(json.Metadata.TotalComments));
       jQuery("#video_views").text(decodeURIComponent(json.Metadata.TotalLikes));

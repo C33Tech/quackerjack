@@ -51,27 +51,44 @@ func jsonError(msg string) []byte {
 	return errorJSON
 }
 
-func parseURL(url string) (string, []string) {
-	sites := map[string]string{
-		"instagram": "instag\\.?ram(\\.com)?/p/([\\w\\-]*)/?",
-		"youtube":   "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
-		"facebook":  "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
-		"vine":      "vine\\.co/v/([\\w]*)?",
+func parseURL(url string) (string, []string, string) {
+	sites := map[string]map[string]string{
+		"instagram": {
+			"default": "instag\\.?ram(\\.com)?/p/([\\w\\-]*)/?",
+		},
+		"youtube": {
+			"default": "youtu\\.?be(\\.?com)?/(watch\\?v=)?([\\w\\-_]*)",
+		},
+		"facebook": {
+			"default": "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
+			"videos":  "facebook\\.com/([\\w]+)/videos/\\w{2}\\.([\\d]+)/([\\d]*)/?",
+		},
+		"vine": {
+			"default": "vine\\.co/v/([\\w]*)?",
+		},
 	}
 
 	var domain string
 	var matches []string
+	var format string
 
-	for d, rstr := range sites {
-		r, _ := regexp.Compile(rstr)
-		matches = r.FindStringSubmatch(url)
-		if len(matches) > 0 {
-			domain = d
+	for d, rgxs := range sites {
+		for f, rstr := range rgxs {
+			r, _ := regexp.Compile(rstr)
+			matches = r.FindStringSubmatch(url)
+			if len(matches) > 0 {
+				domain = d
+				format = f
+				break
+			}
+		}
+
+		if domain != "" {
 			break
 		}
 	}
 
-	return domain, matches
+	return domain, matches, format
 }
 
 func webHandler(w http.ResponseWriter, r *http.Request) {
@@ -102,7 +119,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 
 func runReport(postURL string) []byte {
 	// Parse URL
-	domain, urlParts := parseURL(postURL)
+	domain, urlParts, urlFormat := parseURL(postURL)
 	if domain == "" || len(urlParts) == 0 {
 		return jsonError("Unable to parse post url.")
 	}
@@ -129,7 +146,12 @@ func runReport(postURL string) []byte {
 			return jsonError("Missing Facebook API credentials.")
 		}
 
-		thePost = &FacebookPost{PageName: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
+		switch urlFormat {
+		case "default":
+			thePost = &FacebookPost{PageName: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
+		case "videos":
+			thePost = &FacebookPost{PageName: urlParts[len(urlParts)-3], PageID: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
+		}
 	case "vine":
 		if GetConfigString("vnuser") == "" || GetConfigString("vnpassword") == "" {
 			return jsonError("Missing Vine user credentials.")

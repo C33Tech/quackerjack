@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	//"fmt"
 	"net/http"
 	"net/url"
-
 	//"github.com/kr/pretty"
 )
 
@@ -50,15 +50,24 @@ func (this FacebookPost) GetComments() CommentList {
 
 	var comments = []*Comment{}
 	after := ""
+	max := 10000
 
 	for {
+		if len(comments) >= max {
+			break
+		}
+
 		var respTyped postCommentListResp
 		resp, _ := fbRequest("/" + this.PageID + "_" + this.ID + "/comments?limit=100&order=reverse_chronological&after=" + after)
+
+		//fmt.Println("/" + this.PageID + "_" + this.ID + "/comments?limit=100&order=reverse_chronological&after=" + after)
 
 		defer resp.Body.Close()
 
 		decoder := json.NewDecoder(resp.Body)
 		err := decoder.Decode(&respTyped)
+
+		//LogMsg(fmt.Sprintf("Total comments: %d", len(comments)))
 
 		if err == nil {
 			for _, entry := range respTyped.Data {
@@ -117,6 +126,8 @@ func fbRequest(path string) (*http.Response, error) {
 	query.Add("access_token", GetConfigString("fbkey")+"|"+GetConfigString("fbsecret"))
 	u.RawQuery = query.Encode()
 
+	//LogMsg(u.String())
+
 	response, err := http.Get(u.String())
 	if err != nil {
 		return nil, err
@@ -130,28 +141,25 @@ type pageNameResp struct {
 	ID   string `json:"id"`
 }
 
-type postCommentFromResp struct {
-	Name string `json:name`
-	ID   string `json:id`
-}
-
 type postCommentResp struct {
-	From      postCommentFromResp `json:from`
-	Message   string              `json:message`
-	CreatedOn string              `json:created_time`
-	ID        string              `json:id`
-}
-
-type postCommentPagination struct {
-	Cursors struct {
-		After  string `json:"after,omitempty"`
-		Before string `json:"before,omitempty"`
-	} `json:cursors`
+	From struct {
+		Name string `json:"name"`
+		ID   string `json:"id"`
+	} `json:"from"`
+	Message   string `json:"message"`
+	CreatedOn string `json:"created_time"`
+	ID        string `json:"id"`
 }
 
 type postCommentListResp struct {
-	Data       []postCommentResp     `json:data`
-	Pagination postCommentPagination `json:paging`
+	Data       []postCommentResp `json:"data"`
+	Pagination struct {
+		Cursors struct {
+			After  string `json:"after,omitempty"`
+			Before string `json:"before,omitempty"`
+		} `json:"cursors"`
+		Next string `json:"next,omitempty"`
+	} `json:"paging"`
 }
 
 type postMetaProps struct {
