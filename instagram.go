@@ -30,12 +30,18 @@ func (ig *InstagramPic) GetMetadata() bool {
 	}
 
 	var resp *instagram.MediaResponse
+	var err error
 
 	if ig.ShortCode != "" {
-		resp, _ = instagramApi.GetMediaByShortcode(ig.ShortCode, url.Values{})
+		resp, err = instagramApi.GetMediaByShortcode(ig.ShortCode, url.Values{})
 	} else if ig.ID != "" {
-		resp, _ = instagramApi.GetMedia(ig.ID, url.Values{})
+		resp, err = instagramApi.GetMedia(ig.ID, url.Values{})
 	} else {
+		return false
+	}
+
+	if err != nil {
+		LogMsg(err.Error())
 		return false
 	}
 
