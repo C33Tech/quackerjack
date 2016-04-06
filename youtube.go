@@ -44,11 +44,12 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 			LogMsg(err.Error())
 
 			if errCount > 3 {
-				LogMsg("msg")
+				LogMsg("YouTube API error limit hit.")
 				break
 			}
 
 			errCount = errCount + 1
+			continue
 		}
 
 		if len(results.Items) > 0 {

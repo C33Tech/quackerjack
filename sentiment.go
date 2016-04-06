@@ -28,7 +28,7 @@ func InitShield() {
 			for {
 				shieldInstance.TestConnection()
 
-				d, _ := time.ParseDuration("1h")
+				d, _ := time.ParseDuration("15m")
 				time.Sleep(d)
 			}
 		}()
@@ -74,6 +74,8 @@ func GetSentiment(text string) string {
 	if err == nil {
 		return tag
 	}
+
+	LogMsg(err.Error())
 
 	return "UNKNOWN"
 }
