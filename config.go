@@ -42,12 +42,16 @@ func LoadConfig() {
 }
 
 func GetConfigBool(key string) bool {
-	if _, ok := CLIParams[key]; ok {
-		return true
+	if val, ok := CLIParams[key]; ok {
+		return *val.(*bool)
 	}
 
-	param, _ := ConfigParams.GetBool("default", key)
-	return param
+	if ConfigParams != nil {
+		param, _ := ConfigParams.GetBool("default", key)
+		return param
+	}
+
+	return false
 }
 
 func GetConfigString(key string) string {
@@ -55,6 +59,10 @@ func GetConfigString(key string) string {
 		return *v
 	}
 
-	param, _ := ConfigParams.GetString("default", key)
-	return param
+	if ConfigParams != nil {
+		param, _ := ConfigParams.GetString("default", key)
+		return param
+	}
+
+	return ""
 }
