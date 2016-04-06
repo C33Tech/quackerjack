@@ -36,11 +36,19 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 	}
 
 	pageToken := ""
+	errCount := 0
 	for pageToken != "EOL" {
 		results, err := youtubeService.CommentThreads.List("id,snippet,replies").TextFormat("plainText").MaxResults(100).VideoId(videoID).PageToken(pageToken).Do()
 
 		if err != nil {
-			panic(err)
+			LogMsg(err.Error())
+
+			if errCount > 3 {
+				LogMsg("msg")
+				break
+			}
+
+			errCount = errCount + 1
 		}
 
 		if len(results.Items) > 0 {
