@@ -37,7 +37,7 @@ func (sh *shield) increment(class, text string, sign int64) (err error) {
 	if len(text) == 0 {
 		panic("invalid text")
 	}
-	return sh.bulkIncrement([]Set{Set{Class: class, Text: text}}, sign)
+	return sh.bulkIncrement([]Set{{Class: class, Text: text}}, sign)
 }
 
 func (sh *shield) bulkIncrement(sets []Set, sign int64) (err error) {
@@ -47,7 +47,7 @@ func (sh *shield) bulkIncrement(sets []Set, sign int64) (err error) {
 	m := make(map[string]map[string]int64)
 	for _, set := range sets {
 		tokens := sh.tokenizer.Tokenize(set.Text)
-		for k, _ := range tokens {
+		for k := range tokens {
 			tokens[k] *= sign
 		}
 		if w, ok := m[set.Class]; ok {
@@ -58,7 +58,7 @@ func (sh *shield) bulkIncrement(sets []Set, sign int64) (err error) {
 			m[set.Class] = tokens
 		}
 	}
-	for class, _ := range m {
+	for class := range m {
 		if err = sh.store.AddClass(class); err != nil {
 			return
 		}
@@ -68,7 +68,7 @@ func (sh *shield) bulkIncrement(sets []Set, sign int64) (err error) {
 
 func getKeys(m map[string]int64) []string {
 	keys := make([]string, 0, len(m))
-	for k, _ := range m {
+	for k := range m {
 		keys = append(keys, k)
 	}
 	return keys
