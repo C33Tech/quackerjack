@@ -152,12 +152,6 @@ func runReport(postURL string) []byte {
 		case "videos":
 			thePost = &FacebookPost{PageName: urlParts[len(urlParts)-3], PageID: urlParts[len(urlParts)-2], ID: urlParts[len(urlParts)-1]}
 		}
-	case "vine":
-		if GetConfigString("vnuser") == "" || GetConfigString("vnpassword") == "" {
-			return jsonError("Missing Vine user credentials.")
-		}
-
-		thePost = &VineVideo{ShortCode: urlParts[len(urlParts)-1]}
 	}
 
 	// Fetch the metadata
@@ -186,12 +180,6 @@ func runReport(postURL string) []byte {
 		theReport.Type = "FacebookPost"
 		theReport.ID = p.ID
 		//theReport.Title = p.Title
-		theReport.PublishedAt = p.PublishedAt
-		theReport.TotalComments = p.TotalComments
-		theReport.Metadata = p
-	case *VineVideo:
-		theReport.Type = "VineVideo"
-		theReport.ID = p.ID
 		theReport.PublishedAt = p.PublishedAt
 		theReport.TotalComments = p.TotalComments
 		theReport.Metadata = p
