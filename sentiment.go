@@ -70,6 +70,7 @@ func LoadTrainingData(path string) {
 func GetSentiment(text string) string {
 	InitShield()
 
+	//fmt.Println("scanning: " + text)
 	tag, err := shieldInstance.Classify(text)
 	if err == nil {
 		return tag

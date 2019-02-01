@@ -136,10 +136,6 @@ func runReport(postURL string) []byte {
 
 		thePost = &YouTubeVideo{ID: urlParts[len(urlParts)-1]}
 	case "instagram":
-		if GetConfigString("igkey") == "" {
-			return jsonError("API key for Instagram not configured.")
-		}
-
 		thePost = &InstagramPic{ShortCode: urlParts[len(urlParts)-1]}
 	case "facebook":
 		if GetConfigString("fbkey") == "" || GetConfigString("fbsecret") == "" {

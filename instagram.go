@@ -1,11 +1,12 @@
 package main
 
 import (
-	"net/url"
-	"strings"
-
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
 	//"github.com/kr/pretty"
-	"github.com/mikeflynn/golang-instagram/instagram"
 )
 
 type InstagramPic struct {
@@ -21,73 +22,89 @@ type InstagramPic struct {
 	PublishedAt   string
 }
 
-var instagramApi *instagram.Api
-var instagramPostResponse *instagram.MediaResponse
+var igMedia IGMedia
 
-func (ig *InstagramPic) GetMetadata() bool {
-	if instagramApi == nil {
-		instagramApi = instagram.New(GetConfigString("igkey"), "")
-	}
-
-	var resp *instagram.MediaResponse
+func (ig *InstagramPic) FetchMedia(maxID string) IGMedia {
 	var err error
+	igMedia := IGMedia{}
 
-	if ig.ShortCode != "" {
-		resp, err = instagramApi.GetMediaByShortcode(ig.ShortCode, url.Values{})
-	} else if ig.ID != "" {
-		resp, err = instagramApi.GetMedia(ig.ID, url.Values{})
-	} else {
-		return false
+	igClient := http.Client{
+		Timeout: time.Second * 5, // Maximum of 2 secs
 	}
 
+	url := fmt.Sprintf("https://www.instagram.com/p/%v?__a=1&maxid=%v", ig.ShortCode, maxID)
+
+	//fmt.Println(url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		LogMsg(err.Error())
-		return false
+		return igMedia
 	}
 
-	if resp.Media != nil {
-		ig.ID = resp.Media.Id
-		parts := strings.Split(resp.Media.Link, "/")
-		ig.ShortCode = parts[len(parts)-2]
-		ig.Type = resp.Media.Type
-		ig.Caption = resp.Media.Caption.Text
-		ig.TotalLikes = resp.Media.Likes.Count
-		ig.UserID = resp.Media.User.Id
-		ig.UserName = resp.Media.User.Username
-		ig.TotalComments = uint64(resp.Media.Comments.Count)
-		ig.PublishedAt = string(resp.Media.CreatedTime)
-		ig.Thumbnail = resp.Media.Images.StandardResolution.Url
-
-		return true
-	} else {
-		LogMsg("Unable to pull metadata for Instagram post.")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 5.1; rv:7.0.1) Gecko/20100101 Firefox/7.0.1")
+	res, err := igClient.Do(req)
+	if err != nil {
+		LogMsg(err.Error())
+		return igMedia
 	}
 
-	return false
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		LogMsg(err.Error())
+		return igMedia
+	}
+
+	err = json.Unmarshal(body, &igMedia)
+	if err != nil {
+		LogMsg(err.Error())
+		return igMedia
+	}
+
+	return igMedia
 }
 
-func (ig InstagramPic) GetComments() CommentList {
-	if instagramApi == nil {
-		instagramApi = instagram.New(GetConfigString("igkey"), "")
+func (ig *InstagramPic) GetMetadata() bool {
+	igMedia := ig.FetchMedia("")
+
+	ig.ID = igMedia.Graphql.ShortcodeMedia.ID
+	ig.ShortCode = igMedia.Graphql.ShortcodeMedia.Shortcode
+	if igMedia.Graphql.ShortcodeMedia.IsVideo {
+		ig.Type = "video"
+	} else {
+		ig.Type = "photo"
+	}
+	ig.Caption = igMedia.Graphql.ShortcodeMedia.EdgeMediaToCaption.Edges[0].Node.Text
+	ig.TotalLikes = int64(igMedia.Graphql.ShortcodeMedia.EdgeMediaPreviewLike.Count)
+	ig.UserID = igMedia.Graphql.ShortcodeMedia.Owner.ID
+	ig.UserName = igMedia.Graphql.ShortcodeMedia.Owner.Username
+	ig.TotalComments = uint64(igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.Count)
+	ig.PublishedAt = string(igMedia.Graphql.ShortcodeMedia.TakenAtTimestamp)
+	ig.Thumbnail = igMedia.Graphql.ShortcodeMedia.DisplayURL
+
+	return true
+}
+
+func (ig InstagramPic) CommentLoop(comments []*Comment, maxID string) CommentList {
+	igMedia := ig.FetchMedia(maxID)
+
+	for _, c := range igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.Edges {
+		thisComment := &Comment{
+			ID:         c.Node.ID,
+			Published:  string(c.Node.CreatedAt),
+			Content:    c.Node.Text,
+			AuthorName: c.Node.Owner.Username,
+		}
+
+		comments = append(comments, thisComment)
 	}
 
-	var resp *instagram.CommentsResponse
-	var comments = []*Comment{}
-
-	resp, _ = instagramApi.GetMediaComments(ig.ID, url.Values{})
-
-	if resp != new(instagram.CommentsResponse) {
-		for _, entry := range resp.Comments {
-			thisComment := &Comment{
-				ID:         entry.Id,
-				Published:  string(entry.CreatedTime),
-				Content:    entry.Text,
-				AuthorName: entry.From.Username,
-			}
-
-			comments = append(comments, thisComment)
-		}
+	if igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.HasNextPage {
+		//return ig.CommentLoop(comments, igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.EndCursor)
 	}
 
 	return CommentList{Comments: comments}
+}
+
+func (ig InstagramPic) GetComments() CommentList {
+	return ig.CommentLoop([]*Comment{}, "")
 }

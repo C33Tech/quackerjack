@@ -21,11 +21,8 @@ func LoadConfig() {
 	CLIParams["server"] = flag.Bool("server", false, "Run as a web server.")
 	CLIParams["port"] = flag.String("port", "8000", "Port for web server to run.")
 	CLIParams["ytkey"] = flag.String("ytkey", "", "Google API key.")
-	CLIParams["igkey"] = flag.String("igkey", "", "Instagram API key.")
 	CLIParams["fbkey"] = flag.String("fbkey", "", "Facebook API key.")
 	CLIParams["fbsecret"] = flag.String("fbsecret", "", "Facebook Secret")
-	CLIParams["vnuser"] = flag.String("vnuser", "", "Vine Username")
-	CLIParams["vnpassword"] = flag.String("vnpassword", "", "Vine Password")
 	CLIParams["stopwords"] = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
 
 	flag.Parse()
