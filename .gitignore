@@ -1,4 +1,6 @@
 quackerjack
+quackerjack-ec2
+quackerjack-docker
 quackerjack.cnf
 *_stopwords.txt
 /*.sh

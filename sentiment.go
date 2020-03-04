@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/eaigner/shield"
+	"github.com/mikeflynn/shield"
 	//"github.com/kr/pretty"
 )
 

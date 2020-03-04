@@ -249,7 +249,7 @@ func main() {
 			LoadTrainingData(path)
 		}
 		LogMsg("Training data uploaded.")
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	if !GetConfigBool("server") && GetConfigString("post") == "" {

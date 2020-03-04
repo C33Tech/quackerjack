@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net/http"
+	"context"
 	"strconv"
 	"time"
 
-	"github.com/google/google-api-go-client/googleapi/transport"
+	option "google.golang.org/api/option"
 	youtube "google.golang.org/api/youtube/v3"
 )
 
@@ -26,11 +26,8 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 	videoID := ytv.ID
 	var comments = []*Comment{}
 
-	client := &http.Client{
-		Transport: &transport.APIKey{Key: GetConfigString("ytkey")},
-	}
-
-	youtubeService, err := youtube.New(client)
+	ctx := context.Background()
+	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(GetConfigString("ytkey")))
 	if err != nil {
 		panic(err)
 	}
@@ -92,11 +89,8 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 func (ytv *YouTubeVideo) GetMetadata() bool {
 	videoID := ytv.ID
 
-	client := &http.Client{
-		Transport: &transport.APIKey{Key: GetConfigString("ytkey")},
-	}
-
-	youtubeService, err := youtube.New(client)
+	ctx := context.Background()
+	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(GetConfigString("ytkey")))
 	if err != nil {
 		panic(err)
 	}
