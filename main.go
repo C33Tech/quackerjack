@@ -251,6 +251,9 @@ func runReport(postURL string) []byte {
 func main() {
 	LoadConfig()
 
+	// Train the classifier
+	InitClassifier()
+
 	if !GetConfigBool("server") && GetConfigString("post") == "" {
 		LogMsg("Post URL is required.")
 		os.Exit(1)

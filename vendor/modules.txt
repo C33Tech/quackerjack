@@ -3,8 +3,6 @@
 cloud.google.com/go/compute/metadata
 # github.com/cdipaolo/goml v0.0.0-20190412180403-e1f51f713598
 ## explicit
-github.com/cdipaolo/goml/base
-github.com/cdipaolo/goml/text
 # github.com/dlintw/goconf v0.0.0-20120228082610-dcc070983490
 ## explicit
 github.com/dlintw/goconf
@@ -21,9 +19,19 @@ github.com/golang/protobuf/ptypes/timestamp
 github.com/googleapis/gax-go/v2
 # github.com/hashicorp/golang-lru v0.5.4
 ## explicit
+# github.com/kljensen/snowball v0.6.0
+## explicit
+github.com/kljensen/snowball
+github.com/kljensen/snowball/english
+github.com/kljensen/snowball/french
+github.com/kljensen/snowball/norwegian
+github.com/kljensen/snowball/romance
+github.com/kljensen/snowball/russian
+github.com/kljensen/snowball/snowballword
+github.com/kljensen/snowball/spanish
+github.com/kljensen/snowball/swedish
 # github.com/mikeflynn/sentiment v0.0.0-20200424154442-0e3fe7bd452f
 ## explicit
-github.com/mikeflynn/sentiment
 # github.com/stretchr/testify v1.5.1
 ## explicit
 # github.com/tmdvs/Go-Emoji-Utils v1.1.0
@@ -96,7 +104,7 @@ google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
 google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
-# google.golang.org/genproto v0.0.0-20200423170343-7949de9c1215
+# google.golang.org/genproto v0.0.0-20200424135956-bca184e23272
 ## explicit
 google.golang.org/genproto/googleapis/rpc/status
 # google.golang.org/grpc v1.29.1

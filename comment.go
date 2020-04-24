@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mikeflynn/sentiment"
 	emoji "github.com/tmdvs/Go-Emoji-Utils"
 )
 
@@ -19,7 +18,7 @@ type Comment struct {
 	Title      string
 	Content    string
 	AuthorName string
-	Sentiment  *sentiment.Analysis
+	Sentiment  string
 	Likes      int64
 }
 
@@ -27,24 +26,16 @@ type CommentList struct {
 	Comments []*Comment
 }
 
-var sentimentModel sentiment.Models
-
 // Comment methods
 
-func (this *Comment) GetSentiment() (*sentiment.Analysis, error) {
-	if this.Sentiment == nil {
-		if sentimentModel == nil {
-			LogMsg("Init sentiment model...")
-			var err error
-			sentimentModel, err = sentiment.Restore()
-			if err != nil {
-				LogMsg(fmt.Sprintf("%v", err))
-				return &sentiment.Analysis{}, err
-			}
+func (this *Comment) GetSentiment() (string, error) {
+	if this.Sentiment == "" {
+		if SentimentClassifier.totalWords > 0 {
+			this.Sentiment = SentimentClassifier.Classify(this.CleanContent())
+			LogMsg(fmt.Sprintf("%s ===> %s", this.Content, this.Sentiment))
+		} else {
+			LogMsg(fmt.Sprintf("Classifier not trained. Word count: %d", SentimentClassifier.totalWords))
 		}
-
-		this.Sentiment = sentimentModel.SentimentAnalysis(this.CleanContent(), sentiment.English)
-		LogMsg(fmt.Sprintf("%s ===> %d", this.Content, this.Sentiment.Score))
 	}
 
 	return this.Sentiment, nil
@@ -186,10 +177,12 @@ func (this *CommentList) GetSentimentSummary() map[string]uint64 {
 		res, err := comment.GetSentiment()
 
 		if err == nil {
-			if res.Score == 1 {
+			if res == "1" {
 				tags["positive"]++
-			} else {
+			} else if res == "0" {
 				tags["negative"]++
+			} else {
+				tags["unknown"]++
 			}
 		}
 	}
@@ -204,9 +197,11 @@ func (this *CommentList) GetDailySentiment() map[string]map[string]uint64 {
 		res, err := comment.GetSentiment()
 
 		if err == nil {
-			sentiment := "negative"
-			if res.Score == 1 {
+			sentiment := "unknown"
+			if res == "1" {
 				sentiment = "positive"
+			} else if res == "0" {
+				sentiment = "negative"
 			}
 
 			date, err := comment.GetPublishedDay()
@@ -215,6 +210,7 @@ func (this *CommentList) GetDailySentiment() map[string]map[string]uint64 {
 					days[date] = map[string]uint64{
 						"positive": 0,
 						"negative": 0,
+						"unknown":  0,
 					}
 				}
 
