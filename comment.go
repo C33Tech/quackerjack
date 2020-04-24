@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cdipaolo/sentiment"
+	"github.com/mikeflynn/sentiment"
 	emoji "github.com/tmdvs/Go-Emoji-Utils"
 )
 
@@ -38,6 +38,7 @@ func (this *Comment) GetSentiment() (*sentiment.Analysis, error) {
 			var err error
 			sentimentModel, err = sentiment.Restore()
 			if err != nil {
+				LogMsg(fmt.Sprintf("%v", err))
 				return &sentiment.Analysis{}, err
 			}
 		}

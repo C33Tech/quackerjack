@@ -14,7 +14,6 @@ The report includes:
 ## Requirements
 
 * go (`brew`, `apt-get` or https://golang.org/doc/install)
-* redis (`brew`, `apt-get` or http://redis.io/topics/quickstart)
 
 ## Installation
 
@@ -40,17 +39,11 @@ You can also run quackerjack as a web service. Add the `-server` flag to start a
 
 `-fbsecret xxxxxxxxxxxxx` _Your Facebook API secret code._
 
-`-vnuser xxxxxxxxxx` _Your Vine username._
-
-`-vnpass xxxxxxxxxx` _Your Vine password._
-
 `-stopwords /xxx/yy/zz.txt` _A comma delimitated list of additional stop word text files not in config._
 
 `-verbose` _Standard boolean flag for extra logging to std out._
 
 `-training /xxx/yy/zz.txt` _Load a list of training words for the semantic analysis._
-
-`-redis "127.0.0.1:6379"` _A string containing the host and port of the redis server._
 
 `-server` _Start the web interface rather than having the JSON get dumpped to std out._
 
