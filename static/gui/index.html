@@ -217,7 +217,7 @@
                                       .attr('aria-valuenow', 20);
       }
 
-      jQuery.getJSON("http://localhost/api?vid="+vid)
+      jQuery.getJSON("/api?vid="+vid)
             .done(function(resp) {
               if(!resp.Error) {
                 let steps = ["processing-comment-count", "processing-comment-download","processing-emoji","processing-sentiment"]

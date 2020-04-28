@@ -103,7 +103,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 			jsonBytes, _ = json.Marshal(webError{Error: "Missing post URL."})
 		}
 
-		w.Header().Set("Access-Control-Allow-Origin", "*") ///// REMOVE FOR PRODUCTION
+		// w.Header().Set("Access-Control-Allow-Origin", "*") /// USEFUL FOR DEV ONLY
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonBytes)
 	} else {
