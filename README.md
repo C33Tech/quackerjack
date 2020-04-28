@@ -24,11 +24,6 @@ v3 Changes:
 
 `go get github.com/mikeflynn/quackerjack`
 
-## Development
-
-* go 1.14
-* Docker
-
 ## Running
 
 The script can be run via the command line, which will return a JSON object of the resulting data:
@@ -69,15 +64,16 @@ app_1  | 2020/04/28 15:56:09 Web server running on 8000
 
 ## Development
 
+* go 1.14
+* Docker
+
 If you want to dig in to the code, you can clone this repo...
 
 `git clone https://github.com/mikeflynn/quackerjack.git`
 
-...tweak until your heart's content, and then build your new version with the included Makefile...
+I've included a Docker image and docker-compose config that will run the web service in verbose mode by default. You can also run `make docker-shell` to get a shell on the Docker instance for active development.
 
-`make`
-
-...which installs all the dependencies, formats your code and builds the web GUI HTML file in to go code, then generates a `quackerjack` binary.
+Don't for get to update the saved assets if you update the web interface: `make data` !
 
 ## To Do:
 
