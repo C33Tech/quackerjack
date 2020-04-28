@@ -17,6 +17,8 @@ type YouTubeVideo struct {
 	ChannelID     string
 	ChannelTitle  string
 	TotalComments uint64
+	TotalLikes    uint64
+	TotalDislikes uint64
 	Thumbnail     string
 	PublishedAt   string
 }
@@ -113,6 +115,8 @@ func (ytv *YouTubeVideo) GetMetadata() bool {
 		ytv.PublishedAt = strconv.FormatInt(t.Unix(), 10)
 		ytv.VideoViews = video.Statistics.ViewCount
 		ytv.Thumbnail = video.Snippet.Thumbnails.High.Url
+		ytv.TotalLikes = video.Statistics.LikeCount
+		ytv.TotalDislikes = video.Statistics.DislikeCount
 
 		return true
 	}
