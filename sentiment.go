@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -196,10 +197,15 @@ func InitClassifier() {
 	var train []document
 	var test []document
 
-	train, test = setupData("static/training/amazon.txt", testPercentage, train, test)
-	train, test = setupData("static/training/imdb.txt", testPercentage, train, test)
-	train, test = setupData("static/training/yelp.txt", testPercentage, train, test)
-	train, test = setupData("static/training/youtube.txt", testPercentage, train, test)
+	filepath.Walk("./static/training/", func(path string, f os.FileInfo, _ error) error {
+		if !f.IsDir() {
+			if filepath.Ext(path) == ".txt" {
+				LogMsg(fmt.Sprintf("Adding %s to training process.", path))
+				train, test = setupData(path, testPercentage, train, test)
+			}
+		}
+		return nil
+	})
 
 	LogMsg(fmt.Sprintf("Num of docs in TRAIN dataset: %d", len(train)))
 	LogMsg(fmt.Sprintf("Num of docs in TEST dataset: %d", len(test)))
