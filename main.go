@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -33,11 +34,13 @@ type report struct {
 	CollectedComments      uint64
 	CommentCoveragePercent float64
 	CommentAvgPerDay       float64
-	Keywords               map[string]int
-	Sentiment              []SentimentTag
+	Keywords               map[string]uint64
+	Sentiment              map[string]uint64
 	Metadata               Post
 	SampleComments         []*Comment
 	TopComments            []*Comment
+	DailySentiment         map[string]map[string]uint64
+	EmojiCount             map[string]uint64
 }
 
 // Post is the interface for all the various post types (YouTubeVideo, etc...)
@@ -62,9 +65,6 @@ func parseURL(url string) (string, []string, string) {
 		"facebook": {
 			"default": "facebook\\.com/([\\w]*)/posts/([\\d]*)/?",
 			"videos":  "facebook\\.com/([\\w]+)/videos/\\w{2}\\.([\\d]+)/([\\d]*)/?",
-		},
-		"vine": {
-			"default": "vine\\.co/v/([\\w]*)?",
 		},
 	}
 
@@ -103,6 +103,7 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 			jsonBytes, _ = json.Marshal(webError{Error: "Missing post URL."})
 		}
 
+		// w.Header().Set("Access-Control-Allow-Origin", "*") /// USEFUL FOR DEV ONLY
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonBytes)
 	} else {
@@ -182,11 +183,14 @@ func runReport(postURL string) []byte {
 	}
 
 	// Fetch the comments
+	LogMsg("Fetching the comments...")
 	comments := thePost.GetComments()
 
 	// If we don't get an comments back, wait for the metadata call to return and send an error.
 	if comments.IsEmpty() {
 		return jsonError("No comments found for this post.")
+	} else {
+		LogMsg(fmt.Sprintf("Collected %d comments", comments.GetTotal()))
 	}
 
 	// Set comments returned
@@ -195,24 +199,30 @@ func runReport(postURL string) []byte {
 
 	done := make(chan bool)
 
-	// Set Keywords
+	// Count Keywords
 	go func() {
 		theReport.Keywords = comments.GetKeywords()
 
 		done <- true
 	}()
 
-	// Sentiment Tagging
+	// Count Emoji
 	go func() {
-		if GetConfigString("redis") != "" {
-			theReport.Sentiment = comments.GetSentimentSummary()
-		}
+		theReport.EmojiCount = comments.GetEmojiCount()
 
 		done <- true
 	}()
 
+	// Sentiment Tagging
+	go func() {
+		LogMsg("Starting sentiment analysis...")
+		theReport.Sentiment = comments.GetSentimentSummary()
+		theReport.DailySentiment = comments.GetDailySentiment()
+		done <- true
+	}()
+
 	// Wait for everything to finish up
-	for i := 0; i < 2; i++ {
+	for i := 0; i < 3; i++ {
 		<-done
 	}
 
@@ -242,15 +252,8 @@ func runReport(postURL string) []byte {
 func main() {
 	LoadConfig()
 
-	// Check if they want to upload training data to the semantic engine
-	if GetConfigString("redis") != "" && GetConfigString("training") != "" {
-		trainingFiles := strings.Split(GetConfigString("training"), ",")
-		for _, path := range trainingFiles {
-			LoadTrainingData(path)
-		}
-		LogMsg("Training data uploaded.")
-		os.Exit(0)
-	}
+	// Train the classifier
+	InitClassifier()
 
 	if !GetConfigBool("server") && GetConfigString("post") == "" {
 		LogMsg("Post URL is required.")

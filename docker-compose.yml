@@ -7,12 +7,5 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/go/src/quackerjack
-    depends_on:
-      - redis
     ports:
       - "80:8000"
-
-  redis:
-    image: "redis:3.0.6-alpine"
-    ports:
-      - "6379:6379"

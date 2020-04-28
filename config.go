@@ -13,11 +13,9 @@ func LoadConfig() {
 	// CLI Only Flags
 	CLIParams["post"] = flag.String("post", "", "The target post url (YouTube or Instagram).")
 	CLIParams["verbose"] = flag.Bool("verbose", false, "Extra logging to std out")
-	CLIParams["training"] = flag.String("training", "", "Training text files.")
 	CLIParams["conf"] = flag.String("conf", "", "Path to conf file.")
 
 	// CLI or Conf Flags
-	CLIParams["redis"] = flag.String("redis", "127.0.0.1:6379", "Redis server and port.")
 	CLIParams["server"] = flag.Bool("server", false, "Run as a web server.")
 	CLIParams["port"] = flag.String("port", "8000", "Port for web server to run.")
 	CLIParams["ytkey"] = flag.String("ytkey", "", "Google API key.")

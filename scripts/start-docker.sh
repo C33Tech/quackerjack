@@ -11,6 +11,6 @@ if [ ! -f /go/src/quackerjack/quackerjack-docker.conf ]; then
 fi
 
 if ! pgrep "quackerjack" > /dev/null; then
-  /go/src/quackerjack/quackerjack-docker -training /go/src/quackerjack/static/training/afinn-111.csv -redis "redis:6379"
-  nohup /go/src/quackerjack/quackerjack-docker -server -redis "redis:6379" -conf "/go/src/quackerjack/quackerjack-docker.conf"
+  go build -mod=vendor -o quackerjack-docker
+  nohup /go/src/quackerjack/quackerjack-docker -server -verbose -conf "/go/src/quackerjack/quackerjack-docker.conf"
 fi
