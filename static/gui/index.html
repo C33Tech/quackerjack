@@ -122,8 +122,8 @@
               </div>
               <div class="col-md-6 col-sm-6 col-xs-6">
                 <div class="bignum">
-                  <span class="num" id="total_views">--</span>
-                  <span class="desc">Total Views</span>
+                  <span class="num" id="positive_engagements">--</span>
+                  <span class="desc">Positive Engagements</span>
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@
       jQuery('.header h2.video_title').text(data.Metadata.Title);
       jQuery('.header p.channel_title').html('<a target="new" href="https://www.youtube.com/channel/'+data.Metadata.ChannelID+'">'+data.Metadata.ChannelTitle+'</a>');
       jQuery('#total_comments').text(data.TotalComments.toLocaleString());
-      jQuery('#total_views').text(data.Metadata.VideoViews.toLocaleString());
+      jQuery('#positive_engagements').text(Math.round(data.Sentiment.positive / data.Metadata.TotalComments * 100)+"%");
       jQuery('#comments_per_day').text(Math.round(data.CommentAvgPerDay));
       jQuery('#dislike_ratio').text(Math.round(data.Metadata.TotalDislikes / data.Metadata.TotalLikes * 100)+"%");
 
