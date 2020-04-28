@@ -14,6 +14,7 @@ The report includes:
 
 v3 Changes:
 * New interface!
+* Mobile friendly!
 * No more redis!
 * Emoji analysis!
 
