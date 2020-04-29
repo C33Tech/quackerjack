@@ -242,10 +242,11 @@
                   let icon = jQuery('#processing-comment-count i.fa');
                   icon.removeClass('fa-square-o');
                   icon.addClass('fa-times');
-                  $('#processing .progress-bar').css('width', '40%')
-                                                .attr('aria-valuenow', 40)
+                  $('#processing .progress-bar').css('width', '100%')
+                                                .attr('aria-valuenow', 100)
                                                 .removeClass('progress-bar-striped')
-                                                .addClass('bg-danger');
+                                                .addClass('bg-danger')
+                                                .text(resp.Error);
                 }
               }
             })
@@ -258,10 +259,11 @@
               dlIcon.removeClass('fa-square-o');
               dlIcon.addClass('fa-times');
 
-              $('#processing .progress-bar').css('width', '60%')
-                                            .attr('aria-valuenow', 60)
+              $('#processing .progress-bar').css('width', '100%')
+                                            .attr('aria-valuenow', 100)
                                             .removeClass('progress-bar-striped')
-                                            .addClass('bg-danger');
+                                            .addClass('bg-danger')
+                                            .text('Unable to download comments.');
             });
     }
 
