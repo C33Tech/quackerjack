@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"regexp"
 	"sort"
@@ -88,7 +89,7 @@ func (cl *Comment) GetEmoji() map[string]uint64 {
 }
 
 func (cl *Comment) GetPublishedDay() (string, error) {
-	t, err := time.Parse("2006-01-02T15:04:05.000Z", cl.Published)
+	t, err := time.Parse("2006-01-02T15:04:05Z", cl.Published)
 	if err != nil {
 		return "", err
 	}
@@ -213,6 +214,8 @@ func (cl *CommentList) GetDailySentiment() map[string]map[string]uint64 {
 				}
 
 				days[date][sentiment]++
+			} else {
+				log.Println(err)
 			}
 		}
 	}
