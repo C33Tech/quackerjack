@@ -1,11 +1,11 @@
 # cloud.google.com/go v0.56.0
 ## explicit
 cloud.google.com/go/compute/metadata
-# github.com/cdipaolo/goml v0.0.0-20190412180403-e1f51f713598
-## explicit
 # github.com/dlintw/goconf v0.0.0-20120228082610-dcc070983490
 ## explicit
 github.com/dlintw/goconf
+# github.com/go-bindata/go-bindata v3.1.2+incompatible
+## explicit
 # github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 github.com/golang/groupcache/lru
 # github.com/golang/protobuf v1.4.0
@@ -17,8 +17,6 @@ github.com/golang/protobuf/ptypes/duration
 github.com/golang/protobuf/ptypes/timestamp
 # github.com/googleapis/gax-go/v2 v2.0.5
 github.com/googleapis/gax-go/v2
-# github.com/hashicorp/golang-lru v0.5.4
-## explicit
 # github.com/kljensen/snowball v0.6.0
 ## explicit
 github.com/kljensen/snowball
@@ -30,10 +28,6 @@ github.com/kljensen/snowball/russian
 github.com/kljensen/snowball/snowballword
 github.com/kljensen/snowball/spanish
 github.com/kljensen/snowball/swedish
-# github.com/mikeflynn/sentiment v0.0.0-20200424154442-0e3fe7bd452f
-## explicit
-# github.com/stretchr/testify v1.5.1
-## explicit
 # github.com/tmdvs/Go-Emoji-Utils v1.1.0
 ## explicit
 github.com/tmdvs/Go-Emoji-Utils

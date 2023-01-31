@@ -11,6 +11,8 @@ import (
 	emoji "github.com/tmdvs/Go-Emoji-Utils"
 )
 
+const MaxKeywords = 100
+
 // Comment is the distilled comment dataset
 type Comment struct {
 	ID         string
@@ -28,21 +30,21 @@ type CommentList struct {
 
 // Comment methods
 
-func (this *Comment) GetSentiment() (string, error) {
-	if this.Sentiment == "" {
+func (c *Comment) GetSentiment() (string, error) {
+	if c.Sentiment == "" {
 		if SentimentClassifier.totalWords > 0 {
-			this.Sentiment = SentimentClassifier.Classify(this.CleanContent())
-			LogMsg(fmt.Sprintf("%s ===> %s", this.Content, this.Sentiment))
+			c.Sentiment = SentimentClassifier.Classify(c.CleanContent())
+			LogMsg(fmt.Sprintf("%s ===> %s", c.Content, c.Sentiment))
 		} else {
 			LogMsg(fmt.Sprintf("Classifier not trained. Word count: %d", SentimentClassifier.totalWords))
 		}
 	}
 
-	return this.Sentiment, nil
+	return c.Sentiment, nil
 }
 
-func (this *Comment) CleanContent() string {
-	cleanedContent := this.Content
+func (c *Comment) CleanContent() string {
+	cleanedContent := c.Content
 
 	// Replace emoji with descriptor.
 
@@ -70,10 +72,10 @@ func (this *Comment) CleanContent() string {
 	return cleanedContent
 }
 
-func (this *Comment) GetEmoji() map[string]uint64 {
+func (cl *Comment) GetEmoji() map[string]uint64 {
 	ret := map[string]uint64{}
 
-	res := emoji.FindAll(this.Content)
+	res := emoji.FindAll(cl.Content)
 	for _, x := range res {
 		if _, ok := ret[x.Match.(emoji.Emoji).Value]; !ok {
 			ret[x.Match.(emoji.Emoji).Value] = 0
@@ -85,8 +87,8 @@ func (this *Comment) GetEmoji() map[string]uint64 {
 	return ret
 }
 
-func (this *Comment) GetPublishedDay() (string, error) {
-	t, err := time.Parse("2006-01-02T15:04:05.000Z", this.Published)
+func (cl *Comment) GetPublishedDay() (string, error) {
+	t, err := time.Parse("2006-01-02T15:04:05.000Z", cl.Published)
 	if err != nil {
 		return "", err
 	}
@@ -96,22 +98,18 @@ func (this *Comment) GetPublishedDay() (string, error) {
 
 // CommentList methods
 
-func (this *CommentList) IsEmpty() bool {
-	if len(this.Comments) == 0 {
-		return true
-	}
-
-	return false
+func (cl *CommentList) IsEmpty() bool {
+	return len(cl.Comments) == 0
 }
 
-func (this *CommentList) GetTotal() uint64 {
-	return uint64(len(this.Comments))
+func (cl *CommentList) GetTotal() uint64 {
+	return uint64(len(cl.Comments))
 }
 
-func (this *CommentList) GetKeywords() map[string]uint64 {
+func (cl *CommentList) GetKeywords() map[string]uint64 {
 	idx := make(map[string]uint64)
 
-	for _, comment := range this.Comments {
+	for _, comment := range cl.Comments {
 		words := GetWords(comment.Content)
 
 		for _, word := range words {
@@ -123,7 +121,7 @@ func (this *CommentList) GetKeywords() map[string]uint64 {
 
 	sorted := SortedKeys(idx)
 
-	max := 50
+	max := MaxKeywords
 	if len(sorted) < max {
 		max = len(sorted)
 	}
@@ -138,10 +136,10 @@ func (this *CommentList) GetKeywords() map[string]uint64 {
 	return ret
 }
 
-func (this *CommentList) GetEmojiCount() map[string]uint64 {
+func (cl *CommentList) GetEmojiCount() map[string]uint64 {
 	emoji := map[string]uint64{}
 
-	for _, comment := range this.Comments {
+	for _, comment := range cl.Comments {
 		res := comment.GetEmoji()
 
 		for k, v := range res {
@@ -170,10 +168,10 @@ func (this *CommentList) GetEmojiCount() map[string]uint64 {
 	return ret
 }
 
-func (this *CommentList) GetSentimentSummary() map[string]uint64 {
+func (cl *CommentList) GetSentimentSummary() map[string]uint64 {
 	tags := map[string]uint64{}
 
-	for _, comment := range this.Comments {
+	for _, comment := range cl.Comments {
 		res, err := comment.GetSentiment()
 
 		if err == nil {
@@ -190,10 +188,10 @@ func (this *CommentList) GetSentimentSummary() map[string]uint64 {
 	return tags
 }
 
-func (this *CommentList) GetDailySentiment() map[string]map[string]uint64 {
+func (cl *CommentList) GetDailySentiment() map[string]map[string]uint64 {
 	days := map[string]map[string]uint64{}
 
-	for _, comment := range this.Comments {
+	for _, comment := range cl.Comments {
 		res, err := comment.GetSentiment()
 
 		if err == nil {
@@ -222,14 +220,14 @@ func (this *CommentList) GetDailySentiment() map[string]map[string]uint64 {
 	return days
 }
 
-func (this *CommentList) GetRandom(count int) []*Comment {
+func (cl *CommentList) GetRandom(count int) []*Comment {
 	seed := rand.NewSource(42)
 	rnum := rand.New(seed)
 
 	resp := []*Comment{}
 
 	for i := 0; i < count; i++ {
-		resp = append(resp, this.Comments[rnum.Intn(len(this.Comments))])
+		resp = append(resp, cl.Comments[rnum.Intn(len(cl.Comments))])
 	}
 
 	return resp
@@ -241,8 +239,8 @@ func (a ByLikes) Len() int           { return len(a) }
 func (a ByLikes) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a ByLikes) Less(i, j int) bool { return a[i].Likes > a[j].Likes }
 
-func (this *CommentList) GetMostLiked(count int) []*Comment {
-	bl := ByLikes(this.Comments)
+func (cl *CommentList) GetMostLiked(count int) []*Comment {
+	bl := ByLikes(cl.Comments)
 	sort.Sort(bl)
 
 	resp := []*Comment{}

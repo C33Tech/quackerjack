@@ -5,6 +5,7 @@ go 1.14
 require (
 	cloud.google.com/go v0.56.0 // indirect
 	github.com/dlintw/goconf v0.0.0-20120228082610-dcc070983490
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/kljensen/snowball v0.6.0
 	github.com/tmdvs/Go-Emoji-Utils v1.1.0

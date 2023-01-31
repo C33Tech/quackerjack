@@ -16,7 +16,7 @@ import (
 // LogMsg takes a message and pipes it to stdout if the verbose flag is set.
 func LogMsg(msg string) {
 	if GetConfigBool("verbose") {
-		log.Printf(msg)
+		log.Print(msg)
 	}
 }
 

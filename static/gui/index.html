@@ -107,12 +107,14 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-md-4">
-        <div style="height: 300px;">
-          <canvas id="chartTotalSentiment" width="400" height="300"></canvas>
-        </div>
-      </div>
-      <div class="col-md-4 stats">
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-6">
+            <div style="height: 300px;">
+              <canvas id="chartTotalSentiment" width="400" height="300"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6 stats">
             <div class="row">
               <div class="col-md-6 col-sm-6 col-xs-6">
                 <div class="bignum">
@@ -136,25 +138,29 @@
               </div>
               <div class="col-md-6 col-sm-6 col-xs-6">
                 <div class="bignum">
-                  <span class="num" id="dislike_ratio">--</span>
-                  <span class="desc">Dislike Ratio</span>
+                  <span class="num" id="negative_engagements">--</span>
+                  <span class="desc">Negative</span>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12" style="height: 200px;">
+            <canvas id="chartDailySentiment" width="100%" height="200" style="height: 200px;"></canvas>
+          </div>
+        </div>
       </div>
       <div class="col-md-4">
-        <div style="height: 250px;">
-          <canvas id="chartTopList" width="100%" height="250" style="height: 250px;"></canvas>
+        <div style="height: 520px;">
+          <canvas id="chartTopList" width="100%" height="520" style="height: 520px;"></canvas>
         </div>
+        <input id="chartFilter" class="form-control form-control-sm" type="text" placeholder="Filter">
+        <br>
         <ul class="list-group list-group-horizontal tabs">
-          <li class="list-group-item flex-fill list-group-item-primary" data-tab="words">Top Words</li>
+          <li class="list-group-item flex-fill list-group-item-primary" data-tab="topwords">Top Words</li>
           <li class="list-group-item flex-fill" data-tab="emoji">Top Emoji</li>
         </ul>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12" style="height: 200px;">
-        <canvas id="chartDailySentiment" width="100%" height="200" style="height: 200px;"></canvas>
       </div>
     </div>
   </div>
@@ -278,8 +284,8 @@
       jQuery('.header p.channel_title').html('<a target="new" href="https://www.youtube.com/channel/'+data.Metadata.ChannelID+'">'+data.Metadata.ChannelTitle+'</a>');
       jQuery('#total_comments').text(data.TotalComments.toLocaleString());
       jQuery('#positive_engagements').text(Math.round(data.Sentiment.positive / data.Metadata.TotalComments * 100)+"%");
+      jQuery('#negative_engagements').text(Math.round(data.Sentiment.negative / data.Metadata.TotalComments * 100)+"%");
       jQuery('#comments_per_day').text(Math.round(data.CommentAvgPerDay));
-      jQuery('#dislike_ratio').text(Math.round(data.Metadata.TotalDislikes / data.Metadata.TotalLikes * 100)+"%");
 
       // Top Lists
       let topWords = Object.keys(data.Keywords)
@@ -291,8 +297,7 @@
                               }
 
                               return 0;
-                           })
-                           .slice(0, 10);
+                           });
 
       let topEmoji = Object.keys(data.EmojiCount)
                            .sort(function(a, b) {
@@ -303,18 +308,17 @@
                               }
 
                               return 0;
-                           })
-                           .slice(0, 10);
+                           });
 
       let chartTopList = new Chart(chartTopListID, {
         type: 'horizontalBar',
         data: {
-          labels: topWords,
+          labels: topWords.slice(0, 25),
           datasets: [{
               backgroundColor: Chart.helpers.color(window.colors.red).alpha(0.5).rgbString(),
               borderColor: window.colors.red,
               borderWidth: 1,
-              data: topWords.map(x => data.Keywords[x])
+              data: topWords.slice(0, 25).map(x => data.Keywords[x])
           }]
         },
         options: {
@@ -348,6 +352,27 @@
         }
       });
 
+      jQuery('#chartFilter').change(function() {
+        let tab = jQuery('.list-group-item-primary').attr('data-tab');
+        let query = jQuery('#chartFilter').val();
+
+        values = data.Keywords;
+        labels = topWords;
+        if (tab == "emoji") {
+          labels = topEmoji;
+          values = data.EmojiCount
+        }
+
+        let filtered = labels
+        if (query != "") {
+          filtered = labels.filter(word => word.includes(query) );
+        }
+
+        chartTopList.data.labels = filtered.slice(0, 25);
+        chartTopList.data.datasets[0].data = filtered.slice(0, 25).map(x => values[x]);
+        chartTopList.update();
+      });
+
       jQuery('ul.tabs li').click(function() {
         jQuery('ul.tabs li').each(function(idx) {
           jQuery(this).removeClass('list-group-item-primary');
@@ -356,14 +381,14 @@
         jQuery(this).addClass('list-group-item-primary');
         let tab = jQuery(this).attr('data-tab');
 
-        if (tab == 'words') {
-          chartTopList.data.labels = topWords;
-          chartTopList.data.datasets[0].data = topWords.map(x => data.Keywords[x]);
+        if (tab == 'topwords') {
+          chartTopList.data.labels = topWords.slice(0, 25);
+          chartTopList.data.datasets[0].data = topWords.slice(0, 25).map(x => data.Keywords[x]);
           chartTopList.options.title.text = 'Top Words';
           chartTopList.update();
         } else if (tab == 'emoji') {
-          chartTopList.data.labels = topEmoji;
-          chartTopList.data.datasets[0].data = topEmoji.map(x => data.EmojiCount[x]);
+          chartTopList.data.labels = topEmoji.slice(0, 25);
+          chartTopList.data.datasets[0].data = topEmoji.slice(0, 25).map(x => data.EmojiCount[x]);
           chartTopList.options.title.text = 'Top Emoji';
           chartTopList.update();
         } else {
