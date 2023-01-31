@@ -5,3 +5,4 @@ quackerjack.cnf
 *_stopwords.txt
 /*.sh
 .DS_Store
+quackerjack-docker-dev.conf

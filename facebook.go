@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+
 	//"fmt"
 	"net/http"
 	"net/url"
@@ -21,11 +22,11 @@ type FacebookPost struct {
 	PublishedAt   string // created_time
 }
 
-func (this *FacebookPost) GetMetadata() bool {
-	this.GetPageID()
+func (fp *FacebookPost) GetMetadata() bool {
+	fp.GetPageID()
 
 	var respTyped postMetaResp
-	resp, _ := fbRequest("/" + this.PageID + "_" + this.ID + "?fields=id,name,caption,description,picture,created_time,type,message,properties,insights,likes.limit(1).summary(true),comments.limit(1).summary(true)")
+	resp, _ := fbRequest("/" + fp.PageID + "_" + fp.ID + "?fields=id,name,caption,description,picture,created_time,type,message,properties,insights,likes.limit(1).summary(true),comments.limit(1).summary(true)")
 
 	defer resp.Body.Close()
 
@@ -35,18 +36,18 @@ func (this *FacebookPost) GetMetadata() bool {
 		return false
 	}
 
-	this.Type = respTyped.Type
-	this.Caption = respTyped.Message
-	this.TotalLikes = respTyped.Likes.Summery.TotalCount
-	this.TotalComments = respTyped.Comments.Summary.TotalCount
-	this.Thumbnail = respTyped.Picture
-	this.PublishedAt = respTyped.CreatedTime
+	fp.Type = respTyped.Type
+	fp.Caption = respTyped.Message
+	fp.TotalLikes = respTyped.Likes.Summery.TotalCount
+	fp.TotalComments = respTyped.Comments.Summary.TotalCount
+	fp.Thumbnail = respTyped.Picture
+	fp.PublishedAt = respTyped.CreatedTime
 
 	return true
 }
 
-func (this FacebookPost) GetComments() CommentList {
-	this.GetPageID()
+func (fp FacebookPost) GetComments() CommentList {
+	fp.GetPageID()
 
 	var comments = []*Comment{}
 	after := ""
@@ -58,7 +59,7 @@ func (this FacebookPost) GetComments() CommentList {
 		}
 
 		var respTyped postCommentListResp
-		resp, _ := fbRequest("/" + this.PageID + "_" + this.ID + "/comments?limit=100&order=reverse_chronological&after=" + after)
+		resp, _ := fbRequest("/" + fp.PageID + "_" + fp.ID + "/comments?limit=100&order=reverse_chronological&after=" + after)
 
 		//fmt.Println("/" + this.PageID + "_" + this.ID + "/comments?limit=100&order=reverse_chronological&after=" + after)
 
@@ -92,31 +93,31 @@ func (this FacebookPost) GetComments() CommentList {
 	return CommentList{Comments: comments}
 }
 
-func (this *FacebookPost) GetPageID() *FacebookPost {
-	if this.PageID != "" {
-		return this
+func (fp *FacebookPost) GetPageID() *FacebookPost {
+	if fp.PageID != "" {
+		return fp
 	}
 
 	var respTyped pageNameResp
-	resp, _ := fbRequest("/" + this.PageName)
+	resp, _ := fbRequest("/" + fp.PageName)
 
 	defer resp.Body.Close()
 
 	decoder := json.NewDecoder(resp.Body)
 	err := decoder.Decode(&respTyped)
 	if err != nil {
-		return this
+		return fp
 	}
 
-	this.PageID = respTyped.ID
+	fp.PageID = respTyped.ID
 
-	return this
+	return fp
 }
 
 func fbRequest(path string) (*http.Response, error) {
 	u, err := url.Parse(path)
 	if err != nil {
-		return nil, errors.New("FB request path invalid.")
+		return nil, errors.New("FB request path invalid")
 	}
 
 	u.Scheme = "https"

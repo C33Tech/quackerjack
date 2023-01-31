@@ -22,7 +22,7 @@ type InstagramPic struct {
 	PublishedAt   string
 }
 
-var igMedia IGMedia
+//var igMedia IGMedia
 
 func (ig *InstagramPic) FetchMedia(maxID string) IGMedia {
 	var err error
@@ -78,7 +78,7 @@ func (ig *InstagramPic) GetMetadata() bool {
 	ig.UserID = igMedia.Graphql.ShortcodeMedia.Owner.ID
 	ig.UserName = igMedia.Graphql.ShortcodeMedia.Owner.Username
 	ig.TotalComments = uint64(igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.Count)
-	ig.PublishedAt = string(igMedia.Graphql.ShortcodeMedia.TakenAtTimestamp)
+	ig.PublishedAt = fmt.Sprint(igMedia.Graphql.ShortcodeMedia.TakenAtTimestamp)
 	ig.Thumbnail = igMedia.Graphql.ShortcodeMedia.DisplayURL
 
 	return true
@@ -90,7 +90,7 @@ func (ig InstagramPic) CommentLoop(comments []*Comment, maxID string) CommentLis
 	for _, c := range igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.Edges {
 		thisComment := &Comment{
 			ID:         c.Node.ID,
-			Published:  string(c.Node.CreatedAt),
+			Published:  fmt.Sprint(c.Node.CreatedAt),
 			Content:    c.Node.Text,
 			AuthorName: c.Node.Owner.Username,
 		}
@@ -98,9 +98,9 @@ func (ig InstagramPic) CommentLoop(comments []*Comment, maxID string) CommentLis
 		comments = append(comments, thisComment)
 	}
 
-	if igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.HasNextPage {
-		//return ig.CommentLoop(comments, igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.EndCursor)
-	}
+	//if igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.HasNextPage {
+	//return ig.CommentLoop(comments, igMedia.Graphql.ShortcodeMedia.EdgeMediaToComment.PageInfo.EndCursor)
+	//}
 
 	return CommentList{Comments: comments}
 }

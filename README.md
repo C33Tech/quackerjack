@@ -1,4 +1,4 @@
-# `Quackerjack` v3
+# `Quackerjack` v3.1
 ## A Comment Thread Analyzer and Report Generator
 
 A CLI script and web service, written in Go, that takes a YouTube video URL and generates a report about the content of the comment stream.
@@ -18,7 +18,7 @@ v3 Changes:
 * No more redis!
 * Emoji analysis!
 
-*NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Twitter: @thatmikeflynn*
+*NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: @hydrox@defcon.social*
 
 ## Installation
 
@@ -46,6 +46,8 @@ You can also run quackerjack as a web service. Add the `-server` flag to start a
 `-server` _Start the web interface rather than having the JSON get dumpped to std out._
 
 `-port 8000` _Override the web server port._
+
+`-html /path/to/html/file.html` _Overrides the built in html interface with a custom one._
 
 ## Training
 
