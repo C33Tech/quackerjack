@@ -22,6 +22,7 @@ func LoadConfig() {
 	CLIParams["fbkey"] = flag.String("fbkey", "", "Facebook API key.")
 	CLIParams["fbsecret"] = flag.String("fbsecret", "", "Facebook Secret")
 	CLIParams["stopwords"] = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
+	CLIParams["html"] = flag.String("html", "", "An override html file path to use instead of the built in version.")
 
 	flag.Parse()
 

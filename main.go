@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -111,6 +112,15 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			LogMsg("Web GUI asset not found!")
 			os.Exit(1)
+		}
+
+		htmlPath := GetConfigString("html")
+		if htmlPath != "" {
+			data, err = ioutil.ReadFile(htmlPath)
+			if err != nil {
+				LogMsg("Unable to read html file path.")
+				os.Exit(1)
+			}
 		}
 
 		w.Header().Set("Content-Type", "text/html")
