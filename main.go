@@ -92,21 +92,38 @@ func parseURL(url string) (string, []string, string) {
 	return domain, matches, format
 }
 
+func verifyToken(token string) bool {
+	// Custom token verification logic.
+
+	return true
+}
+
 func webHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path[1:] == "api" {
 		postURL := r.URL.Query().Get("vid")
+		userToken := r.URL.Query().Get("token")
 
 		var jsonBytes []byte
 
-		if postURL != "" {
-			jsonBytes = runReport(postURL)
+		if verifyToken(userToken) {
+			if postURL != "" {
+				jsonBytes = runReport(postURL)
+			} else {
+				jsonBytes, _ = json.Marshal(webError{Error: "Missing post URL."})
+			}
 		} else {
-			jsonBytes, _ = json.Marshal(webError{Error: "Missing post URL."})
+			jsonBytes, _ = json.Marshal(webError{Error: "Invalid token."})
 		}
 
 		// w.Header().Set("Access-Control-Allow-Origin", "*") /// USEFUL FOR DEV ONLY
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonBytes)
+	} else if r.URL.Path[1:] == "oauth" {
+		// Custom oauth link generation logic.
+
+	} else if r.URL.Path[1:] == "login" {
+		// Custom login logic
+
 	} else {
 		data, err := Asset("static/gui/index.html")
 		if err != nil {
