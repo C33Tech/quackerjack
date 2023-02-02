@@ -18,7 +18,7 @@ v3 Changes:
 * No more redis!
 * Emoji analysis!
 
-*NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: @hydrox@defcon.social*
+*NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: [@hydrox@defcon.social](https://defcon.social/@hydrox)*
 
 ## Installation
 
