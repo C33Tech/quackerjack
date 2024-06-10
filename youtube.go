@@ -37,7 +37,7 @@ func (ytv YouTubeVideo) GetComments() CommentList {
 	pageToken := ""
 	errCount := 0
 	for pageToken != "EOL" {
-		results, err := youtubeService.CommentThreads.List("id,snippet,replies").TextFormat("plainText").MaxResults(100).VideoId(videoID).PageToken(pageToken).Do()
+		results, err := youtubeService.CommentThreads.List([]string{"id", "snippet", "replies"}).TextFormat("plainText").MaxResults(100).VideoId(videoID).PageToken(pageToken).Do()
 
 		if err != nil {
 			LogMsg(err.Error())
@@ -97,7 +97,7 @@ func (ytv *YouTubeVideo) GetMetadata() bool {
 		panic(err)
 	}
 
-	call := youtubeService.Videos.List("id,snippet,statistics").Id(videoID)
+	call := youtubeService.Videos.List([]string{"id", "snippet", "statistics"}).Id(videoID)
 	resp, err := call.Do()
 	if err != nil {
 		panic(err)

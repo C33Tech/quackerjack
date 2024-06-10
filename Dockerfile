@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine
+FROM golang:1.22-alpine
 
 RUN mkdir -p /go/src/quackerjack && \
     apk update && \
@@ -11,8 +11,7 @@ COPY . .
 
 RUN go get github.com/jteeuwen/go-bindata/... && \
     go-bindata -o webgui.go static/gui/ && \
-    go mod vendor && \
-    go build -mod=vendor -o quackerjack-docker
+    go build -o quackerjack-docker
 
 EXPOSE 8000
 
