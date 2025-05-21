@@ -620,11 +620,7 @@ canvas {
   }
 
   // Dark Mode Toggle Logic
-  const darkSwitch = document.getElementById('darkSwitch');
-  const darkModeStyles = document.getElementById('darkModeStyles');
-  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-
-  // Function to set the dark mode state
+  // Function to set the dark mode state (remains in global scope)
   function setDarkMode(isDark) {
     if (isDark) {
       darkModeStyles.removeAttribute('disabled');
@@ -678,31 +674,48 @@ canvas {
     }
   }
 
-  // Check local storage for user preference
-  const currentMode = localStorage.getItem('darkMode');
-  if (currentMode === 'enabled') {
-    setDarkMode(true);
-  } else if (currentMode === 'disabled') {
-    setDarkMode(false);
-  } else {
-    // If no preference in local storage, check OS preference
-    if (prefersDarkScheme.matches) {
-      setDarkMode(true);
-    } else {
-      setDarkMode(false);
+  // Wait for the DOM to be fully loaded before initializing dark mode
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkSwitch = document.getElementById('darkSwitch');
+    const darkModeStyles = document.getElementById('darkModeStyles');
+
+    if (!darkModeStyles) {
+      console.error("Dark mode stylesheet element not found.");
+      return; // Stop if critical element is missing
     }
-  }
+    // Warning for switch is fine, as OS preference can still work
+    if (!darkSwitch) {
+      console.warn("Dark mode switch element not found (darkSwitch).");
+    }
 
-  // Listen for toggle switch changes
-  if (darkSwitch) {
-    darkSwitch.addEventListener('change', function(event) {
-      setDarkMode(event.target.checked);
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // Check local storage for user preference
+    const currentMode = localStorage.getItem('darkMode');
+    if (currentMode === 'enabled') {
+      setDarkMode(true);
+    } else if (currentMode === 'disabled') {
+      setDarkMode(false);
+    } else {
+      // If no preference in local storage, check OS preference
+      if (prefersDarkScheme.matches) {
+        setDarkMode(true);
+      } else {
+        setDarkMode(false);
+      }
+    }
+
+    // Listen for toggle switch changes
+    if (darkSwitch) {
+      darkSwitch.addEventListener('change', function(event) {
+        setDarkMode(event.target.checked);
+      });
+    }
+
+    // Listen for OS preference changes
+    prefersDarkScheme.addEventListener('change', (e) => {
+        setDarkMode(e.matches);
     });
-  }
-
-  // Listen for OS preference changes (optional, but good for UX)
-  prefersDarkScheme.addEventListener('change', (e) => {
-      setDarkMode(e.matches);
   });
   </script>
 </body>
