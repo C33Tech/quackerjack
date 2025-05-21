@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
@@ -125,15 +124,15 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 		// Custom login logic
 
 	} else {
-		data, err := Asset("static/gui/index.html")
+		data, err := HTML.ReadFile("static/gui/index.html")
 		if err != nil {
-			LogMsg("Web GUI asset not found!")
+			LogMsg("Web GUI asset not found: " + err.Error())
 			os.Exit(1)
 		}
 
 		htmlPath := GetConfigString("html")
 		if htmlPath != "" {
-			data, err = ioutil.ReadFile(htmlPath)
+			data, err = os.ReadFile(htmlPath)
 			if err != nil {
 				LogMsg("Unable to read html file path.")
 				os.Exit(1)

@@ -1,6 +1,4 @@
-IS_RUNNING := $(shell docker ps -q --no-trunc | grep $(shell docker-compose ps -q app))
-
-build: deps format data
+build: format
 		@echo "--> Building"
 		@go build
 
@@ -16,23 +14,17 @@ format:
 		@echo "--> Running go fmt"
 		@gofmt -s -w .
 
-data:
-		@echo "--> Importing binary files"
-		@go-bindata -o webgui.go static/gui/
-
 docker-run:
 		docker-compose up
 
 docker-build:
 		docker-compose up --build
 
-docker-shell:
-ifeq ($(IS_RUNNING),)
+docker-shell-start:
 		docker-compose run --service-ports --rm app /bin/ash
-else
+
+docker-shell-running:
 		docker-compose exec app /bin/ash
-endif
-		@echo "Shell closed."
 
 docker-clean:
 		docker-compose down
