@@ -22,140 +22,153 @@
     .tabs { font-size: 10px; text-align: center }
     .tabs li { padding: 5px; cursor: pointer; }
   </style>
-  <style id="darkModeStyles" type="text/css" disabled>
-body {
+  <style id="darkModeStyles" type="text/css">
+body.dark-theme {
   background-color: #121212;
   color: #e0e0e0;
 }
 
 /* Navbar */
-.navbar.navbar-dark.bg-dark { /* Keep navbar dark, but adjust if needed or for consistency */
+body.dark-theme .navbar.navbar-dark.bg-dark { /* Keep navbar dark, but adjust if needed or for consistency */
   background-color: #1f1f1f !important; /* Slightly lighter than body for separation */
 }
 
 /* Headings and Text */
-h1, h2, h3, h4, h5, h6, .video_title, .channel_title {
+body.dark-theme h1, 
+body.dark-theme h2, 
+body.dark-theme h3, 
+body.dark-theme h4, 
+body.dark-theme h5, 
+body.dark-theme h6, 
+body.dark-theme .video_title, 
+body.dark-theme .channel_title {
   color: #f5f5f5;
 }
 
-p, .form-text, .text-muted, span.desc, .tabs li {
+body.dark-theme p, 
+body.dark-theme .form-text, 
+body.dark-theme .text-muted, 
+body.dark-theme span.desc, 
+body.dark-theme .tabs li {
   color: #bdbdbd;
 }
 
 /* Links */
-a {
+body.dark-theme a {
   color: #bb86fc; /* A common dark mode accent color */
 }
-a:hover {
+body.dark-theme a:hover {
   color: #9e69d9;
 }
 
 /* Form Inputs and Buttons */
-.form-control {
+body.dark-theme .form-control {
   background-color: #2c2c2c;
   color: #e0e0e0;
   border-color: #444;
 }
-.form-control::placeholder {
+body.dark-theme .form-control::placeholder {
   color: #757575;
 }
-.form-control:focus {
+body.dark-theme .form-control:focus {
   background-color: #333;
   color: #e0e0e0;
   border-color: #bb86fc;
   box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
 }
 
-.btn-primary {
+body.dark-theme .btn-primary {
   background-color: #bb86fc;
   border-color: #bb86fc;
   color: #000; /* Text on primary button */
 }
-.btn-primary:hover {
+body.dark-theme .btn-primary:hover {
   background-color: #9e69d9;
   border-color: #9e69d9;
 }
-.btn-secondary {
+body.dark-theme .btn-secondary {
   background-color: #333;
   border-color: #333;
   color: #e0e0e0;
 }
-.btn-secondary:hover {
+body.dark-theme .btn-secondary:hover {
   background-color: #444;
   border-color: #444;
 }
 
 
 /* Report Sections & Specific Elements */
-#report .header {
+body.dark-theme #report .header {
   border-bottom-color: #444;
 }
-.bignum {
+body.dark-theme .bignum {
   background-color: #1e1e1e;
   border-radius: 5px; /* Already there, but ensure it looks good */
 }
-.bignum span.num {
+body.dark-theme .bignum span.num {
   color: #f5f5f5;
 }
-.bignum span.desc {
+body.dark-theme .bignum span.desc {
   color: #bdbdbd;
 }
 
-.list-group-item {
+body.dark-theme .list-group-item {
   background-color: #2c2c2c;
   border-color: #444;
   color: #e0e0e0;
 }
-.list-group-item-primary {
+body.dark-theme .list-group-item-primary {
   background-color: #bb86fc !important; /* Ensure Bootstrap override if needed */
   color: #000 !important;
   border-color: #bb86fc;
 }
 
 /* Progress bar - assuming it might need adjustment */
-.progress {
+body.dark-theme .progress {
   background-color: #444;
 }
 
 /* Charts - background might be controlled by Chart.js options,
    but text and legend might be stylable here if they are HTML/CSS.
    This needs to be checked during testing. For now, ensuring container is okay. */
-canvas {
+body.dark-theme canvas {
   /* If canvas itself has a background set by JS, this won't override.
      But if its container needs styling: */
   /* background-color: #1e1e1e; /* Example */
 }
 
 /* Custom switch label color for dark mode (already set in HTML but as a fallback) */
-.custom-control-label::before {
+body.dark-theme .custom-control-label::before {
   background-color: #444; /* Switch track color */
   border-color: #555;
 }
-.custom-control-input:checked~.custom-control-label::before {
+body.dark-theme .custom-control-input:checked~.custom-control-label::before {
   background-color: #bb86fc; /* Switch active color */
   border-color: #bb86fc;
 }
-.custom-control-input:focus~.custom-control-label::before {
+body.dark-theme .custom-control-input:focus~.custom-control-label::before {
   box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
 }
-.custom-control-label { /* Ensure label text is light if not handled by parent color inheritance */
+body.dark-theme .custom-control-label { /* Ensure label text is light if not handled by parent color inheritance */
     color: #e0e0e0;
 }
 
 /* Make sure that the intro, processing, and report sections have appropriate backgrounds */
-#intro, #processing, #report {
+body.dark-theme #intro, 
+body.dark-theme #processing, 
+body.dark-theme #report {
     background-color: #121212; /* Match body or use a slightly different dark shade */
 }
 
 /* Ensure the text in the processing list is legible */
-#processing ul.list-group li {
+body.dark-theme #processing ul.list-group li {
     background-color: #2c2c2c; /* Darker list items */
     color: #e0e0e0; /* Light text */
     border-color: #444; /* Darker borders */
 }
 
 /* Ensure icons are visible if they are font icons and inherit color */
-.fa {
+body.dark-theme .fa {
     color: #e0e0e0; /* Or a specific accent color if preferred */
 }
   </style>
@@ -433,7 +446,7 @@ canvas {
       let chartDailySentimentID = document.getElementById('chartDailySentiment').getContext('2d');
       let chartTopListID = document.getElementById('chartTopList').getContext('2d');
 
-      const isCurrentlyDark = document.getElementById('darkModeStyles') && !document.getElementById('darkModeStyles').disabled;
+      const isCurrentlyDark = document.body.classList.contains('dark-theme');
       const currentChartColors = isCurrentlyDark ? chartDarkColors : chartLightColors;
 
       // Metadata
@@ -623,11 +636,11 @@ canvas {
   // Function to set the dark mode state (remains in global scope)
   function setDarkMode(isDark) {
     if (isDark) {
-      darkModeStyles.removeAttribute('disabled');
+      document.body.classList.add('dark-theme');
       if (darkSwitch) darkSwitch.checked = true;
       localStorage.setItem('darkMode', 'enabled');
     } else {
-      darkModeStyles.setAttribute('disabled', 'true');
+      document.body.classList.remove('dark-theme');
       if (darkSwitch) darkSwitch.checked = false;
       localStorage.setItem('darkMode', 'disabled');
     }
@@ -677,12 +690,6 @@ canvas {
   // Wait for the DOM to be fully loaded before initializing dark mode
   document.addEventListener('DOMContentLoaded', function() {
     const darkSwitch = document.getElementById('darkSwitch');
-    const darkModeStyles = document.getElementById('darkModeStyles');
-
-    if (!darkModeStyles) {
-      console.error("Dark mode stylesheet element not found.");
-      return; // Stop if critical element is missing
-    }
     // Warning for switch is fine, as OS preference can still work
     if (!darkSwitch) {
       console.warn("Dark mode switch element not found (darkSwitch).");
