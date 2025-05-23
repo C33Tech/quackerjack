@@ -22,6 +22,156 @@
     .tabs { font-size: 10px; text-align: center }
     .tabs li { padding: 5px; cursor: pointer; }
   </style>
+  <style id="darkModeStyles" type="text/css">
+body.dark-theme {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+/* Navbar */
+body.dark-theme .navbar.navbar-dark.bg-dark { /* Keep navbar dark, but adjust if needed or for consistency */
+  background-color: #1f1f1f !important; /* Slightly lighter than body for separation */
+}
+
+/* Headings and Text */
+body.dark-theme h1, 
+body.dark-theme h2, 
+body.dark-theme h3, 
+body.dark-theme h4, 
+body.dark-theme h5, 
+body.dark-theme h6, 
+body.dark-theme .video_title, 
+body.dark-theme .channel_title {
+  color: #f5f5f5;
+}
+
+body.dark-theme p, 
+body.dark-theme .form-text, 
+body.dark-theme .text-muted, 
+body.dark-theme span.desc, 
+body.dark-theme .tabs li {
+  color: #bdbdbd;
+}
+
+/* Links */
+body.dark-theme a {
+  color: #bb86fc; /* A common dark mode accent color */
+}
+body.dark-theme a:hover {
+  color: #9e69d9;
+}
+
+/* Form Inputs and Buttons */
+body.dark-theme .form-control {
+  background-color: #2c2c2c;
+  color: #e0e0e0;
+  border-color: #444;
+}
+body.dark-theme .form-control::placeholder {
+  color: #757575;
+}
+body.dark-theme .form-control:focus {
+  background-color: #333;
+  color: #e0e0e0;
+  border-color: #bb86fc;
+  box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
+}
+
+body.dark-theme .btn-primary {
+  background-color: #bb86fc;
+  border-color: #bb86fc;
+  color: #000; /* Text on primary button */
+}
+body.dark-theme .btn-primary:hover {
+  background-color: #9e69d9;
+  border-color: #9e69d9;
+}
+body.dark-theme .btn-secondary {
+  background-color: #333;
+  border-color: #333;
+  color: #e0e0e0;
+}
+body.dark-theme .btn-secondary:hover {
+  background-color: #444;
+  border-color: #444;
+}
+
+
+/* Report Sections & Specific Elements */
+body.dark-theme #report .header {
+  border-bottom-color: #444;
+}
+body.dark-theme .bignum {
+  background-color: #1e1e1e;
+  border-radius: 5px; /* Already there, but ensure it looks good */
+}
+body.dark-theme .bignum span.num {
+  color: #f5f5f5;
+}
+body.dark-theme .bignum span.desc {
+  color: #bdbdbd;
+}
+
+body.dark-theme .list-group-item {
+  background-color: #2c2c2c;
+  border-color: #444;
+  color: #e0e0e0;
+}
+body.dark-theme .list-group-item-primary {
+  background-color: #bb86fc !important; /* Ensure Bootstrap override if needed */
+  color: #000 !important;
+  border-color: #bb86fc;
+}
+
+/* Progress bar - assuming it might need adjustment */
+body.dark-theme .progress {
+  background-color: #444;
+}
+
+/* Charts - background might be controlled by Chart.js options,
+   but text and legend might be stylable here if they are HTML/CSS.
+   This needs to be checked during testing. For now, ensuring container is okay. */
+body.dark-theme canvas {
+  /* If canvas itself has a background set by JS, this won't override.
+     But if its container needs styling: */
+  /* background-color: #1e1e1e; /* Example */
+}
+
+/* Custom switch label color for dark mode (already set in HTML but as a fallback) */
+body.dark-theme .custom-control-label::before {
+  background-color: #444; /* Switch track color */
+  border-color: #555;
+}
+body.dark-theme .custom-control-input:checked~.custom-control-label::before {
+  background-color: #bb86fc; /* Switch active color */
+  border-color: #bb86fc;
+}
+body.dark-theme .custom-control-input:focus~.custom-control-label::before {
+  box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
+}
+body.dark-theme .custom-control-label { /* Ensure label text is light if not handled by parent color inheritance */
+    color: #e0e0e0;
+}
+
+/* Make sure that the intro, processing, and report sections have appropriate backgrounds */
+body.dark-theme #intro, 
+body.dark-theme #processing, 
+body.dark-theme #report {
+    background-color: #121212; /* Match body or use a slightly different dark shade */
+}
+
+/* Ensure the text in the processing list is legible */
+body.dark-theme #processing ul.list-group li {
+    background-color: #2c2c2c; /* Darker list items */
+    color: #e0e0e0; /* Light text */
+    border-color: #444; /* Darker borders */
+}
+
+/* Ensure icons are visible if they are font icons and inherit color */
+body.dark-theme .fa {
+    color: #e0e0e0; /* Or a specific accent color if preferred */
+}
+  </style>
 </head>
 <body>
 
@@ -53,6 +203,7 @@
       </li>
       -->
     </ul>
+    <ul class="navbar-nav ml-auto"> <li class="nav-item"> <div class="custom-control custom-switch"> <input type="checkbox" class="custom-control-input" id="darkSwitch"> <label class="custom-control-label" for="darkSwitch" style="color: white;">Dark Mode</label> </div> </li> </ul>
     <!--
     <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
@@ -171,6 +322,22 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 
   <script type="text/javascript">
+  var chartTopList = null;
+  var chartDailySentiment = null;
+  var chartTotalSentiment = null;
+
+  const chartLightColors = {
+      fontColor: '#666', // Default text color for Chart.js in light mode
+      gridLinesColor: 'rgba(0, 0, 0, 0.1)', // Default grid line color
+      axisTicksColor: '#666'
+  };
+
+  const chartDarkColors = {
+      fontColor: '#e0e0e0', // Light text for dark mode
+      gridLinesColor: 'rgba(255, 255, 255, 0.1)', // Lighter grid lines for dark mode
+      axisTicksColor: '#e0e0e0'
+  };
+
   var colors = {
     red: "rgb(255, 99, 132)",
     orange: "rgb(255, 159, 64)",
@@ -279,6 +446,9 @@
       let chartDailySentimentID = document.getElementById('chartDailySentiment').getContext('2d');
       let chartTopListID = document.getElementById('chartTopList').getContext('2d');
 
+      const isCurrentlyDark = document.body.classList.contains('dark-theme');
+      const currentChartColors = isCurrentlyDark ? chartDarkColors : chartLightColors;
+
       // Metadata
       jQuery('.header h2.video_title').text(data.Metadata.Title);
       jQuery('.header p.channel_title').html('<a target="new" href="https://www.youtube.com/channel/'+data.Metadata.ChannelID+'">'+data.Metadata.ChannelTitle+'</a>');
@@ -310,7 +480,7 @@
                               return 0;
                            });
 
-      let chartTopList = new Chart(chartTopListID, {
+      chartTopList = new Chart(chartTopListID, { // Assign to global
         type: 'horizontalBar',
         data: {
           labels: topWords.slice(0, 25),
@@ -324,29 +494,20 @@
         options: {
           maintainAspectRatio: false,
           responsive: true,
-          title: { text: "Top Words", display: true },
-          legend: {
-            display: false
-          },
+          title: { text: "Top Words", display: true, fontColor: currentChartColors.fontColor },
+          legend: { display: false, labels: { fontColor: currentChartColors.fontColor } },
           scales: {
             xAxes: [{
               display: true,
-              scaleLabel: {
-                display: true
-              },
-              gridLines: {
-                display: true
-              }
+              scaleLabel: { display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
+              gridLines: { display: true, color: currentChartColors.gridLinesColor }, // Added color
+              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
             }],
             yAxes: [{
               display: true,
-              scaleLabel: {
-                display: false,
-                fontSize: 10
-              },
-              gridLines: {
-                display: false
-              }
+              scaleLabel: { display: false, fontSize: 10, fontColor: currentChartColors.fontColor }, // Added fontColor
+              gridLines: { display: false, color: currentChartColors.gridLinesColor }, // Added color
+              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
             }]
           }
         }
@@ -399,7 +560,7 @@
       // Daily Sentiment Chart
       let dailySentimentKeys = Object.keys(data.DailySentiment).sort().slice(0, 30);;
 
-      let chartDailySentiment = new Chart(chartDailySentimentID, {
+      chartDailySentiment = new Chart(chartDailySentimentID, { // Assign to global
         type: 'line',
         data: {
           labels: dailySentimentKeys,
@@ -418,36 +579,30 @@
           }]
         },
         options: {
-          legend: {
-            display: false
-          },
-          title: { text: "First 30 Days Daily Sentiment", display: true },
+          legend: { display: false, labels: { fontColor: currentChartColors.fontColor } }, // Added labels fontColor
+          title: { text: "First 30 Days Daily Sentiment", display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
           responsive: true,
           maintainAspectRatio: false,
           scales: {
             xAxes: [{
               display: true,
-              scaleLabel: {
-                display: false
-              },
-              gridLines: {
-                display: false
-              }
+              scaleLabel: { display: false, fontColor: currentChartColors.fontColor }, // Added fontColor
+              gridLines: { display: false, color: currentChartColors.gridLinesColor }, // Added color
+              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
             }],
             yAxes: [{
               type: 'logarithmic',
-              display: false,
-              scaleLabel: {
-                display: false,
-                labelString: 'Comments'
-              }
+              display: true, // Changed to true to see labels/ticks
+              scaleLabel: { display: false, labelString: 'Comments', fontColor: currentChartColors.fontColor }, // Added fontColor
+              gridLines: { display: true, color: currentChartColors.gridLinesColor }, // Added color for visibility
+              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
             }]
           }
         }
       });
 
       // Total Sentiment Chart
-      let chartTotalSentiment = new Chart(chartTotalSentimentID, {
+      chartTotalSentiment = new Chart(chartTotalSentimentID, { // Assign to global
         type: 'doughnut',
         data: {
           datasets: [{
@@ -463,7 +618,8 @@
           responsive: true,
           circumference: 1*Math.PI,
           rotation: -Math.PI,
-          title: { text: "Total Sentiment", display: true },
+          title: { text: "Total Sentiment", display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
+          legend: { labels: { fontColor: currentChartColors.fontColor } }, // Added labels fontColor
           animation: {
             animateScale: true,
             animateRotate: true
@@ -475,6 +631,99 @@
       jQuery('#report').show();
     }
   }
+
+  // Dark Mode Toggle Logic
+  // Function to set the dark mode state (remains in global scope)
+  function setDarkMode(isDark) {
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      if (darkSwitch) darkSwitch.checked = true;
+      localStorage.setItem('darkMode', 'enabled');
+    } else {
+      document.body.classList.remove('dark-theme');
+      if (darkSwitch) darkSwitch.checked = false;
+      localStorage.setItem('darkMode', 'disabled');
+    }
+
+    const newChartColors = isDark ? chartDarkColors : chartLightColors;
+
+    if (chartTopList) {
+      chartTopList.options.title.fontColor = newChartColors.fontColor;
+      if (chartTopList.options.legend.labels) chartTopList.options.legend.labels.fontColor = newChartColors.fontColor;
+      chartTopList.options.scales.xAxes.forEach(axis => {
+        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
+        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
+        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
+      });
+      chartTopList.options.scales.yAxes.forEach(axis => {
+        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
+        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
+        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
+      });
+      chartTopList.update();
+    }
+
+    if (chartDailySentiment) {
+      chartDailySentiment.options.title.fontColor = newChartColors.fontColor;
+      if (chartDailySentiment.options.legend.labels) chartDailySentiment.options.legend.labels.fontColor = newChartColors.fontColor;
+      chartDailySentiment.options.scales.xAxes.forEach(axis => {
+        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
+        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
+        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
+      });
+      chartDailySentiment.options.scales.yAxes.forEach(axis => {
+        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
+        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
+        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
+      });
+      chartDailySentiment.update();
+    }
+
+    if (chartTotalSentiment) {
+      chartTotalSentiment.options.title.fontColor = newChartColors.fontColor;
+      if (chartTotalSentiment.options.legend.labels) chartTotalSentiment.options.legend.labels.fontColor = newChartColors.fontColor;
+      // Doughnut charts don't have scales like other charts, so only title/legend are typically needed.
+      chartTotalSentiment.update();
+    }
+  }
+
+  // Wait for the DOM to be fully loaded before initializing dark mode
+  document.addEventListener('DOMContentLoaded', function() {
+    const darkSwitch = document.getElementById('darkSwitch');
+    // Warning for switch is fine, as OS preference can still work
+    if (!darkSwitch) {
+      console.warn("Dark mode switch element not found (darkSwitch).");
+    }
+
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+    // Check local storage for user preference
+    const currentMode = localStorage.getItem('darkMode');
+    if (currentMode === 'enabled') {
+      setDarkMode(true);
+    } else if (currentMode === 'disabled') {
+      setDarkMode(false);
+    } else {
+      // If no preference in local storage, check OS preference
+      if (prefersDarkScheme.matches) {
+        setDarkMode(true);
+      } else {
+        setDarkMode(false);
+      }
+    }
+
+    // Listen for toggle switch changes
+    if (darkSwitch) {
+      darkSwitch.addEventListener('change', function(event) {
+        setDarkMode(event.target.checked);
+      });
+    }
+
+    // Listen for OS preference changes
+    prefersDarkScheme.addEventListener('change', (e) => {
+        setDarkMode(e.matches);
+    });
+  });
   </script>
 </body>
 </html>
