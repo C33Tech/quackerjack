@@ -24,7 +24,7 @@ func IsStopWord(needle string) bool {
 	return false
 }
 
-// LoadStopWords takes list of paths and reads the contents in to the stopWords array.
+// LoadStopWords reads stop words from a single file path into the stopWords map.
 func LoadStopWords(path string) {
 	file, err := os.Open(path)
 	if err != nil {
