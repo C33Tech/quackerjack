@@ -36,6 +36,11 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    /* Headings */
+    h1, h2, h3, h4, h5, h6 {
+      color: var(--text-color);
+    }
+
     /* Navbar */
     .navbar {
       background-color: var(--card-bg);
@@ -165,17 +170,17 @@
     .report-header {
       margin-bottom: 2rem;
     }
-    .video-title {
+    .video_title {
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
-    .channel-title a {
+    .channel_title a {
       color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
       font-size: 1.1rem;
     }
-    .channel-title a:hover {
+    .channel_title a:hover {
       color: var(--primary-color);
     }
 
@@ -243,6 +248,11 @@
     }
     body.dark-mode .progress {
       background-color: #374151;
+    }
+    body.dark-mode .filter-input {
+      background-color: #374151;
+      border-color: #4b5563;
+      color: white;
     }
   </style>
 </head>

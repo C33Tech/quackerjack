@@ -1,9 +1,11 @@
+version: "3"
+
 services:
-  quackerjack:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./docker/docker.conf:/go/src/quackerjack/docker.conf
+      - .:/go/src/quackerjack
     ports:
       - "80:8000"

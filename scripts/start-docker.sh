@@ -5,9 +5,12 @@ if [ ! -f /go/src/quackerjack/quackerjack-docker ]; then
   exit 1
 fi
 
-if [ ! -f /go/src/quackerjack/docker.conf ]; then
+if [ ! -f /go/src/quackerjack/quackerjack-docker.conf ]; then
   echo "Missing quackerjack config file."
   exit 1
 fi
 
-nohup /go/src/quackerjack/quackerjack-docker -server -verbose -conf "/go/src/quackerjack/docker.conf"
+if ! pgrep "quackerjack" > /dev/null; then
+  go build -mod=vendor -o quackerjack-docker
+  nohup /go/src/quackerjack/quackerjack-docker -server -verbose -conf "/go/src/quackerjack/quackerjack-docker.conf"
+fi

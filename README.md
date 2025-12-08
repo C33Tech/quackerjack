@@ -1,5 +1,4 @@
 # `Quackerjack` v3.1
-
 ## A Comment Thread Analyzer and Report Generator
 
 A CLI script and web service, written in Go, that takes a YouTube video URL and generates a report about the content of the comment stream.
@@ -7,21 +6,19 @@ A CLI script and web service, written in Go, that takes a YouTube video URL and 
 ![Web GUI](/static/web-gui.png)
 
 The report includes:
-
-- The total number of comments and how many were collected.
-- The top keywords from the comments.
-- The sentiment analysis of the comments.
-- Sentiment over the first 30 days from upload.
-- Emoji usage analysis.
+* The total number of comments and how many were collected.
+* The top keywords from the comments.
+* The sentiment analysis of the comments.
+* Sentiment over the first 30 days from upload.
+* Emoji usage analysis.
 
 v3 Changes:
+* New interface!
+* Mobile friendly!
+* No more redis!
+* Emoji analysis!
 
-- New interface!
-- Mobile friendly!
-- No more redis!
-- Emoji analysis!
-
-_NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: [@hydrox@defcon.social](https://defcon.social/@hydrox)_
+*NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: [@hydrox@defcon.social](https://defcon.social/@hydrox)*
 
 ## Installation
 
@@ -34,6 +31,7 @@ The script can be run via the command line, which will return a JSON object of t
 `quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -post [post url] [-verbose]`
 
 You can also run quackerjack as a web service. Add the `-server` flag to start a web server that has two endpoints on port 8080: `/` is a simple web interface where you can enter post urls and it displays the results in a visual report. `/api` is the JSON web service route which takes a `?vid=` param and retuns a JSON response.
+
 
 ## Flags
 
@@ -68,8 +66,8 @@ app_1  | 2020/04/28 15:56:09 Web server running on 8000
 
 ## Development
 
-- go 1.14
-- Docker
+* go 1.14
+* Docker
 
 If you want to dig in to the code, you can clone this repo...
 
@@ -77,9 +75,12 @@ If you want to dig in to the code, you can clone this repo...
 
 I've included a Docker image and docker-compose config that will run the web service in verbose mode by default. You can also run `make docker-shell` to get a shell on the Docker instance for active development.
 
+Don't for get to update the saved assets if you update the web interface: `make data` !
+
 ## To Do:
 
-- Save a copy of the resulting model for easy `go get` download and startup.
+* Save a copy of the resulting model for easy `go get` download and startup.
+
 
 ## Who is Quackerjack?
 
