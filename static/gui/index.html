@@ -8,21 +8,29 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome 6 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
+            --bg-dark: #0b1121;
+            --bg-card: rgba(30, 41, 59, 0.7);
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
-            --accent-color: #6366f1;
-            --border-color: #334155;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); /* Violet to Pink */
+            --accent-color: #8b5cf6;
+            --border-color: rgba(148, 163, 184, 0.1);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+            --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
         }
 
         body {
             background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
             color: var(--text-primary);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
         }
 
@@ -30,7 +38,8 @@
         .sidebar {
             width: 250px;
             height: 100vh;
-            background-color: var(--bg-card);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
             border-right: 1px solid var(--border-color);
             position: fixed;
             top: 0;
@@ -41,29 +50,41 @@
 
         .logo {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 700;
             color: var(--text-primary);
             margin-bottom: 2rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
 
         .logo i {
-            color: var(--accent-color);
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.8rem;
         }
 
         .nav-link {
             color: var(--text-secondary);
             padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            transition: all 0.2s;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
         }
 
         .nav-link:hover, .nav-link.active {
-            background-color: rgba(99, 102, 241, 0.1);
-            color: var(--accent-color);
+            background: rgba(139, 92, 246, 0.15);
+            color: #d8b4fe;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-link.active {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: var(--glow-shadow);
         }
 
         .nav-link i {
@@ -80,35 +101,47 @@
         /* Cards */
         .card {
             background-color: var(--bg-card);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
         }
 
         .card-header {
             background-color: transparent;
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 20px;
+            padding: 18px 24px;
             font-weight: 600;
             color: var(--text-primary);
+            letter-spacing: 0.5px;
         }
 
         .card-body {
-            padding: 20px;
+            padding: 24px;
         }
 
         /* Stats */
         .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--text-primary);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
         }
 
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
 
         /* Search Bar */
@@ -118,26 +151,46 @@
         }
 
         .input-group-dark .form-control {
-            background-color: var(--bg-card);
+            background-color: rgba(30, 41, 59, 0.6);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
+            padding: 15px;
+            font-size: 1.1rem;
+            border-radius: 12px 0 0 12px;
         }
 
         .input-group-dark .form-control:focus {
-            box-shadow: none;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
             border-color: var(--accent-color);
         }
 
         .input-group-dark .btn {
             border-color: var(--border-color);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--accent-gradient);
+            border: none;
+            box-shadow: var(--glow-shadow);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
         }
 
         /* Video Info */
         .video-thumbnail {
             width: 100%;
-            border-radius: 8px;
+            border-radius: 12px;
             margin-bottom: 15px;
             object-fit: cover;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
         /* Charts */
@@ -149,13 +202,26 @@
 
         /* Processing State */
         #processing ul li {
-            background-color: var(--bg-card);
+            background-color: rgba(30, 41, 59, 0.5);
             color: var(--text-secondary);
             border-color: var(--border-color);
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        .progress {
+            height: 8px;
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            background: var(--accent-gradient);
+            box-shadow: var(--glow-shadow);
         }
 
         /* Utilities */
-        .text-accent { color: var(--accent-color); }
+        .text-accent { color: #c084fc; }
         .text-secondary { color: var(--text-secondary) !important; }
 
         /* Views */
@@ -379,16 +445,16 @@
 
         // Config
         var colors = {
-            red: "rgb(239, 68, 68)",
-            green: "rgb(34, 197, 94)",
-            blue: "rgb(59, 130, 246)",
+            red: "rgb(236, 72, 153)",   // Vibrant Pink
+            green: "rgb(34, 197, 94)",  // Vibrant Green
+            blue: "rgb(56, 189, 248)",  // Light Blue
             grey: "rgb(148, 163, 184)",
-            indigo: "rgb(99, 102, 241)"
+            indigo: "rgb(139, 92, 246)" // Violet Accent
         };
 
         const chartOptions = {
-            fontColor: '#94a3b8',
-            gridColor: 'rgba(51, 65, 85, 0.5)'
+            fontColor: '#cbd5e1',
+            gridColor: 'rgba(148, 163, 184, 0.1)'
         };
 
         // Utils
