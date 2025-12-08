@@ -1,17 +1,16 @@
-FROM golang:1.22-alpine
+FROM golang:1.24-alpine
 
 RUN mkdir -p /go/src/quackerjack && \
-    apk update && \
-    apk add git && \
-    apk add gcc
+  apk update && \
+  apk add git && \
+  apk add gcc && \
+  apk add libc-dev
 
 WORKDIR /go/src/quackerjack
 
 COPY . .
 
-RUN go get github.com/jteeuwen/go-bindata/... && \
-    go-bindata -o webgui.go static/gui/ && \
-    go build -o quackerjack-docker
+RUN go build -o quackerjack-docker
 
 EXPOSE 8000
 

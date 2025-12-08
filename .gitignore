@@ -6,3 +6,4 @@ quackerjack.cnf
 /*.sh
 .DS_Store
 quackerjack-docker-dev.conf
+docker
