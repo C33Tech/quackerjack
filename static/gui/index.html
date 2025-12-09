@@ -13,32 +13,54 @@
 
     <style>
         :root {
-            --bg-dark: #0b1121;
-            --bg-card: rgba(30, 41, 59, 0.7);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); /* Violet to Pink */
+            /* Light Mode (Default) */
+            --bg-dark: #f8fafc;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-sidebar: rgba(255, 255, 255, 0.9);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
             --accent-color: #8b5cf6;
-            --border-color: rgba(148, 163, 184, 0.1);
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
-            --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            --border-color: rgba(148, 163, 184, 0.2);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+            --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+
+            --bg-grad-1: rgba(99, 102, 241, 0.08);
+            --bg-grad-2: rgba(236, 72, 153, 0.08);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-dark: #0b1121;
+                --bg-card: rgba(30, 41, 59, 0.7);
+                --bg-sidebar: rgba(15, 23, 42, 0.8);
+                --text-primary: #f8fafc;
+                --text-secondary: #94a3b8;
+                --border-color: rgba(148, 163, 184, 0.1);
+                --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+                --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+
+                --bg-grad-1: rgba(99, 102, 241, 0.15);
+                --bg-grad-2: rgba(236, 72, 153, 0.15);
+            }
         }
 
         body {
             background-color: var(--bg-dark);
             background-image:
-                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, var(--bg-grad-1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, var(--bg-grad-2) 0%, transparent 40%);
             color: var(--text-primary);
             font-family: 'Poppins', sans-serif;
             overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Sidebar */
         .sidebar {
             width: 250px;
             height: 100vh;
-            background: rgba(15, 23, 42, 0.8);
+            background: var(--bg-sidebar);
             backdrop-filter: blur(12px);
             border-right: 1px solid var(--border-color);
             position: fixed;
@@ -46,6 +68,7 @@
             left: 0;
             padding: 20px;
             z-index: 1000;
+            transition: background 0.3s ease;
         }
 
         .logo {
@@ -56,7 +79,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            text-shadow: 0 0 10px rgba(255,255,255,0.1);
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
         }
 
         .logo i {
@@ -81,9 +104,16 @@
             box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
         }
 
+        /* Specific override for light mode active state text color if needed */
+        @media (prefers-color-scheme: light) {
+            .nav-link:hover, .nav-link.active {
+                color: #7c3aed;
+            }
+        }
+
         .nav-link.active {
             background: var(--accent-gradient);
-            color: white;
+            color: white !important; /* Force white text on the gradient */
             box-shadow: var(--glow-shadow);
         }
 
@@ -106,12 +136,12 @@
             border-radius: 16px;
             margin-bottom: 24px;
             box-shadow: var(--card-shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border-color: rgba(139, 92, 246, 0.3);
         }
 
@@ -133,7 +163,7 @@
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
         }
 
         .stat-label {
@@ -151,7 +181,7 @@
         }
 
         .input-group-dark .form-control {
-            background-color: rgba(30, 41, 59, 0.6);
+            background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
             padding: 15px;
@@ -190,7 +220,7 @@
             border-radius: 12px;
             margin-bottom: 15px;
             object-fit: cover;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         /* Charts */
@@ -202,7 +232,7 @@
 
         /* Processing State */
         #processing ul li {
-            background-color: rgba(30, 41, 59, 0.5);
+            background-color: var(--bg-card);
             color: var(--text-secondary);
             border-color: var(--border-color);
             margin-bottom: 5px;
@@ -211,7 +241,7 @@
 
         .progress {
             height: 8px;
-            background-color: rgba(255,255,255,0.05);
+            background-color: var(--border-color);
             border-radius: 4px;
         }
 
@@ -290,7 +320,7 @@
                         <li class="list-group-item" id="processing-emoji"><i class="fa-regular fa-square me-2"></i> Analyzing emoji</li>
                         <li class="list-group-item" id="processing-sentiment"><i class="fa-regular fa-square me-2"></i> Analyzing sentiment</li>
                     </ul>
-                    <div class="progress" style="height: 10px; background-color: var(--bg-dark);">
+                    <div class="progress" style="height: 10px;">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background-color: var(--accent-color);"></div>
                     </div>
                 </div>
@@ -452,10 +482,21 @@
             indigo: "rgb(139, 92, 246)" // Violet Accent
         };
 
-        const chartOptions = {
-            fontColor: '#cbd5e1',
-            gridColor: 'rgba(148, 163, 184, 0.1)'
-        };
+        function getChartColors() {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return {
+                fontColor: isDark ? '#cbd5e1' : '#64748b',
+                gridColor: isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(148, 163, 184, 0.2)'
+            };
+        }
+
+        let chartOptions = getChartColors();
+
+        // Theme Change Listener
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            chartOptions = getChartColors();
+            if(reportData) drawReport(reportData);
+        });
 
         // Utils
         function getURLParameter(name) {
@@ -586,6 +627,8 @@
 
         function drawTotalSentiment(data) {
             let ctx = document.getElementById('chartTotalSentiment').getContext('2d');
+            if(chartTotalSentiment) chartTotalSentiment.destroy();
+
             chartTotalSentiment = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -658,6 +701,8 @@
         function drawDailySentiment(data) {
             let ctx = document.getElementById('chartDailySentiment').getContext('2d');
             let keys = Object.keys(data.DailySentiment).sort().slice(0, 30);
+
+            if(chartDailySentiment) chartDailySentiment.destroy();
 
             chartDailySentiment = new Chart(ctx, {
                 type: 'line',
