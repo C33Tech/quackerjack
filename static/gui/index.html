@@ -520,33 +520,35 @@
       </div>
 
       <!-- View: Processing -->
-      <div id="view-processing" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh; margin-top: 0">
-        <div class="processing-card text-center">
-            <!-- Main Animated Icon -->
-            <div class="processing-icon-container mb-4">
-                 <i class="fa-solid fa-circle-notch fa-spin"></i>
-            </div>
+      <div id="view-processing">
+        <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh; margin-top: 0">
+            <div class="processing-card text-center">
+                <!-- Main Animated Icon -->
+                <div class="processing-icon-container mb-4">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                </div>
 
-            <h2 class="fw-bold mb-2">Crunching the Data</h2>
-            <p class="text-secondary mb-4">Analyzing sentiment, emojis, and keywords...</p>
+                <h2 class="fw-bold mb-2">Crunching the Data</h2>
+                <p class="text-secondary mb-4">Analyzing sentiment, emojis, and keywords...</p>
 
-            <!-- Progress Bar -->
-            <div class="progress mb-4" style="height: 8px; width: 100%; max-width: 400px; margin: 0 auto;">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-            </div>
+                <!-- Progress Bar -->
+                <div class="progress mb-4" style="height: 8px; width: 100%; max-width: 400px; margin: 0 auto;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                </div>
 
-            <!-- Steps as simple icons -->
-            <div class="processing-steps d-flex justify-content-center gap-4 mb-4">
-                 <span id="processing-check-url" class="step-item text-secondary" title="Checking URL"><i class="fa-solid fa-link"></i></span>
-                 <span id="processing-comment-count" class="step-item text-secondary" title="Checking Comments"><i class="fa-solid fa-list-ol"></i></span>
-                 <span id="processing-comment-download" class="step-item text-secondary" title="Downloading"><i class="fa-solid fa-cloud-arrow-down"></i></span>
-                 <span id="processing-emoji" class="step-item text-secondary" title="Analyzing Emoji"><i class="fa-solid fa-face-smile"></i></span>
-                 <span id="processing-sentiment" class="step-item text-secondary" title="Analyzing Sentiment"><i class="fa-solid fa-brain"></i></span>
-            </div>
+                <!-- Steps as simple icons -->
+                <div class="processing-steps d-flex justify-content-center gap-4 mb-4">
+                    <span id="processing-check-url" class="step-item text-secondary" title="Checking URL"><i class="fa-solid fa-link"></i></span>
+                    <span id="processing-comment-count" class="step-item text-secondary" title="Checking Comments"><i class="fa-solid fa-list-ol"></i></span>
+                    <span id="processing-comment-download" class="step-item text-secondary" title="Downloading"><i class="fa-solid fa-cloud-arrow-down"></i></span>
+                    <span id="processing-emoji" class="step-item text-secondary" title="Analyzing Emoji"><i class="fa-solid fa-face-smile"></i></span>
+                    <span id="processing-sentiment" class="step-item text-secondary" title="Analyzing Sentiment"><i class="fa-solid fa-brain"></i></span>
+                </div>
 
-            <!-- Fun message area -->
-            <div class="processing-message text-muted fst-italic small">
-                <i class="fa-solid fa-mug-hot me-2"></i> Videos with thousands of comments might take a minute. Grab a coffee!
+                <!-- Fun message area -->
+                <div class="processing-message text-muted fst-italic small">
+                    <i class="fa-solid fa-mug-hot me-2"></i> Videos with thousands of comments might take a minute. Grab a coffee!
+                </div>
             </div>
         </div>
       </div>
@@ -831,16 +833,18 @@
                     }, delay * (index + 1));
                 });
 
+                let finalDelay = delay * (steps.length + 1) + 200;
                 setTimeout(() => {
                     $(".progress-bar").css("width", "100%").addClass("bg-success");
                     drawReport(resp);
-                }, delay * (steps.length + 1) + 200);
+                }, finalDelay);
 
               } else {
                 handleError(resp.Error);
               }
             })
-            .fail(function () {
+            .fail(function (jqXHR, textStatus, errorThrown) {
+              console.error("API Call Failed: " + textStatus + ", " + errorThrown);
               handleError("Unable to connect to server.");
             });
         }
@@ -855,53 +859,62 @@
       }
 
       function drawReport(data) {
-        reportData = data; // Save for switching tabs
+        try {
+            reportData = data; // Save for switching tabs
 
-        // 1. Populate Metadata
-        $("#dash-video-title").text(data.Metadata.Title);
-        $("#dash-channel-title").text(data.Metadata.ChannelTitle);
-        $("#dash-thumbnail").attr("src", data.Metadata.Thumbnail);
+            // 1. Populate Metadata
+            if (data.Metadata) {
+                $("#dash-video-title").text(data.Metadata.Title || "Unknown Title");
+                $("#dash-channel-title").text(data.Metadata.ChannelTitle || "Unknown Channel");
+                $("#dash-thumbnail").attr("src", data.Metadata.Thumbnail || "");
 
-        // Handle views/likes if available (YouTubeVideo struct)
-        if (data.Metadata.VideoViews) {
-          $("#dash-views").html(
-            '<i class="fa-solid fa-eye"></i> ' +
-              parseInt(data.Metadata.VideoViews).toLocaleString(),
-          );
+                // Handle views/likes if available (YouTubeVideo struct)
+                if (data.Metadata.VideoViews) {
+                  $("#dash-views").html(
+                    '<i class="fa-solid fa-eye"></i> ' +
+                      parseInt(data.Metadata.VideoViews).toLocaleString(),
+                  );
+                }
+                if (data.Metadata.TotalLikes) {
+                  $("#dash-likes").html(
+                    '<i class="fa-solid fa-thumbs-up"></i> ' +
+                      parseInt(data.Metadata.TotalLikes).toLocaleString(),
+                  );
+                }
+            }
+
+            // Stats
+            $("#dash-total-comments").text((data.TotalComments || 0).toLocaleString());
+
+            let total = data.TotalComments || 0;
+            let posPct = 0;
+            let negPct = 0;
+
+            if (data.Sentiment && total > 0) {
+                 posPct = Math.round((data.Sentiment.positive / total) * 100);
+                 negPct = Math.round((data.Sentiment.negative / total) * 100);
+            }
+
+            $("#dash-positive-pct").text(posPct + "%");
+            $("#dash-negative-pct").text(negPct + "%");
+            $("#dash-avg-daily").text(Math.round(data.CommentAvgPerDay || 0));
+
+            // 2. Charts
+            try { drawTotalSentiment(data); } catch(e) { console.error(e); }
+            try { drawKeywords(data, "words"); } catch(e) { console.error(e); }
+            try { drawDailySentiment(data); } catch(e) { console.error(e); }
+
+            // 3. Comment Lists
+            renderCommentList(data.TopComments, "#container-top-comments");
+            renderCommentList(data.SampleComments, "#container-sample-comments");
+
+        } catch (e) {
+            console.error("Error drawing report:", e);
+        } finally {
+            // Switch View
+            $("#view-processing").hide();
+            $("#view-dashboard").fadeIn();
         }
-        if (data.Metadata.TotalLikes) {
-          $("#dash-likes").html(
-            '<i class="fa-solid fa-thumbs-up"></i> ' +
-              parseInt(data.Metadata.TotalLikes).toLocaleString(),
-          );
-        }
-
-        // Stats
-        $("#dash-total-comments").text(data.TotalComments.toLocaleString());
-
-        let posPct = Math.round(
-          (data.Sentiment.positive / data.Metadata.TotalComments) * 100,
-        );
-        let negPct = Math.round(
-          (data.Sentiment.negative / data.Metadata.TotalComments) * 100,
-        );
-
-        $("#dash-positive-pct").text((posPct || 0) + "%");
-        $("#dash-negative-pct").text((negPct || 0) + "%");
-        $("#dash-avg-daily").text(Math.round(data.CommentAvgPerDay));
-
-        // 2. Charts
-        drawTotalSentiment(data);
-        drawKeywords(data, "words"); // Default to words
-        drawDailySentiment(data);
-
-        // 3. Comment Lists
-        renderCommentList(data.TopComments, "#container-top-comments");
-        renderCommentList(data.SampleComments, "#container-sample-comments");
-
-        // Switch View
-        $("#view-processing").hide();
-        $("#view-dashboard").fadeIn();
       }
 
       function renderCommentList(comments, containerId) {
@@ -931,6 +944,7 @@
       }
 
       function drawTotalSentiment(data) {
+        if (!data.Sentiment) return;
         let ctx = document
           .getElementById("chartTotalSentiment")
           .getContext("2d");
@@ -970,6 +984,8 @@
 
         // Sort Data
         let source = type === "emoji" ? data.EmojiCount : data.Keywords;
+        if (!source) return;
+
         let sortedKeys = Object.keys(source)
           .sort((a, b) => source[b] - source[a])
           .slice(0, 20);
@@ -1080,6 +1096,7 @@
       }
 
       function drawDailySentiment(data) {
+        if (!data.DailySentiment) return;
         let ctx = document
           .getElementById("chartDailySentiment")
           .getContext("2d");
