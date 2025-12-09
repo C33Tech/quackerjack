@@ -1,12 +1,15 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math"
 	"net/http"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -145,6 +148,26 @@ func webHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func runReport(postURL string) []byte {
+	// Check Cache
+	cacheTTL := GetConfigInt("cache_ttl")
+	var cacheFile string
+	if cacheTTL > 0 {
+		hash := md5.Sum([]byte(postURL))
+		hashStr := hex.EncodeToString(hash[:])
+		cacheDir := "cache"
+		if err := os.MkdirAll(cacheDir, 0755); err == nil {
+			cacheFile = filepath.Join(cacheDir, hashStr+".json")
+			if info, err := os.Stat(cacheFile); err == nil {
+				if time.Since(info.ModTime()).Seconds() < float64(cacheTTL) {
+					LogMsg("Returning cached report from " + cacheFile)
+					if data, err := os.ReadFile(cacheFile); err == nil {
+						return data
+					}
+				}
+			}
+		}
+	}
+
 	// Parse URL
 	domain, urlParts, urlFormat := parseURL(postURL)
 	if domain == "" || len(urlParts) == 0 {
@@ -269,6 +292,19 @@ func runReport(postURL string) []byte {
 	reportJSON, err := json.Marshal(theReport)
 	if err != nil {
 		LogMsg(err.Error())
+	}
+
+	// Save Cache
+	if cacheTTL > 0 && cacheFile != "" {
+		tmpFile := cacheFile + ".tmp"
+		if err := os.WriteFile(tmpFile, reportJSON, 0644); err != nil {
+			LogMsg("Failed to write temp cache: " + err.Error())
+		} else {
+			if err := os.Rename(tmpFile, cacheFile); err != nil {
+				LogMsg("Failed to save cache file: " + err.Error())
+				os.Remove(tmpFile)
+			}
+		}
 	}
 
 	// Output Report
