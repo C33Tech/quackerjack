@@ -1,729 +1,1021 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <title>Quackerjack v3</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quackerjack - Comment Analytics</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- FontAwesome 6 -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      :root {
+        /* Light Mode (Default) */
+        --bg-dark: #f8fafc;
+        --bg-card: rgba(255, 255, 255, 0.8);
+        --bg-sidebar: rgba(255, 255, 255, 0.9);
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+        --accent-color: #8b5cf6;
+        --border-color: rgba(148, 163, 184, 0.2);
+        --card-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+        --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-  <style type="text/css">
-    main { margin-top: 5rem; }
-    #intro { display: block; }
-    #processing { display: none; }
-    #report { display: none; }
-    #report .header { margin: 0px 10px 0px 10px; border-bottom: 1px solid #999; }
-    .outline { border: 1px solid blue; }
-    .bignum { padding: 5px; border-radius: 5px; text-align: center; margin: 15px 0px 15px 0px; }
-    .bignum span.num { font-size: 24px; display: block; }
-    .bignum span.desc { font-size: 10px; text-transform: uppercase; }
-    .tabs { font-size: 10px; text-align: center }
-    .tabs li { padding: 5px; cursor: pointer; }
-  </style>
-  <style id="darkModeStyles" type="text/css">
-body.dark-theme {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-/* Navbar */
-body.dark-theme .navbar.navbar-dark.bg-dark { /* Keep navbar dark, but adjust if needed or for consistency */
-  background-color: #1f1f1f !important; /* Slightly lighter than body for separation */
-}
-
-/* Headings and Text */
-body.dark-theme h1, 
-body.dark-theme h2, 
-body.dark-theme h3, 
-body.dark-theme h4, 
-body.dark-theme h5, 
-body.dark-theme h6, 
-body.dark-theme .video_title, 
-body.dark-theme .channel_title {
-  color: #f5f5f5;
-}
-
-body.dark-theme p, 
-body.dark-theme .form-text, 
-body.dark-theme .text-muted, 
-body.dark-theme span.desc, 
-body.dark-theme .tabs li {
-  color: #bdbdbd;
-}
-
-/* Links */
-body.dark-theme a {
-  color: #bb86fc; /* A common dark mode accent color */
-}
-body.dark-theme a:hover {
-  color: #9e69d9;
-}
-
-/* Form Inputs and Buttons */
-body.dark-theme .form-control {
-  background-color: #2c2c2c;
-  color: #e0e0e0;
-  border-color: #444;
-}
-body.dark-theme .form-control::placeholder {
-  color: #757575;
-}
-body.dark-theme .form-control:focus {
-  background-color: #333;
-  color: #e0e0e0;
-  border-color: #bb86fc;
-  box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
-}
-
-body.dark-theme .btn-primary {
-  background-color: #bb86fc;
-  border-color: #bb86fc;
-  color: #000; /* Text on primary button */
-}
-body.dark-theme .btn-primary:hover {
-  background-color: #9e69d9;
-  border-color: #9e69d9;
-}
-body.dark-theme .btn-secondary {
-  background-color: #333;
-  border-color: #333;
-  color: #e0e0e0;
-}
-body.dark-theme .btn-secondary:hover {
-  background-color: #444;
-  border-color: #444;
-}
-
-
-/* Report Sections & Specific Elements */
-body.dark-theme #report .header {
-  border-bottom-color: #444;
-}
-body.dark-theme .bignum {
-  background-color: #1e1e1e;
-  border-radius: 5px; /* Already there, but ensure it looks good */
-}
-body.dark-theme .bignum span.num {
-  color: #f5f5f5;
-}
-body.dark-theme .bignum span.desc {
-  color: #bdbdbd;
-}
-
-body.dark-theme .list-group-item {
-  background-color: #2c2c2c;
-  border-color: #444;
-  color: #e0e0e0;
-}
-body.dark-theme .list-group-item-primary {
-  background-color: #bb86fc !important; /* Ensure Bootstrap override if needed */
-  color: #000 !important;
-  border-color: #bb86fc;
-}
-
-/* Progress bar - assuming it might need adjustment */
-body.dark-theme .progress {
-  background-color: #444;
-}
-
-/* Charts - background might be controlled by Chart.js options,
-   but text and legend might be stylable here if they are HTML/CSS.
-   This needs to be checked during testing. For now, ensuring container is okay. */
-body.dark-theme canvas {
-  /* If canvas itself has a background set by JS, this won't override.
-     But if its container needs styling: */
-  /* background-color: #1e1e1e; /* Example */
-}
-
-/* Custom switch label color for dark mode (already set in HTML but as a fallback) */
-body.dark-theme .custom-control-label::before {
-  background-color: #444; /* Switch track color */
-  border-color: #555;
-}
-body.dark-theme .custom-control-input:checked~.custom-control-label::before {
-  background-color: #bb86fc; /* Switch active color */
-  border-color: #bb86fc;
-}
-body.dark-theme .custom-control-input:focus~.custom-control-label::before {
-  box-shadow: 0 0 0 0.2rem rgba(187, 134, 252, 0.25);
-}
-body.dark-theme .custom-control-label { /* Ensure label text is light if not handled by parent color inheritance */
-    color: #e0e0e0;
-}
-
-/* Make sure that the intro, processing, and report sections have appropriate backgrounds */
-body.dark-theme #intro, 
-body.dark-theme #processing, 
-body.dark-theme #report {
-    background-color: #121212; /* Match body or use a slightly different dark shade */
-}
-
-/* Ensure the text in the processing list is legible */
-body.dark-theme #processing ul.list-group li {
-    background-color: #2c2c2c; /* Darker list items */
-    color: #e0e0e0; /* Light text */
-    border-color: #444; /* Darker borders */
-}
-
-/* Ensure icons are visible if they are font icons and inherit color */
-body.dark-theme .fa {
-    color: #e0e0e0; /* Or a specific accent color if preferred */
-}
-  </style>
-</head>
-<body>
-
-<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-  <a class="navbar-brand" href="#">Quackerjack</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="/">New Report <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="https://github.com/mikeflynn/quackerjack/releases"><i class="fa fa-github-square" aria-hidden="true"></i> Releases</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="https://github.com/mikeflynn/quackerjack"><i class="fa fa-github-square" aria-hidden="true"></i> Source</a>
-      </li>
-      <!--
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown01">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      -->
-    </ul>
-    <ul class="navbar-nav ml-auto"> <li class="nav-item"> <div class="custom-control custom-switch"> <input type="checkbox" class="custom-control-input" id="darkSwitch"> <label class="custom-control-label" for="darkSwitch" style="color: white;">Dark Mode</label> </div> </li> </ul>
-    <!--
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-    </form>
-    -->
-  </div>
-</nav>
-
-<main role="main" class="container">
-
-  <div id="intro">
-    <form method="get" action="">
-      <div class="form-group">
-        <label for="InputURL">Enter a YouTube Video URL</label>
-        <input type="url" class="form-control" id="InputURL" aria-describedby="urlHelp" name="vid">
-        <small id="urlHelp" class="form-text text-muted">Example: https://www.youtube.com/watch?v=oHg5SJYRHA0</small>
-      </div>
-      <button type="submit" class="btn btn-primary"><i class="fa fa-comments-o" aria-hidden="true"></i> Scan the Comments</button>
-    </form>
-  </div>
-
-  <div id="processing">
-    <div class="loading">
-      <div class="row">
-        <div class="col-md-3"></div>
-        <div class="col-md-6">
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item" id="processing-check-url"><i class="fa fa-square-o" aria-hidden="true"></i> Checking for valid URL</i></li>
-            <li class="list-group-item" id="processing-comment-count"><i class="fa fa-square-o" aria-hidden="true"></i> Checking for comments</li>
-            <li class="list-group-item" id="processing-comment-download"><i class="fa fa-square-o" aria-hidden="true"></i> Downloading comments</li>
-            <li class="list-group-item" id="processing-emoji"><i class="fa fa-square-o" aria-hidden="true"></i> Analyzing emoji</li>
-            <li class="list-group-item" id="processing-sentiment"><i class="fa fa-square-o" aria-hidden="true"></i> Analyzing sentiment</li>
-          </ul>
-
-          <div class="progress">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="100" style="width: 3%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="report">
-    <div class="row header">
-      <div class="col-md-10">
-        <h2 class="video_title">Some Video Title</h2>
-        <p class="channel_title">A Channel</p>
-      </div>
-      <div class="col-md-2">
-
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-8">
-        <div class="row">
-          <div class="col-md-6">
-            <div style="height: 300px;">
-              <canvas id="chartTotalSentiment" width="400" height="300"></canvas>
-            </div>
-          </div>
-          <div class="col-md-6 stats">
-            <div class="row">
-              <div class="col-md-6 col-sm-6 col-xs-6">
-                <div class="bignum">
-                  <span class="num" id="total_comments">--</span>
-                  <span class="desc">Total Comments</span>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-xs-6">
-                <div class="bignum">
-                  <span class="num" id="positive_engagements">--</span>
-                  <span class="desc">Positive</span>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-md-6 col-sm-6 col-xs-6">
-                <div class="bignum">
-                  <span class="num" id="comments_per_day">--</span>
-                  <span class="desc">Comments Per Day</span>
-                </div>
-              </div>
-              <div class="col-md-6 col-sm-6 col-xs-6">
-                <div class="bignum">
-                  <span class="num" id="negative_engagements">--</span>
-                  <span class="desc">Negative</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12" style="height: 200px;">
-            <canvas id="chartDailySentiment" width="100%" height="200" style="height: 200px;"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div style="height: 520px;">
-          <canvas id="chartTopList" width="100%" height="520" style="height: 520px;"></canvas>
-        </div>
-        <input id="chartFilter" class="form-control form-control-sm" type="text" placeholder="Filter">
-        <br>
-        <ul class="list-group list-group-horizontal tabs">
-          <li class="list-group-item flex-fill list-group-item-primary" data-tab="topwords">Top Words</li>
-          <li class="list-group-item flex-fill" data-tab="emoji">Top Emoji</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</main>
-
-  <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-
-  <script type="text/javascript">
-  var chartTopList = null;
-  var chartDailySentiment = null;
-  var chartTotalSentiment = null;
-
-  const chartLightColors = {
-      fontColor: '#666', // Default text color for Chart.js in light mode
-      gridLinesColor: 'rgba(0, 0, 0, 0.1)', // Default grid line color
-      axisTicksColor: '#666'
-  };
-
-  const chartDarkColors = {
-      fontColor: '#e0e0e0', // Light text for dark mode
-      gridLinesColor: 'rgba(255, 255, 255, 0.1)', // Lighter grid lines for dark mode
-      axisTicksColor: '#e0e0e0'
-  };
-
-  var colors = {
-    red: "rgb(255, 99, 132)",
-    orange: "rgb(255, 159, 64)",
-    yellow: "rgb(255, 205, 86)",
-    green: "rgb(75, 192, 192)",
-    blue: "rgb(54, 162, 235)",
-    purple: "rgb(153, 102, 255)",
-    grey: "rgb(201, 203, 207)"
-  }
-
-  function getURLParameter(name) {
-    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
-  }
-
-  function dv(data, defaultData) {
-    return (data ? data : defaultData);
-  }
-
-  function truncate(str, max) {
-    if(str.length > max) {
-      str = str.substring(0, max) + "...";
-    }
-
-    return str;
-  }
-
-  const sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
-  }
-
-  window.onload = function() {
-    var vid = getURLParameter('vid');
-    if(vid) {
-      jQuery('#intro').hide();
-      jQuery('#processing').show();
-
-      let icon = jQuery('#processing-check-url i.fa');
-      const ytRegex = /https?:\/\/(www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_\-]{6,}/;
-      if(!vid.match(ytRegex)) {
-        icon.removeClass('fa-square-o');
-        icon.addClass('fa-times');
-        $('#processing .progress-bar').css('width', '20%')
-                                      .attr('aria-valuenow', 20)
-                                      .removeClass('progress-bar-striped')
-                                      .addClass('bg-danger');
-        return false;
-      } else {
-        icon.removeClass('fa-square-o');
-        icon.addClass('fa-check-square-o');
-        $('#processing .progress-bar').css('width', '20%')
-                                      .attr('aria-valuenow', 20);
+        --bg-grad-1: rgba(99, 102, 241, 0.08);
+        --bg-grad-2: rgba(236, 72, 153, 0.08);
       }
 
-      jQuery.getJSON("/api?vid="+vid)
-            .done(function(resp) {
-              if(!resp.Error) {
-                let steps = ["processing-comment-count", "processing-comment-download","processing-emoji","processing-sentiment"]
-                for(let x = 0; x < steps.length; x++) {
-                  let icon = jQuery('#'+steps[x]+' i.fa');
-                  icon.removeClass('fa-square-o');
-                  icon.addClass('fa-check-square-o');
-                  $('#processing .progress-bar').css('width', (x+2)*20+'%')
-                                                .attr('aria-valuenow', (x+2)*20);
-                }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg-dark: #0b1121;
+          --bg-card: rgba(30, 41, 59, 0.7);
+          --bg-sidebar: rgba(15, 23, 42, 0.8);
+          --text-primary: #f8fafc;
+          --text-secondary: #94a3b8;
+          --border-color: rgba(148, 163, 184, 0.1);
+          --card-shadow:
+            0 4px 6px -1px rgba(0, 0, 0, 0.3),
+            0 2px 4px -1px rgba(0, 0, 0, 0.15);
+          --glow-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
 
-                $('#processing .progress-bar').css('width', '100%')
-                                              .attr('aria-valuenow', 100)
-                                              .removeClass('progress-bar-striped')
-                                              .addClass('bg-success');
+          --bg-grad-1: rgba(99, 102, 241, 0.15);
+          --bg-grad-2: rgba(236, 72, 153, 0.15);
+        }
+      }
 
-                sleep(1000).then(() => {
+      body {
+        background-color: var(--bg-dark);
+        background-image:
+          radial-gradient(
+            circle at 10% 20%,
+            var(--bg-grad-1) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            var(--bg-grad-2) 0%,
+            transparent 40%
+          );
+        color: var(--text-primary);
+        font-family: "Poppins", sans-serif;
+        overflow-x: hidden;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        height: 100vh;
+        background: var(--bg-sidebar);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid var(--border-color);
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding: 20px;
+        z-index: 1000;
+        transition: background 0.3s ease;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+      }
+
+      .logo i {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 1.8rem;
+      }
+
+      .nav-link {
+        color: var(--text-secondary);
+        padding: 12px 15px;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        background: rgba(139, 92, 246, 0.15);
+        color: #d8b4fe;
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
+      }
+
+      /* Specific override for light mode active state text color if needed */
+      @media (prefers-color-scheme: light) {
+        .nav-link:hover,
+        .nav-link.active {
+          color: #7c3aed;
+        }
+      }
+
+      .nav-link.active {
+        background: var(--accent-gradient);
+        color: white !important; /* Force white text on the gradient */
+        box-shadow: var(--glow-shadow);
+      }
+
+      .nav-link i {
+        width: 25px;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 250px;
+        padding: 30px;
+        min-height: 100vh;
+      }
+
+      /* Cards */
+      .card {
+        background-color: var(--bg-card);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        margin-bottom: 24px;
+        box-shadow: var(--card-shadow);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease,
+          background-color 0.3s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        border-color: rgba(139, 92, 246, 0.3);
+      }
+
+      .card-header {
+        background-color: transparent;
+        border-bottom: 1px solid var(--border-color);
+        padding: 18px 24px;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: 0.5px;
+      }
+
+      .card-body {
+        padding: 24px;
+      }
+
+      /* Stats */
+      .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        text-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+      }
+
+      /* Search Bar */
+      .search-container {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .input-group-dark .form-control {
+        background-color: var(--bg-card);
+        color: var(--text-primary);
+        padding: 15px;
+        font-size: 1.1rem;
+        border-radius: 12px 0 0 12px;
+        padding-left: 15px !important;
+      }
+
+      .input-group-dark .form-control:focus {
+        /*box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);*/
+        border: var(--bs-border-width) solid var(--bs-border-color);
+      }
+
+      .input-group-dark .btn {
+        border-color: var(--border-color);
+        border-left: none;
+        border-radius: 0 12px 12px 0;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      /* Buttons */
+      .btn-primary {
+        background: var(--accent-gradient);
+        border: none;
+        box-shadow: var(--glow-shadow);
+      }
+
+      .btn-primary:hover {
+        background: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+        box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+      }
+
+      /* Video Info */
+      .video-thumbnail {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        object-fit: cover;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Charts */
+      .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+      }
+
+      /* Processing State */
+      #processing ul li {
+        background-color: var(--bg-card);
+        color: var(--text-secondary);
+        border-color: var(--border-color);
+        margin-bottom: 5px;
+        border-radius: 8px;
+      }
+
+      .progress {
+        height: 8px;
+        background-color: var(--border-color);
+        border-radius: 4px;
+      }
+
+      .progress-bar {
+        background: var(--accent-gradient);
+        box-shadow: var(--glow-shadow);
+      }
+
+      /* Utilities */
+      .text-accent {
+        color: #c084fc;
+      }
+      .text-secondary {
+        color: var(--text-secondary) !important;
+      }
+
+      /* Views */
+      #view-dashboard {
+        display: none;
+      }
+      #view-processing {
+        display: none;
+      }
+
+      .comment-item {
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 0;
+      }
+      .comment-item:last-child {
+        border-bottom: none;
+      }
+      .comment-author {
+        font-weight: bold;
+        font-size: 0.9rem;
+        margin-bottom: 2px;
+        color: var(--text-primary);
+      }
+      .comment-text {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+      }
+      .comment-meta {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        opacity: 0.7;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <i class="fa-solid fa-comment-dots"></i> Quackerjack
+      </div>
+      <nav class="nav flex-column">
+        <a class="nav-link active" href="#" onclick="#"
+          ><i class="fa-solid fa-chart-line"></i> Dashboard</a
+        >
+        <a class="nav-link mt-5" href="https://c33tech.com" target="_blank"
+          ><i class="fa-solid fa-star"></i> C33 Technology</a
+        >
+        <a
+          class="nav-link"
+          href="https://github.com/mikeflynn/quackerjack"
+          target="_blank"
+          ><i class="fa-brands fa-github"></i> Source</a
+        >
+      </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- View: Landing (Initial Search) -->
+      <div id="view-landing">
+        <div
+          class="container d-flex flex-column align-items-center justify-content-center"
+          style="min-height: 80vh"
+        >
+          <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-3">Analyze YouTube Comments</h1>
+            <p class="text-secondary lead">
+              Enter a video URL to get started with sentiment analysis, keyword
+              extraction, and more.
+            </p>
+          </div>
+
+          <div class="search-container w-100">
+            <form action="" method="get">
+              <div class="input-group input-group-dark input-group-lg">
+                <span
+                  class="input-group-text bg-transparent border-end-0 text-secondary"
+                  ><i class="fa-solid fa-search"></i
+                ></span>
+                <input
+                  type="url"
+                  class="form-control border-start-0 ps-0"
+                  name="vid"
+                  placeholder="Paste YouTube URL here..."
+                  required
+                />
+                <button
+                  class="btn btn-primary bg-indigo border-0"
+                  style="background-color: var(--accent-color)"
+                  type="submit"
+                >
+                  Analyze
+                </button>
+              </div>
+              <div class="form-text mt-2 text-center text-secondary">
+                Example: https://www.youtube.com/watch?v=qpMvS1Q1sos
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- View: Processing -->
+      <div
+        id="view-processing"
+        class="container"
+        style="max-width: 600px; margin-top: 100px"
+      >
+        <div class="card">
+          <div class="card-header">Processing Video...</div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item" id="processing-check-url">
+                <i class="fa-regular fa-square me-2"></i> Checking for valid URL
+              </li>
+              <li class="list-group-item" id="processing-comment-count">
+                <i class="fa-regular fa-square me-2"></i> Checking for comments
+              </li>
+              <li class="list-group-item" id="processing-comment-download">
+                <i class="fa-regular fa-square me-2"></i> Downloading comments
+              </li>
+              <li class="list-group-item" id="processing-emoji">
+                <i class="fa-regular fa-square me-2"></i> Analyzing emoji
+              </li>
+              <li class="list-group-item" id="processing-sentiment">
+                <i class="fa-regular fa-square me-2"></i> Analyzing sentiment
+              </li>
+            </ul>
+            <div class="progress" style="height: 10px">
+              <div
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                style="width: 0%; background-color: var(--accent-color)"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View: Dashboard -->
+      <div id="view-dashboard">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="fw-bold mb-1" id="dash-video-title">Video Title</h2>
+            <p class="text-secondary mb-0" id="dash-channel-title">
+              Channel Name
+            </p>
+          </div>
+          <div>
+            <a href="/" class="btn btn-outline-secondary btn-sm"
+              ><i class="fa-solid fa-plus"></i> New Analysis</a
+            >
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="stat-value" id="dash-total-comments">--</div>
+                <div class="stat-label">Total Comments</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="stat-value text-success" id="dash-positive-pct">
+                  --%
+                </div>
+                <div class="stat-label">Positive Sentiment</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="stat-value text-danger" id="dash-negative-pct">
+                  --%
+                </div>
+                <div class="stat-label">Negative Sentiment</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="stat-value" id="dash-avg-daily">--</div>
+                <div class="stat-label">Comments / Day</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Row 1 -->
+        <div class="row g-4 mb-4">
+          <!-- Video & Sentiment -->
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-body p-0">
+                <img
+                  id="dash-thumbnail"
+                  src=""
+                  class="video-thumbnail mb-0"
+                  style="border-radius: 12px 12px 0 0"
+                />
+                <div class="p-3">
+                  <div
+                    class="d-flex justify-content-between text-secondary small"
+                  >
+                    <span id="dash-views"
+                      ><i class="fa-solid fa-eye"></i> -- views</span
+                    >
+                    <span id="dash-likes"
+                      ><i class="fa-solid fa-thumbs-up"></i> -- likes</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">Overall Sentiment</div>
+              <div class="card-body">
+                <div class="chart-container">
+                  <canvas id="chartTotalSentiment"></canvas>
+                </div>
+                <div class="text-center mt-3 small text-secondary">
+                  Based on all analyzed comments
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Words -->
+          <div class="col-lg-8">
+            <div class="card h-100">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <span>Top Keywords</span>
+                <div class="btn-group btn-group-sm">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary active"
+                    onclick="switchKeywords('words', this)"
+                  >
+                    Words
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="switchKeywords('emoji', this)"
+                  >
+                    Emoji
+                  </button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="height: 400px; width: 100%">
+                  <canvas id="chartTopList"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Row 2 -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">Most Liked Comments</div>
+              <div class="card-body" id="container-top-comments">
+                <p class="text-secondary text-center">
+                  No top comments available.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">Random Comments</div>
+              <div class="card-body" id="container-sample-comments">
+                <p class="text-secondary text-center">
+                  No sample comments available.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Row 3 -->
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                Daily Sentiment Trend (First 30 Days)
+              </div>
+              <div class="card-body">
+                <div style="height: 300px; width: 100%">
+                  <canvas id="chartDailySentiment"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Using Chart.js 2.9.4 to maintain compatibility with existing data structures -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+
+    <script>
+      // Global State
+      var chartTopList = null;
+      var chartDailySentiment = null;
+      var chartTotalSentiment = null;
+      var reportData = null; // Store full response
+
+      // Config
+      var colors = {
+        red: "rgb(236, 72, 153)", // Vibrant Pink
+        green: "rgb(34, 197, 94)", // Vibrant Green
+        blue: "rgb(56, 189, 248)", // Light Blue
+        grey: "rgb(148, 163, 184)",
+        indigo: "rgb(139, 92, 246)", // Violet Accent
+      };
+
+      function getChartColors() {
+        const isDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        return {
+          fontColor: isDark ? "#cbd5e1" : "#64748b",
+          gridColor: isDark
+            ? "rgba(148, 163, 184, 0.1)"
+            : "rgba(148, 163, 184, 0.2)",
+        };
+      }
+
+      let chartOptions = getChartColors();
+
+      // Theme Change Listener
+      window
+        .matchMedia("(prefers-color-scheme: dark)")
+        .addEventListener("change", (event) => {
+          chartOptions = getChartColors();
+          if (reportData) drawReport(reportData);
+        });
+
+      // Utils
+      function getURLParameter(name) {
+        return (
+          decodeURIComponent(
+            (new RegExp("[?|&]" + name + "=" + "([^&;]+?)(&|#|;|$)").exec(
+              location.search,
+            ) || [, ""])[1].replace(/\+/g, "%20"),
+          ) || null
+        );
+      }
+
+      const sleep = (milliseconds) => {
+        return new Promise((resolve) => setTimeout(resolve, milliseconds));
+      };
+
+      // Init
+      window.onload = function () {
+        var vid = getURLParameter("vid");
+        if (vid) {
+          // Switch to processing view
+          $("#view-landing").hide();
+          $("#view-processing").fadeIn();
+
+          // Validate URL visually
+          let icon = $("#processing-check-url i");
+          const ytRegex =
+            /https?:\/\/(www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_\-]{6,}/;
+
+          if (!vid.match(ytRegex)) {
+            icon
+              .removeClass("fa-square")
+              .addClass("fa-square-xmark text-danger");
+            $(".progress-bar").css("width", "20%").addClass("bg-danger");
+            return false;
+          } else {
+            icon
+              .removeClass("fa-square")
+              .addClass("fa-square-check text-success");
+            $(".progress-bar").css("width", "20%");
+          }
+
+          // API Call
+          $.getJSON("/api?vid=" + vid)
+            .done(function (resp) {
+              if (!resp.Error) {
+                // Animate steps
+                let steps = [
+                  "processing-comment-count",
+                  "processing-comment-download",
+                  "processing-emoji",
+                  "processing-sentiment",
+                ];
+                steps.forEach((step, index) => {
+                  // This is visual faking since the request is already done,
+                  // but it keeps the user feeling progress if the backend was slow
+                  let icon = $("#" + step + " i");
+                  icon
+                    .removeClass("fa-square")
+                    .addClass("fa-square-check text-success");
+                  $(".progress-bar").css("width", (index + 2) * 20 + "%");
+                });
+
+                $(".progress-bar").css("width", "100%").addClass("bg-success");
+
+                sleep(800).then(() => {
                   drawReport(resp);
                 });
               } else {
-                if(resp.Error == 'No comments found for this post.') {
-                  let icon = jQuery('#processing-comment-count i.fa');
-                  icon.removeClass('fa-square-o');
-                  icon.addClass('fa-times');
-                  $('#processing .progress-bar').css('width', '100%')
-                                                .attr('aria-valuenow', 100)
-                                                .removeClass('progress-bar-striped')
-                                                .addClass('bg-danger')
-                                                .text(resp.Error);
-                }
+                handleError(resp.Error);
               }
             })
-            .fail(function() {
-              let checkIcon = jQuery('#processing-comment-count i.fa');
-              checkIcon.removeClass('fa-square-o');
-              checkIcon.addClass('fa-times');
-
-              let dlIcon = jQuery('#processing-comment-download i.fa');
-              dlIcon.removeClass('fa-square-o');
-              dlIcon.addClass('fa-times');
-
-              $('#processing .progress-bar').css('width', '100%')
-                                            .attr('aria-valuenow', 100)
-                                            .removeClass('progress-bar-striped')
-                                            .addClass('bg-danger')
-                                            .text('Unable to download comments.');
+            .fail(function () {
+              handleError("Unable to connect to server.");
             });
-    }
-
-    function drawReport(data) {
-      let chartTotalSentimentID = document.getElementById('chartTotalSentiment').getContext('2d');
-      let chartDailySentimentID = document.getElementById('chartDailySentiment').getContext('2d');
-      let chartTopListID = document.getElementById('chartTopList').getContext('2d');
-
-      const isCurrentlyDark = document.body.classList.contains('dark-theme');
-      const currentChartColors = isCurrentlyDark ? chartDarkColors : chartLightColors;
-
-      // Metadata
-      jQuery('.header h2.video_title').text(data.Metadata.Title);
-      jQuery('.header p.channel_title').html('<a target="new" href="https://www.youtube.com/channel/'+data.Metadata.ChannelID+'">'+data.Metadata.ChannelTitle+'</a>');
-      jQuery('#total_comments').text(data.TotalComments.toLocaleString());
-      jQuery('#positive_engagements').text(Math.round(data.Sentiment.positive / data.Metadata.TotalComments * 100)+"%");
-      jQuery('#negative_engagements').text(Math.round(data.Sentiment.negative / data.Metadata.TotalComments * 100)+"%");
-      jQuery('#comments_per_day').text(Math.round(data.CommentAvgPerDay));
-
-      // Top Lists
-      let topWords = Object.keys(data.Keywords)
-                           .sort(function(a, b) {
-                              if (data.Keywords[a] > data.Keywords[b]) {
-                                return -1;
-                              } else if (data.Keywords[b] > data.Keywords[a]) {
-                                return 1;
-                              }
-
-                              return 0;
-                           });
-
-      let topEmoji = Object.keys(data.EmojiCount)
-                           .sort(function(a, b) {
-                              if (data.EmojiCount[a] > data.EmojiCount[b]) {
-                                return -1;
-                              } else if (data.EmojiCount[b] > data.EmojiCount[a]) {
-                                return 1;
-                              }
-
-                              return 0;
-                           });
-
-      chartTopList = new Chart(chartTopListID, { // Assign to global
-        type: 'horizontalBar',
-        data: {
-          labels: topWords.slice(0, 25),
-          datasets: [{
-              backgroundColor: Chart.helpers.color(window.colors.red).alpha(0.5).rgbString(),
-              borderColor: window.colors.red,
-              borderWidth: 1,
-              data: topWords.slice(0, 25).map(x => data.Keywords[x])
-          }]
-        },
-        options: {
-          maintainAspectRatio: false,
-          responsive: true,
-          title: { text: "Top Words", display: true, fontColor: currentChartColors.fontColor },
-          legend: { display: false, labels: { fontColor: currentChartColors.fontColor } },
-          scales: {
-            xAxes: [{
-              display: true,
-              scaleLabel: { display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
-              gridLines: { display: true, color: currentChartColors.gridLinesColor }, // Added color
-              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
-            }],
-            yAxes: [{
-              display: true,
-              scaleLabel: { display: false, fontSize: 10, fontColor: currentChartColors.fontColor }, // Added fontColor
-              gridLines: { display: false, color: currentChartColors.gridLinesColor }, // Added color
-              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
-            }]
-          }
         }
-      });
+      };
 
-      jQuery('#chartFilter').change(function() {
-        let tab = jQuery('.list-group-item-primary').attr('data-tab');
-        let query = jQuery('#chartFilter').val();
-
-        values = data.Keywords;
-        labels = topWords;
-        if (tab == "emoji") {
-          labels = topEmoji;
-          values = data.EmojiCount
-        }
-
-        let filtered = labels
-        if (query != "") {
-          filtered = labels.filter(word => word.includes(query) );
-        }
-
-        chartTopList.data.labels = filtered.slice(0, 25);
-        chartTopList.data.datasets[0].data = filtered.slice(0, 25).map(x => values[x]);
-        chartTopList.update();
-      });
-
-      jQuery('ul.tabs li').click(function() {
-        jQuery('ul.tabs li').each(function(idx) {
-          jQuery(this).removeClass('list-group-item-primary');
-        });
-
-        jQuery(this).addClass('list-group-item-primary');
-        let tab = jQuery(this).attr('data-tab');
-
-        if (tab == 'topwords') {
-          chartTopList.data.labels = topWords.slice(0, 25);
-          chartTopList.data.datasets[0].data = topWords.slice(0, 25).map(x => data.Keywords[x]);
-          chartTopList.options.title.text = 'Top Words';
-          chartTopList.update();
-        } else if (tab == 'emoji') {
-          chartTopList.data.labels = topEmoji.slice(0, 25);
-          chartTopList.data.datasets[0].data = topEmoji.slice(0, 25).map(x => data.EmojiCount[x]);
-          chartTopList.options.title.text = 'Top Emoji';
-          chartTopList.update();
-        } else {
-          return false;
-        }
-      });
-
-      // Daily Sentiment Chart
-      let dailySentimentKeys = Object.keys(data.DailySentiment).sort().slice(0, 30);;
-
-      chartDailySentiment = new Chart(chartDailySentimentID, { // Assign to global
-        type: 'line',
-        data: {
-          labels: dailySentimentKeys,
-          datasets: [{
-            label: "Positive Comments",
-            backgroundColor: window.colors.green,
-            borderColor: window.colors.green,
-            data: dailySentimentKeys.map(x => data.DailySentiment[x].positive),
-            fill: false
-          }, {
-            label: "Negative Comments",
-            backgroundColor: window.colors.red,
-            borderColor: window.colors.red,
-            data: dailySentimentKeys.map(x => data.DailySentiment[x].negative),
-            fill: false
-          }]
-        },
-        options: {
-          legend: { display: false, labels: { fontColor: currentChartColors.fontColor } }, // Added labels fontColor
-          title: { text: "First 30 Days Daily Sentiment", display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            xAxes: [{
-              display: true,
-              scaleLabel: { display: false, fontColor: currentChartColors.fontColor }, // Added fontColor
-              gridLines: { display: false, color: currentChartColors.gridLinesColor }, // Added color
-              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
-            }],
-            yAxes: [{
-              type: 'logarithmic',
-              display: true, // Changed to true to see labels/ticks
-              scaleLabel: { display: false, labelString: 'Comments', fontColor: currentChartColors.fontColor }, // Added fontColor
-              gridLines: { display: true, color: currentChartColors.gridLinesColor }, // Added color for visibility
-              ticks: { fontColor: currentChartColors.axisTicksColor } // Added fontColor
-            }]
-          }
-        }
-      });
-
-      // Total Sentiment Chart
-      chartTotalSentiment = new Chart(chartTotalSentimentID, { // Assign to global
-        type: 'doughnut',
-        data: {
-          datasets: [{
-            data: [data.Sentiment.positive, data.Sentiment.negative, data.Sentiment.unknown],
-            backgroundColor: [
-              window.colors.green,
-              window.colors.red,
-              window.colors.grey
-            ]
-          }],
-          labels: ["Positive","Negative","Neutral"]},
-        options: {
-          responsive: true,
-          circumference: 1*Math.PI,
-          rotation: -Math.PI,
-          title: { text: "Total Sentiment", display: true, fontColor: currentChartColors.fontColor }, // Added fontColor
-          legend: { labels: { fontColor: currentChartColors.fontColor } }, // Added labels fontColor
-          animation: {
-            animateScale: true,
-            animateRotate: true
-          }
-        }
-      });
-
-      jQuery('#processing').hide();
-      jQuery('#report').show();
-    }
-  }
-
-  // Dark Mode Toggle Logic
-  // Function to set the dark mode state (remains in global scope)
-  function setDarkMode(isDark) {
-    if (isDark) {
-      document.body.classList.add('dark-theme');
-      if (darkSwitch) darkSwitch.checked = true;
-      localStorage.setItem('darkMode', 'enabled');
-    } else {
-      document.body.classList.remove('dark-theme');
-      if (darkSwitch) darkSwitch.checked = false;
-      localStorage.setItem('darkMode', 'disabled');
-    }
-
-    const newChartColors = isDark ? chartDarkColors : chartLightColors;
-
-    if (chartTopList) {
-      chartTopList.options.title.fontColor = newChartColors.fontColor;
-      if (chartTopList.options.legend.labels) chartTopList.options.legend.labels.fontColor = newChartColors.fontColor;
-      chartTopList.options.scales.xAxes.forEach(axis => {
-        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
-        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
-        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
-      });
-      chartTopList.options.scales.yAxes.forEach(axis => {
-        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
-        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
-        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
-      });
-      chartTopList.update();
-    }
-
-    if (chartDailySentiment) {
-      chartDailySentiment.options.title.fontColor = newChartColors.fontColor;
-      if (chartDailySentiment.options.legend.labels) chartDailySentiment.options.legend.labels.fontColor = newChartColors.fontColor;
-      chartDailySentiment.options.scales.xAxes.forEach(axis => {
-        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
-        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
-        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
-      });
-      chartDailySentiment.options.scales.yAxes.forEach(axis => {
-        if(axis.scaleLabel) axis.scaleLabel.fontColor = newChartColors.fontColor;
-        if(axis.ticks) axis.ticks.fontColor = newChartColors.axisTicksColor;
-        if(axis.gridLines) axis.gridLines.color = newChartColors.gridLinesColor;
-      });
-      chartDailySentiment.update();
-    }
-
-    if (chartTotalSentiment) {
-      chartTotalSentiment.options.title.fontColor = newChartColors.fontColor;
-      if (chartTotalSentiment.options.legend.labels) chartTotalSentiment.options.legend.labels.fontColor = newChartColors.fontColor;
-      // Doughnut charts don't have scales like other charts, so only title/legend are typically needed.
-      chartTotalSentiment.update();
-    }
-  }
-
-  // Wait for the DOM to be fully loaded before initializing dark mode
-  document.addEventListener('DOMContentLoaded', function() {
-    const darkSwitch = document.getElementById('darkSwitch');
-    // Warning for switch is fine, as OS preference can still work
-    if (!darkSwitch) {
-      console.warn("Dark mode switch element not found (darkSwitch).");
-    }
-
-    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-
-    // Check local storage for user preference
-    const currentMode = localStorage.getItem('darkMode');
-    if (currentMode === 'enabled') {
-      setDarkMode(true);
-    } else if (currentMode === 'disabled') {
-      setDarkMode(false);
-    } else {
-      // If no preference in local storage, check OS preference
-      if (prefersDarkScheme.matches) {
-        setDarkMode(true);
-      } else {
-        setDarkMode(false);
+      function handleError(msg) {
+        $("#processing .progress-bar")
+          .addClass("bg-danger")
+          .css("width", "100%");
+        alert("Error: " + msg);
+        // Ideally show a nice error card
       }
-    }
 
-    // Listen for toggle switch changes
-    if (darkSwitch) {
-      darkSwitch.addEventListener('change', function(event) {
-        setDarkMode(event.target.checked);
-      });
-    }
+      function drawReport(data) {
+        reportData = data; // Save for switching tabs
 
-    // Listen for OS preference changes
-    prefersDarkScheme.addEventListener('change', (e) => {
-        setDarkMode(e.matches);
-    });
-  });
-  </script>
-</body>
+        // 1. Populate Metadata
+        $("#dash-video-title").text(data.Metadata.Title);
+        $("#dash-channel-title").text(data.Metadata.ChannelTitle);
+        $("#dash-thumbnail").attr("src", data.Metadata.Thumbnail);
+
+        // Handle views/likes if available (YouTubeVideo struct)
+        if (data.Metadata.VideoViews) {
+          $("#dash-views").html(
+            '<i class="fa-solid fa-eye"></i> ' +
+              parseInt(data.Metadata.VideoViews).toLocaleString(),
+          );
+        }
+        if (data.Metadata.TotalLikes) {
+          $("#dash-likes").html(
+            '<i class="fa-solid fa-thumbs-up"></i> ' +
+              parseInt(data.Metadata.TotalLikes).toLocaleString(),
+          );
+        }
+
+        // Stats
+        $("#dash-total-comments").text(data.TotalComments.toLocaleString());
+
+        let posPct = Math.round(
+          (data.Sentiment.positive / data.Metadata.TotalComments) * 100,
+        );
+        let negPct = Math.round(
+          (data.Sentiment.negative / data.Metadata.TotalComments) * 100,
+        );
+
+        $("#dash-positive-pct").text((posPct || 0) + "%");
+        $("#dash-negative-pct").text((negPct || 0) + "%");
+        $("#dash-avg-daily").text(Math.round(data.CommentAvgPerDay));
+
+        // 2. Charts
+        drawTotalSentiment(data);
+        drawKeywords(data, "words"); // Default to words
+        drawDailySentiment(data);
+
+        // 3. Comment Lists
+        renderCommentList(data.TopComments, "#container-top-comments");
+        renderCommentList(data.SampleComments, "#container-sample-comments");
+
+        // Switch View
+        $("#view-processing").hide();
+        $("#view-dashboard").fadeIn();
+      }
+
+      function renderCommentList(comments, containerId) {
+        if (!comments || comments.length === 0) return;
+
+        let container = $(containerId);
+        container.empty();
+
+        comments.forEach((c) => {
+          let item = $('<div class="comment-item"></div>');
+
+          let authorDiv = $('<div class="comment-author"></div>').text(
+            c.AuthorName,
+          );
+          let metaSpan = $(
+            '<span class="float-end comment-meta"><i class="fa-solid fa-thumbs-up"></i> </span>',
+          );
+          metaSpan.append(document.createTextNode(" " + c.Likes));
+          authorDiv.append(metaSpan);
+
+          let textDiv = $('<div class="comment-text"></div>').text(c.Content);
+
+          item.append(authorDiv);
+          item.append(textDiv);
+          container.append(item);
+        });
+      }
+
+      function drawTotalSentiment(data) {
+        let ctx = document
+          .getElementById("chartTotalSentiment")
+          .getContext("2d");
+        if (chartTotalSentiment) chartTotalSentiment.destroy();
+
+        chartTotalSentiment = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            datasets: [
+              {
+                data: [
+                  data.Sentiment.positive,
+                  data.Sentiment.negative,
+                  data.Sentiment.unknown,
+                ],
+                backgroundColor: [colors.green, colors.red, colors.grey],
+                borderWidth: 0,
+              },
+            ],
+            labels: ["Positive", "Negative", "Neutral"],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+              position: "bottom",
+              labels: { fontColor: chartOptions.fontColor },
+            },
+            cutoutPercentage: 70,
+          },
+        });
+      }
+
+      function drawKeywords(data, type) {
+        let canvas = document.getElementById("chartTopList");
+        let ctx = canvas.getContext("2d");
+
+        // Sort Data
+        let source = type === "emoji" ? data.EmojiCount : data.Keywords;
+        let sortedKeys = Object.keys(source)
+          .sort((a, b) => source[b] - source[a])
+          .slice(0, 20);
+        let values = sortedKeys.map((k) => source[k]);
+
+        // Destroy existing if update
+        if (chartTopList) chartTopList.destroy();
+
+        // Dynamically size the canvas so each row gets room.
+        // Adjust baseRowHeight to taste (px). Smaller = more rows visible, Larger = bigger labels.
+        const baseRowHeight = 36;
+        const padding = 24; // extra vertical padding
+        const desiredHeight = Math.max(
+          sortedKeys.length * baseRowHeight + padding,
+          160,
+        );
+        // Set the canvas height directly and let Chart.js (maintainAspectRatio:false) respect it.
+        canvas.height = desiredHeight;
+        // Ensure parent container doesn't collapse
+        if (canvas.parentNode)
+          canvas.parentNode.style.minHeight = desiredHeight + "px";
+
+        // Draw chart with larger fonts and thicker bars
+        chartTopList = new Chart(ctx, {
+          type: "horizontalBar",
+          data: {
+            labels: sortedKeys,
+            datasets: [
+              {
+                data: values,
+                backgroundColor:
+                  type === "emoji"
+                    ? "rgba(255, 205, 86, 0.8)"
+                    : "rgba(99, 102, 241, 0.8)",
+                borderColor:
+                  type === "emoji" ? "rgba(255, 205, 86, 1)" : colors.indigo,
+                borderWidth: 1,
+                // Make bar thickness proportional to row height
+                barThickness: Math.floor(baseRowHeight * 0.6),
+                maxBarThickness: Math.floor(baseRowHeight * 0.9),
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: { display: false },
+            layout: {
+              padding: {
+                left: 12,
+                right: 16,
+                top: 8,
+                bottom: 8,
+              },
+            },
+            scales: {
+              xAxes: [
+                {
+                  gridLines: { color: chartOptions.gridColor },
+                  ticks: {
+                    fontColor: chartOptions.fontColor,
+                    beginAtZero: true,
+                    // format x labels (e.g., thousands separators)
+                    callback: function (v) {
+                      return Number(v).toLocaleString();
+                    },
+                  },
+                },
+              ],
+              yAxes: [
+                {
+                  gridLines: { display: false },
+                  // Make category + bar percentages high so bars fill the row
+                  categoryPercentage: 0.9,
+                  barPercentage: 0.95,
+                  ticks: {
+                    fontColor: chartOptions.fontColor,
+                    fontSize: 14, // larger label text
+                    fontStyle: "600",
+                    // shorten long labels if needed:
+                    callback: function (label) {
+                      // trim to ~30 chars and append ellipsis
+                      return label.length > 30
+                        ? label.slice(0, 27) + "…"
+                        : label;
+                    },
+                  },
+                },
+              ],
+            },
+            tooltips: {
+              callbacks: {
+                // Show full label in tooltip even if truncated on axis
+                title: function (tooltipItems, chartData) {
+                  var idx = tooltipItems[0].index;
+                  return chartData.labels[idx];
+                },
+              },
+            },
+          },
+        });
+      }
+
+      function switchKeywords(type, btn) {
+        $(btn).parent().find(".btn").removeClass("active");
+        $(btn).addClass("active");
+        drawKeywords(reportData, type);
+      }
+
+      function drawDailySentiment(data) {
+        let ctx = document
+          .getElementById("chartDailySentiment")
+          .getContext("2d");
+        let keys = Object.keys(data.DailySentiment).sort().slice(0, 30);
+
+        if (chartDailySentiment) chartDailySentiment.destroy();
+
+        chartDailySentiment = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: keys,
+            datasets: [
+              {
+                label: "Positive",
+                borderColor: colors.green,
+                backgroundColor: colors.green,
+                data: keys.map((x) => data.DailySentiment[x].positive),
+                fill: false,
+                pointRadius: 2,
+              },
+              {
+                label: "Negative",
+                borderColor: colors.red,
+                backgroundColor: colors.red,
+                data: keys.map((x) => data.DailySentiment[x].negative),
+                fill: false,
+                pointRadius: 2,
+              },
+            ],
+          },
+          options: {
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: { labels: { fontColor: chartOptions.fontColor } },
+            scales: {
+              xAxes: [
+                {
+                  gridLines: { display: false },
+                  ticks: { display: false }, // Hide dates to keep it clean, or fontColor: ...
+                },
+              ],
+              yAxes: [
+                {
+                  type: "logarithmic",
+                  gridLines: { color: chartOptions.gridColor },
+                  ticks: {
+                    fontColor: chartOptions.fontColor,
+                    // Format tick labels to avoid exponential notation
+                    callback: function (value, index, values) {
+                      const num = Number(value);
+                      if (!isFinite(num)) return value;
+                      // For numbers >= 1 show with thousands separators
+                      if (Math.abs(num) >= 1) return num.toLocaleString();
+                      // For small numbers, show up to 6 significant digits without exponential form
+                      let s = num.toPrecision(6);
+                      // Trim trailing zeros and an optional trailing dot
+                      s = s.replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
+                      return s;
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        });
+      }
+    </script>
+  </body>
 </html>
