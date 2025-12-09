@@ -211,16 +211,16 @@
 
       .input-group-dark .form-control {
         background-color: var(--bg-card);
-        border: 1px solid var(--border-color);
         color: var(--text-primary);
         padding: 15px;
         font-size: 1.1rem;
         border-radius: 12px 0 0 12px;
+        padding-left: 15px !important;
       }
 
       .input-group-dark .form-control:focus {
-        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
-        border-color: var(--accent-color);
+        /*box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);*/
+        border: var(--bs-border-width) solid var(--bs-border-color);
       }
 
       .input-group-dark .btn {
@@ -326,13 +326,10 @@
         <i class="fa-solid fa-comment-dots"></i> Quackerjack
       </div>
       <nav class="nav flex-column">
-        <a class="nav-link active" href="#" onclick="window.location.href='/'"
+        <a class="nav-link active" href="#" onclick="#"
           ><i class="fa-solid fa-chart-line"></i> Dashboard</a
         >
-        <a class="nav-link mt-5" href="#" target="_blank"
-          ><i class="fa-solid fa-circle-info"></i> About Quackerjack</a
-        >
-        <a class="nav-link" href="https://c33tech.com" target="_blank"
+        <a class="nav-link mt-5" href="https://c33tech.com" target="_blank"
           ><i class="fa-solid fa-star"></i> C33 Technology</a
         >
         <a
@@ -838,7 +835,8 @@
       }
 
       function drawKeywords(data, type) {
-        let ctx = document.getElementById("chartTopList").getContext("2d");
+        let canvas = document.getElementById("chartTopList");
+        let ctx = canvas.getContext("2d");
 
         // Sort Data
         let source = type === "emoji" ? data.EmojiCount : data.Keywords;
@@ -850,6 +848,21 @@
         // Destroy existing if update
         if (chartTopList) chartTopList.destroy();
 
+        // Dynamically size the canvas so each row gets room.
+        // Adjust baseRowHeight to taste (px). Smaller = more rows visible, Larger = bigger labels.
+        const baseRowHeight = 36;
+        const padding = 24; // extra vertical padding
+        const desiredHeight = Math.max(
+          sortedKeys.length * baseRowHeight + padding,
+          160,
+        );
+        // Set the canvas height directly and let Chart.js (maintainAspectRatio:false) respect it.
+        canvas.height = desiredHeight;
+        // Ensure parent container doesn't collapse
+        if (canvas.parentNode)
+          canvas.parentNode.style.minHeight = desiredHeight + "px";
+
+        // Draw chart with larger fonts and thicker bars
         chartTopList = new Chart(ctx, {
           type: "horizontalBar",
           data: {
@@ -859,12 +872,14 @@
                 data: values,
                 backgroundColor:
                   type === "emoji"
-                    ? "rgba(255, 205, 86, 0.6)"
-                    : "rgba(99, 102, 241, 0.6)",
+                    ? "rgba(255, 205, 86, 0.8)"
+                    : "rgba(99, 102, 241, 0.8)",
                 borderColor:
                   type === "emoji" ? "rgba(255, 205, 86, 1)" : colors.indigo,
                 borderWidth: 1,
-                barThickness: 10,
+                // Make bar thickness proportional to row height
+                barThickness: Math.floor(baseRowHeight * 0.6),
+                maxBarThickness: Math.floor(baseRowHeight * 0.9),
               },
             ],
           },
@@ -872,6 +887,14 @@
             maintainAspectRatio: false,
             responsive: true,
             legend: { display: false },
+            layout: {
+              padding: {
+                left: 12,
+                right: 16,
+                top: 8,
+                bottom: 8,
+              },
+            },
             scales: {
               xAxes: [
                 {
@@ -879,15 +902,42 @@
                   ticks: {
                     fontColor: chartOptions.fontColor,
                     beginAtZero: true,
+                    // format x labels (e.g., thousands separators)
+                    callback: function (v) {
+                      return Number(v).toLocaleString();
+                    },
                   },
                 },
               ],
               yAxes: [
                 {
                   gridLines: { display: false },
-                  ticks: { fontColor: chartOptions.fontColor },
+                  // Make category + bar percentages high so bars fill the row
+                  categoryPercentage: 0.9,
+                  barPercentage: 0.95,
+                  ticks: {
+                    fontColor: chartOptions.fontColor,
+                    fontSize: 14, // larger label text
+                    fontStyle: "600",
+                    // shorten long labels if needed:
+                    callback: function (label) {
+                      // trim to ~30 chars and append ellipsis
+                      return label.length > 30
+                        ? label.slice(0, 27) + "…"
+                        : label;
+                    },
+                  },
                 },
               ],
+            },
+            tooltips: {
+              callbacks: {
+                // Show full label in tooltip even if truncated on axis
+                title: function (tooltipItems, chartData) {
+                  var idx = tooltipItems[0].index;
+                  return chartData.labels[idx];
+                },
+              },
             },
           },
         });
