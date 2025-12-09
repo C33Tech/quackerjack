@@ -374,8 +374,12 @@
         <i class="fa-solid fa-comment-dots"></i> Quackerjack
       </div>
       <nav class="nav flex-column">
-        <a class="nav-link active" href="#" onclick="#"
-          ><i class="fa-solid fa-chart-line"></i> Dashboard</a
+        <a
+          id="nav-dashboard"
+          class="nav-link active"
+          href="/"
+          onclick="return maybeNavigateDashboard(event)"
+          ><i class="fa-solid fa-chart-line"></i> New Report</a
         >
         <a class="nav-link mt-5" href="https://c33tech.com" target="_blank"
           ><i class="fa-solid fa-star"></i> C33 Technology</a
@@ -434,11 +438,22 @@
           </div>
 
           <!-- API Limit Alert -->
-          <div class="alert alert-warning border-0 shadow-sm" role="alert" style="background-color: var(--bg-warning); color: var(--text-warning); border-left: 4px solid var(--border-warning) !important; max-width: 600px;">
+          <div
+            class="alert alert-warning border-0 shadow-sm"
+            role="alert"
+            style="
+              background-color: var(--bg-warning);
+              color: var(--text-warning);
+              border-left: 4px solid var(--border-warning) !important;
+              max-width: 600px;
+            "
+          >
             <div class="d-flex align-items-center">
               <i class="fa-solid fa-triangle-exclamation me-3 fs-4"></i>
               <div class="small text-start">
-                <strong>Heads up!</strong> Our API has a daily limit on YouTube data requests. If the tool isn't working, we might be tapped out for the day. Please check back tomorrow!
+                <strong>Heads up!</strong> Our API has a daily limit on YouTube
+                data requests. If the tool isn't working, we might be tapped out
+                for the day. Please check back tomorrow!
               </div>
             </div>
           </div>
@@ -447,20 +462,38 @@
         <!-- Info Sections -->
         <div class="container pb-5">
           <!-- How it Works -->
-          <div class="row g-4 mb-5 pt-4 border-top" style="border-color: var(--border-color) !important;">
+          <div
+            class="row g-4 mb-5 pt-4 border-top"
+            style="border-color: var(--border-color) !important"
+          >
             <div class="col-12 text-center mb-4 mt-5">
               <h2 class="fw-bold">How Quackerjack Works</h2>
-              <p class="text-secondary">Simple, fast, and transparent analytics.</p>
+              <p class="text-secondary">
+                Simple, fast, and transparent analytics.
+              </p>
             </div>
 
             <div class="col-md-4">
               <div class="card h-100 border-0 bg-transparent shadow-none">
                 <div class="card-body text-center">
-                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(139, 92, 246, 0.1);">
-                    <i class="fa-solid fa-cloud-arrow-down fs-3" style="color: var(--accent-color);"></i>
+                  <div
+                    class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center"
+                    style="
+                      width: 64px;
+                      height: 64px;
+                      background: rgba(139, 92, 246, 0.1);
+                    "
+                  >
+                    <i
+                      class="fa-solid fa-cloud-arrow-down fs-3"
+                      style="color: var(--accent-color)"
+                    ></i>
                   </div>
                   <h4 class="fw-bold mb-2">1. Fetch</h4>
-                  <p class="text-secondary">We securely connect to the YouTube API to download comments from your chosen video in real-time.</p>
+                  <p class="text-secondary">
+                    We securely connect to the YouTube API to download comments
+                    from your chosen video in real-time.
+                  </p>
                 </div>
               </div>
             </div>
@@ -468,11 +501,24 @@
             <div class="col-md-4">
               <div class="card h-100 border-0 bg-transparent shadow-none">
                 <div class="card-body text-center">
-                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(236, 72, 153, 0.1);">
-                    <i class="fa-solid fa-brain fs-3" style="color: #ec4899;"></i>
+                  <div
+                    class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center"
+                    style="
+                      width: 64px;
+                      height: 64px;
+                      background: rgba(236, 72, 153, 0.1);
+                    "
+                  >
+                    <i
+                      class="fa-solid fa-brain fs-3"
+                      style="color: #ec4899"
+                    ></i>
                   </div>
                   <h4 class="fw-bold mb-2">2. Analyze</h4>
-                  <p class="text-secondary">Our Go backend uses Natural Language Processing (NLP) to detect sentiment, extract keywords, and count emojis.</p>
+                  <p class="text-secondary">
+                    Our Go backend uses Natural Language Processing (NLP) to
+                    detect sentiment, extract keywords, and count emojis.
+                  </p>
                 </div>
               </div>
             </div>
@@ -480,11 +526,24 @@
             <div class="col-md-4">
               <div class="card h-100 border-0 bg-transparent shadow-none">
                 <div class="card-body text-center">
-                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(34, 197, 94, 0.1);">
-                    <i class="fa-solid fa-chart-pie fs-3" style="color: #22c55e;"></i>
+                  <div
+                    class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center"
+                    style="
+                      width: 64px;
+                      height: 64px;
+                      background: rgba(34, 197, 94, 0.1);
+                    "
+                  >
+                    <i
+                      class="fa-solid fa-chart-pie fs-3"
+                      style="color: #22c55e"
+                    ></i>
                   </div>
                   <h4 class="fw-bold mb-2">3. Visualize</h4>
-                  <p class="text-secondary">The results are presented in an easy-to-read dashboard with interactive charts and filtered lists.</p>
+                  <p class="text-secondary">
+                    The results are presented in an easy-to-read dashboard with
+                    interactive charts and filtered lists.
+                  </p>
                 </div>
               </div>
             </div>
@@ -497,18 +556,34 @@
                 <div class="card-body p-5 text-center">
                   <h2 class="fw-bold mb-3">Who Made This?</h2>
                   <p class="text-secondary mb-4">
-                    Quackerjack was created by <strong>Mike Flynn</strong> and is brought to you by
-                    <a href="https://c33tech.com" target="_blank" class="text-decoration-none fw-bold" style="color: var(--accent-color);">C33 Technology</a>.
+                    Quackerjack was created by <strong>Mike Flynn</strong> and
+                    is brought to you by
+                    <a
+                      href="https://c33tech.com"
+                      target="_blank"
+                      class="text-decoration-none fw-bold"
+                      style="color: var(--accent-color)"
+                      >C33 Technology</a
+                    >.
                   </p>
                   <p class="text-secondary">
-                    It's an open-source project designed to make sentiment analysis accessible to everyone.
-                    Check out the code on GitHub to see how it's built or to contribute!
+                    It's an open-source project designed to make sentiment
+                    analysis accessible to everyone. Check out the code on
+                    GitHub to see how it's built or to contribute!
                   </p>
                   <div class="mt-4">
-                    <a href="https://github.com/mikeflynn/quackerjack" target="_blank" class="btn btn-outline-secondary me-2">
+                    <a
+                      href="https://github.com/mikeflynn/quackerjack"
+                      target="_blank"
+                      class="btn btn-outline-secondary me-2"
+                    >
                       <i class="fa-brands fa-github me-2"></i> View on GitHub
                     </a>
-                    <a href="https://c33tech.com" target="_blank" class="btn btn-primary">
+                    <a
+                      href="https://c33tech.com"
+                      target="_blank"
+                      class="btn btn-primary"
+                    >
                       Visit C33 Tech
                     </a>
                   </div>
@@ -521,35 +596,75 @@
 
       <!-- View: Processing -->
       <div id="view-processing">
-        <div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh; margin-top: 0">
-            <div class="processing-card text-center">
-                <!-- Main Animated Icon -->
-                <div class="processing-icon-container mb-4">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                </div>
-
-                <h2 class="fw-bold mb-2">Crunching the Data</h2>
-                <p class="text-secondary mb-4">Analyzing sentiment, emojis, and keywords...</p>
-
-                <!-- Progress Bar -->
-                <div class="progress mb-4" style="height: 8px; width: 100%; max-width: 400px; margin: 0 auto;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
-                </div>
-
-                <!-- Steps as simple icons -->
-                <div class="processing-steps d-flex justify-content-center gap-4 mb-4">
-                    <span id="processing-check-url" class="step-item text-secondary" title="Checking URL"><i class="fa-solid fa-link"></i></span>
-                    <span id="processing-comment-count" class="step-item text-secondary" title="Checking Comments"><i class="fa-solid fa-list-ol"></i></span>
-                    <span id="processing-comment-download" class="step-item text-secondary" title="Downloading"><i class="fa-solid fa-cloud-arrow-down"></i></span>
-                    <span id="processing-emoji" class="step-item text-secondary" title="Analyzing Emoji"><i class="fa-solid fa-face-smile"></i></span>
-                    <span id="processing-sentiment" class="step-item text-secondary" title="Analyzing Sentiment"><i class="fa-solid fa-brain"></i></span>
-                </div>
-
-                <!-- Fun message area -->
-                <div class="processing-message text-muted fst-italic small">
-                    <i class="fa-solid fa-mug-hot me-2"></i> Videos with thousands of comments might take a minute. Grab a coffee!
-                </div>
+        <div
+          class="container d-flex flex-column align-items-center justify-content-center"
+          style="min-height: 60vh; margin-top: 0"
+        >
+          <div class="processing-card text-center">
+            <!-- Main Animated Icon -->
+            <div class="processing-icon-container mb-4">
+              <i class="fa-solid fa-circle-notch fa-spin"></i>
             </div>
+
+            <h2 class="fw-bold mb-2">Crunching the Data</h2>
+            <p class="text-secondary mb-4">
+              Analyzing sentiment, emojis, and keywords...
+            </p>
+
+            <!-- Progress Bar -->
+            <div
+              class="progress mb-4"
+              style="height: 8px; width: 100%; max-width: 400px; margin: 0 auto"
+            >
+              <div
+                class="progress-bar progress-bar-striped progress-bar-animated"
+                role="progressbar"
+                style="width: 0%"
+              ></div>
+            </div>
+
+            <!-- Steps as simple icons -->
+            <div
+              class="processing-steps d-flex justify-content-center gap-4 mb-4"
+            >
+              <span
+                id="processing-check-url"
+                class="step-item text-secondary"
+                title="Checking URL"
+                ><i class="fa-solid fa-link"></i
+              ></span>
+              <span
+                id="processing-comment-count"
+                class="step-item text-secondary"
+                title="Checking Comments"
+                ><i class="fa-solid fa-list-ol"></i
+              ></span>
+              <span
+                id="processing-comment-download"
+                class="step-item text-secondary"
+                title="Downloading"
+                ><i class="fa-solid fa-cloud-arrow-down"></i
+              ></span>
+              <span
+                id="processing-emoji"
+                class="step-item text-secondary"
+                title="Analyzing Emoji"
+                ><i class="fa-solid fa-face-smile"></i
+              ></span>
+              <span
+                id="processing-sentiment"
+                class="step-item text-secondary"
+                title="Analyzing Sentiment"
+                ><i class="fa-solid fa-brain"></i
+              ></span>
+            </div>
+
+            <!-- Fun message area -->
+            <div class="processing-message text-muted fst-italic small">
+              <i class="fa-solid fa-mug-hot me-2"></i> Videos with thousands of
+              comments might take a minute. Grab a coffee!
+            </div>
+          </div>
         </div>
       </div>
 
@@ -563,11 +678,7 @@
               Channel Name
             </p>
           </div>
-          <div>
-            <a href="/" class="btn btn-outline-secondary btn-sm"
-              ><i class="fa-solid fa-plus"></i> New Analysis</a
-            >
-          </div>
+          <div></div>
         </div>
 
         <!-- Stats Row -->
@@ -737,6 +848,36 @@
       var chartTotalSentiment = null;
       var reportData = null; // Store full response
 
+      // Confirm navigation to Dashboard when a report is compiling or shown
+      function maybeNavigateDashboard(event) {
+        // Prevent default anchor behavior
+        if (event && event.preventDefault) event.preventDefault();
+
+        // If processing view is visible, warn user that processing may be interrupted.
+        var isProcessing = $("#view-processing").is(":visible");
+
+        // If a report exists (compiled/shown), also warn the user.
+        var hasReport = $("#view-dashboard").is(":visible");
+
+        if (isProcessing || hasReport) {
+          var msg =
+            "A report is currently being compiled or is already shown. Navigating to the Dashboard may interrupt processing or replace the current report. Continue to Dashboard?";
+          if (!confirm(msg)) {
+            return false;
+          }
+        }
+
+        // Show the landing page
+        $("#view-dashboard").hide();
+        $("#view-processing").hide();
+        $("#view-landing").fadeIn();
+
+        // Update the url without reloading the page to remove parameters
+        window.history.replaceState({}, document.title, "/");
+
+        return true;
+      }
+
       // Config
       var colors = {
         red: "rgb(236, 72, 153)", // Vibrant Pink
@@ -797,14 +938,22 @@
             /https?:\/\/(www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_\-]{6,}/;
 
           if (!vid.match(ytRegex)) {
-             // Error state in new UI
-            $(".processing-icon-container").html('<i class="fa-solid fa-triangle-exclamation text-danger"></i>');
-            $("#processing-check-url").addClass("text-danger").removeClass("text-secondary");
+            // Error state in new UI
+            $(".processing-icon-container").html(
+              '<i class="fa-solid fa-triangle-exclamation text-danger"></i>',
+            );
+            $("#processing-check-url")
+              .addClass("text-danger")
+              .removeClass("text-secondary");
             $(".progress-bar").css("width", "20%").addClass("bg-danger");
-            $(".processing-message").text("That doesn't look like a valid YouTube URL.");
+            $(".processing-message").text(
+              "That doesn't look like a valid YouTube URL.",
+            );
             return false;
           } else {
-            $("#processing-check-url").addClass("completed").removeClass("text-secondary");
+            $("#processing-check-url")
+              .addClass("completed")
+              .removeClass("text-secondary");
             $(".progress-bar").css("width", "20%");
           }
 
@@ -823,28 +972,39 @@
                 // Simulate quick progress through steps
                 let delay = 200;
                 steps.forEach((step, index) => {
-                    setTimeout(() => {
-                         $("#" + step).addClass("completed").removeClass("text-secondary");
-                         // Bounce effect
-                         $("#" + step).addClass("active");
-                         setTimeout(()=> $("#" + step).removeClass("active"), 300);
+                  setTimeout(
+                    () => {
+                      $("#" + step)
+                        .addClass("completed")
+                        .removeClass("text-secondary");
+                      // Bounce effect
+                      $("#" + step).addClass("active");
+                      setTimeout(
+                        () => $("#" + step).removeClass("active"),
+                        300,
+                      );
 
-                         $(".progress-bar").css("width", (index + 2) * 20 + "%");
-                    }, delay * (index + 1));
+                      $(".progress-bar").css("width", (index + 2) * 20 + "%");
+                    },
+                    delay * (index + 1),
+                  );
                 });
 
                 let finalDelay = delay * (steps.length + 1) + 200;
                 setTimeout(() => {
-                    $(".progress-bar").css("width", "100%").addClass("bg-success");
-                    drawReport(resp);
+                  $(".progress-bar")
+                    .css("width", "100%")
+                    .addClass("bg-success");
+                  drawReport(resp);
                 }, finalDelay);
-
               } else {
                 handleError(resp.Error);
               }
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
-              console.error("API Call Failed: " + textStatus + ", " + errorThrown);
+              console.error(
+                "API Call Failed: " + textStatus + ", " + errorThrown,
+              );
               handleError("Unable to connect to server.");
             });
         }
@@ -860,60 +1020,75 @@
 
       function drawReport(data) {
         try {
-            reportData = data; // Save for switching tabs
+          reportData = data; // Save for switching tabs
 
-            // 1. Populate Metadata
-            if (data.Metadata) {
-                $("#dash-video-title").text(data.Metadata.Title || "Unknown Title");
-                $("#dash-channel-title").text(data.Metadata.ChannelTitle || "Unknown Channel");
-                $("#dash-thumbnail").attr("src", data.Metadata.Thumbnail || "");
+          // 1. Populate Metadata
+          if (data.Metadata) {
+            $("#dash-video-title").text(data.Metadata.Title || "Unknown Title");
+            $("#dash-channel-title").text(
+              data.Metadata.ChannelTitle || "Unknown Channel",
+            );
+            $("#dash-thumbnail").attr("src", data.Metadata.Thumbnail || "");
 
-                // Handle views/likes if available (YouTubeVideo struct)
-                if (data.Metadata.VideoViews) {
-                  $("#dash-views").html(
-                    '<i class="fa-solid fa-eye"></i> ' +
-                      parseInt(data.Metadata.VideoViews).toLocaleString(),
-                  );
-                }
-                if (data.Metadata.TotalLikes) {
-                  $("#dash-likes").html(
-                    '<i class="fa-solid fa-thumbs-up"></i> ' +
-                      parseInt(data.Metadata.TotalLikes).toLocaleString(),
-                  );
-                }
+            // Handle views/likes if available (YouTubeVideo struct)
+            if (data.Metadata.VideoViews) {
+              $("#dash-views").html(
+                '<i class="fa-solid fa-eye"></i> ' +
+                  parseInt(data.Metadata.VideoViews).toLocaleString(),
+              );
             }
-
-            // Stats
-            $("#dash-total-comments").text((data.TotalComments || 0).toLocaleString());
-
-            let total = data.TotalComments || 0;
-            let posPct = 0;
-            let negPct = 0;
-
-            if (data.Sentiment && total > 0) {
-                 posPct = Math.round((data.Sentiment.positive / total) * 100);
-                 negPct = Math.round((data.Sentiment.negative / total) * 100);
+            if (data.Metadata.TotalLikes) {
+              $("#dash-likes").html(
+                '<i class="fa-solid fa-thumbs-up"></i> ' +
+                  parseInt(data.Metadata.TotalLikes).toLocaleString(),
+              );
             }
+          }
 
-            $("#dash-positive-pct").text(posPct + "%");
-            $("#dash-negative-pct").text(negPct + "%");
-            $("#dash-avg-daily").text(Math.round(data.CommentAvgPerDay || 0));
+          // Stats
+          $("#dash-total-comments").text(
+            (data.TotalComments || 0).toLocaleString(),
+          );
 
-            // 2. Charts
-            try { drawTotalSentiment(data); } catch(e) { console.error(e); }
-            try { drawKeywords(data, "words"); } catch(e) { console.error(e); }
-            try { drawDailySentiment(data); } catch(e) { console.error(e); }
+          let total = data.TotalComments || 0;
+          let posPct = 0;
+          let negPct = 0;
 
-            // 3. Comment Lists
-            renderCommentList(data.TopComments, "#container-top-comments");
-            renderCommentList(data.SampleComments, "#container-sample-comments");
+          if (data.Sentiment && total > 0) {
+            posPct = Math.round((data.Sentiment.positive / total) * 100);
+            negPct = Math.round((data.Sentiment.negative / total) * 100);
+          }
 
+          $("#dash-positive-pct").text(posPct + "%");
+          $("#dash-negative-pct").text(negPct + "%");
+          $("#dash-avg-daily").text(Math.round(data.CommentAvgPerDay || 0));
+
+          // 2. Charts
+          try {
+            drawTotalSentiment(data);
+          } catch (e) {
+            console.error(e);
+          }
+          try {
+            drawKeywords(data, "words");
+          } catch (e) {
+            console.error(e);
+          }
+          try {
+            drawDailySentiment(data);
+          } catch (e) {
+            console.error(e);
+          }
+
+          // 3. Comment Lists
+          renderCommentList(data.TopComments, "#container-top-comments");
+          renderCommentList(data.SampleComments, "#container-sample-comments");
         } catch (e) {
-            console.error("Error drawing report:", e);
+          console.error("Error drawing report:", e);
         } finally {
-            // Switch View
-            $("#view-processing").hide();
-            $("#view-dashboard").fadeIn();
+          // Switch View
+          $("#view-processing").hide();
+          $("#view-dashboard").fadeIn();
         }
       }
 
