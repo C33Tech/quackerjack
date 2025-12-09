@@ -570,7 +570,7 @@
           </div>
           <div class="col-lg-6">
             <div class="card h-100">
-              <div class="card-header">Random Samples</div>
+              <div class="card-header">Random Comments</div>
               <div class="card-body" id="container-sample-comments">
                 <p class="text-secondary text-center">
                   No sample comments available.
@@ -945,7 +945,21 @@
                 {
                   type: "logarithmic",
                   gridLines: { color: chartOptions.gridColor },
-                  ticks: { fontColor: chartOptions.fontColor },
+                  ticks: {
+                    fontColor: chartOptions.fontColor,
+                    // Format tick labels to avoid exponential notation
+                    callback: function (value, index, values) {
+                      const num = Number(value);
+                      if (!isFinite(num)) return value;
+                      // For numbers >= 1 show with thousands separators
+                      if (Math.abs(num) >= 1) return num.toLocaleString();
+                      // For small numbers, show up to 6 significant digits without exponential form
+                      let s = num.toPrecision(6);
+                      // Trim trailing zeros and an optional trailing dot
+                      s = s.replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
+                      return s;
+                    },
+                  },
                 },
               ],
             },
