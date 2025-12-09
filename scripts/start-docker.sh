@@ -10,4 +10,4 @@ if [ ! -f /go/src/quackerjack/docker.conf ]; then
   exit 1
 fi
 
-nohup /go/src/quackerjack/quackerjack-docker -server -verbose -conf "/go/src/quackerjack/docker.conf"
+nohup /go/src/quackerjack/quackerjack-docker -server -conf "/go/src/quackerjack/docker.conf"

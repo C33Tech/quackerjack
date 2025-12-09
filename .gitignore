@@ -7,3 +7,4 @@ quackerjack.cnf
 .DS_Store
 quackerjack-docker-dev.conf
 docker
+cache

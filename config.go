@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"strconv"
 
 	"github.com/dlintw/goconf"
 )
@@ -23,6 +24,7 @@ func LoadConfig() {
 	CLIParams["fbsecret"] = flag.String("fbsecret", "", "Facebook Secret")
 	CLIParams["stopwords"] = flag.String("stopwords", "", "A list of file paths, comma delimited, of stop word files.")
 	CLIParams["html"] = flag.String("html", "", "An override html file path to use instead of the built in version.")
+	CLIParams["cache_ttl"] = flag.Int("cache_ttl", 0, "Time in seconds to cache report results. 0 to disable.")
 
 	flag.Parse()
 
@@ -61,4 +63,26 @@ func GetConfigString(key string) string {
 	}
 
 	return ""
+}
+
+func GetConfigInt(key string) int {
+	if val, ok := CLIParams[key]; ok {
+		if v, ok := val.(*int); ok && *v != 0 {
+			return *v
+		}
+	}
+
+	if ConfigParams != nil {
+		if val, err := ConfigParams.GetInt("default", key); err == nil {
+			return val
+		}
+		// Fallback to string parsing if GetInt fails or doesn't exist (though it should)
+		if strVal, err := ConfigParams.GetString("default", key); err == nil {
+			if intVal, err := strconv.Atoi(strVal); err == nil {
+				return intVal
+			}
+		}
+	}
+
+	return 0
 }
