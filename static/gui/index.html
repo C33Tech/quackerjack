@@ -278,18 +278,48 @@
       }
 
       /* Processing State */
-      #processing ul li {
-        background-color: var(--bg-card);
-        color: var(--text-secondary);
-        border-color: var(--border-color);
-        margin-bottom: 5px;
-        border-radius: 8px;
+      .processing-card {
+        background: var(--bg-card);
+        backdrop-filter: blur(16px);
+        padding: 40px;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .processing-icon-container {
+        font-size: 4rem;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.3));
+      }
+
+      .step-item {
+        font-size: 1.5rem;
+        transition: all 0.3s ease;
+        opacity: 0.5;
+      }
+
+      .step-item.active {
+        opacity: 1;
+        transform: scale(1.2);
+        color: var(--accent-color);
+        text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+      }
+
+      .step-item.completed {
+        opacity: 1;
+        color: #22c55e; /* Green */
       }
 
       .progress {
         height: 8px;
         background-color: var(--border-color);
         border-radius: 4px;
+        overflow: hidden;
       }
 
       .progress-bar {
@@ -490,39 +520,34 @@
       </div>
 
       <!-- View: Processing -->
-      <div
-        id="view-processing"
-        class="container"
-        style="max-width: 600px; margin-top: 100px"
-      >
-        <div class="card">
-          <div class="card-header">Processing Video...</div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush mb-3">
-              <li class="list-group-item" id="processing-check-url">
-                <i class="fa-regular fa-square me-2"></i> Checking for valid URL
-              </li>
-              <li class="list-group-item" id="processing-comment-count">
-                <i class="fa-regular fa-square me-2"></i> Checking for comments
-              </li>
-              <li class="list-group-item" id="processing-comment-download">
-                <i class="fa-regular fa-square me-2"></i> Downloading comments
-              </li>
-              <li class="list-group-item" id="processing-emoji">
-                <i class="fa-regular fa-square me-2"></i> Analyzing emoji
-              </li>
-              <li class="list-group-item" id="processing-sentiment">
-                <i class="fa-regular fa-square me-2"></i> Analyzing sentiment
-              </li>
-            </ul>
-            <div class="progress" style="height: 10px">
-              <div
-                class="progress-bar progress-bar-striped progress-bar-animated"
-                role="progressbar"
-                style="width: 0%; background-color: var(--accent-color)"
-              ></div>
+      <div id="view-processing" class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh; margin-top: 0">
+        <div class="processing-card text-center">
+            <!-- Main Animated Icon -->
+            <div class="processing-icon-container mb-4">
+                 <i class="fa-solid fa-circle-notch fa-spin"></i>
             </div>
-          </div>
+
+            <h2 class="fw-bold mb-2">Crunching the Data</h2>
+            <p class="text-secondary mb-4">Analyzing sentiment, emojis, and keywords...</p>
+
+            <!-- Progress Bar -->
+            <div class="progress mb-4" style="height: 8px; width: 100%; max-width: 400px; margin: 0 auto;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+            </div>
+
+            <!-- Steps as simple icons -->
+            <div class="processing-steps d-flex justify-content-center gap-4 mb-4">
+                 <span id="processing-check-url" class="step-item text-secondary" title="Checking URL"><i class="fa-solid fa-link"></i></span>
+                 <span id="processing-comment-count" class="step-item text-secondary" title="Checking Comments"><i class="fa-solid fa-list-ol"></i></span>
+                 <span id="processing-comment-download" class="step-item text-secondary" title="Downloading"><i class="fa-solid fa-cloud-arrow-down"></i></span>
+                 <span id="processing-emoji" class="step-item text-secondary" title="Analyzing Emoji"><i class="fa-solid fa-face-smile"></i></span>
+                 <span id="processing-sentiment" class="step-item text-secondary" title="Analyzing Sentiment"><i class="fa-solid fa-brain"></i></span>
+            </div>
+
+            <!-- Fun message area -->
+            <div class="processing-message text-muted fst-italic small">
+                <i class="fa-solid fa-mug-hot me-2"></i> Videos with thousands of comments might take a minute. Grab a coffee!
+            </div>
         </div>
       </div>
 
@@ -765,20 +790,19 @@
           $("#view-processing").fadeIn();
 
           // Validate URL visually
-          let icon = $("#processing-check-url i");
+          // let icon = $("#processing-check-url i"); // Replaced by new icon logic
           const ytRegex =
             /https?:\/\/(www\.)?youtube\.com\/watch\?v=[a-zA-Z0-9_\-]{6,}/;
 
           if (!vid.match(ytRegex)) {
-            icon
-              .removeClass("fa-square")
-              .addClass("fa-square-xmark text-danger");
+             // Error state in new UI
+            $(".processing-icon-container").html('<i class="fa-solid fa-triangle-exclamation text-danger"></i>');
+            $("#processing-check-url").addClass("text-danger").removeClass("text-secondary");
             $(".progress-bar").css("width", "20%").addClass("bg-danger");
+            $(".processing-message").text("That doesn't look like a valid YouTube URL.");
             return false;
           } else {
-            icon
-              .removeClass("fa-square")
-              .addClass("fa-square-check text-success");
+            $("#processing-check-url").addClass("completed").removeClass("text-secondary");
             $(".progress-bar").css("width", "20%");
           }
 
@@ -786,28 +810,32 @@
           $.getJSON("/api?vid=" + vid)
             .done(function (resp) {
               if (!resp.Error) {
-                // Animate steps
+                // Animate steps visually
                 let steps = [
                   "processing-comment-count",
                   "processing-comment-download",
                   "processing-emoji",
                   "processing-sentiment",
                 ];
+
+                // Simulate quick progress through steps
+                let delay = 200;
                 steps.forEach((step, index) => {
-                  // This is visual faking since the request is already done,
-                  // but it keeps the user feeling progress if the backend was slow
-                  let icon = $("#" + step + " i");
-                  icon
-                    .removeClass("fa-square")
-                    .addClass("fa-square-check text-success");
-                  $(".progress-bar").css("width", (index + 2) * 20 + "%");
+                    setTimeout(() => {
+                         $("#" + step).addClass("completed").removeClass("text-secondary");
+                         // Bounce effect
+                         $("#" + step).addClass("active");
+                         setTimeout(()=> $("#" + step).removeClass("active"), 300);
+
+                         $(".progress-bar").css("width", (index + 2) * 20 + "%");
+                    }, delay * (index + 1));
                 });
 
-                $(".progress-bar").css("width", "100%").addClass("bg-success");
+                setTimeout(() => {
+                    $(".progress-bar").css("width", "100%").addClass("bg-success");
+                    drawReport(resp);
+                }, delay * (steps.length + 1) + 200);
 
-                sleep(800).then(() => {
-                  drawReport(resp);
-                });
               } else {
                 handleError(resp.Error);
               }
