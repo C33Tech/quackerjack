@@ -152,12 +152,14 @@ func runReport(postURL string) []byte {
 	cacheTTL := GetConfigInt("cache_ttl")
 	var cacheFile string
 	if cacheTTL > 0 {
+		LogMsg("Checking cache...")
 		hash := md5.Sum([]byte(postURL))
 		hashStr := hex.EncodeToString(hash[:])
 		cacheDir := "cache"
 		if err := os.MkdirAll(cacheDir, 0755); err == nil {
 			cacheFile = filepath.Join(cacheDir, hashStr+".json")
 			if info, err := os.Stat(cacheFile); err == nil {
+				LogMsg("Cache file found: " + cacheFile)
 				if time.Since(info.ModTime()).Seconds() < float64(cacheTTL) {
 					LogMsg("Returning cached report from " + cacheFile)
 					if data, err := os.ReadFile(cacheFile); err == nil {

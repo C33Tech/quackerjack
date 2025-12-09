@@ -67,7 +67,7 @@ func GetConfigString(key string) string {
 
 func GetConfigInt(key string) int {
 	if val, ok := CLIParams[key]; ok {
-		if v, ok := val.(*int); ok {
+		if v, ok := val.(*int); ok && *v != 0 {
 			return *v
 		}
 	}
