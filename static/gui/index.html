@@ -37,6 +37,10 @@
 
         --bg-grad-1: rgba(99, 102, 241, 0.08);
         --bg-grad-2: rgba(236, 72, 153, 0.08);
+
+        --text-warning: #856404;
+        --bg-warning: rgba(255, 193, 7, 0.1);
+        --border-warning: #ffc107;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -54,6 +58,10 @@
 
           --bg-grad-1: rgba(99, 102, 241, 0.15);
           --bg-grad-2: rgba(236, 72, 153, 0.15);
+
+          --text-warning: #ffe69c;
+          --bg-warning: rgba(255, 193, 7, 0.15);
+          --border-warning: rgba(255, 193, 7, 0.5);
         }
       }
 
@@ -76,6 +84,15 @@
         transition:
           background-color 0.3s ease,
           color 0.3s ease;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--text-primary);
       }
 
       /* Sidebar */
@@ -160,6 +177,7 @@
         border-radius: 16px;
         margin-bottom: 24px;
         box-shadow: var(--card-shadow);
+        color: var(--text-primary);
         transition:
           transform 0.3s ease,
           box-shadow 0.3s ease,
@@ -386,7 +404,7 @@
           </div>
 
           <!-- API Limit Alert -->
-          <div class="alert alert-warning border-0 shadow-sm" role="alert" style="background-color: rgba(255, 193, 7, 0.1); color: #856404; border-left: 4px solid #ffc107 !important; max-width: 600px;">
+          <div class="alert alert-warning border-0 shadow-sm" role="alert" style="background-color: var(--bg-warning); color: var(--text-warning); border-left: 4px solid var(--border-warning) !important; max-width: 600px;">
             <div class="d-flex align-items-center">
               <i class="fa-solid fa-triangle-exclamation me-3 fs-4"></i>
               <div class="small text-start">
