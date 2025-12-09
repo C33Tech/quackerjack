@@ -37,6 +37,10 @@
 
         --bg-grad-1: rgba(99, 102, 241, 0.08);
         --bg-grad-2: rgba(236, 72, 153, 0.08);
+
+        --text-warning: #856404;
+        --bg-warning: rgba(255, 193, 7, 0.1);
+        --border-warning: #ffc107;
       }
 
       @media (prefers-color-scheme: dark) {
@@ -54,6 +58,10 @@
 
           --bg-grad-1: rgba(99, 102, 241, 0.15);
           --bg-grad-2: rgba(236, 72, 153, 0.15);
+
+          --text-warning: #ffe69c;
+          --bg-warning: rgba(255, 193, 7, 0.15);
+          --border-warning: rgba(255, 193, 7, 0.5);
         }
       }
 
@@ -76,6 +84,15 @@
         transition:
           background-color 0.3s ease,
           color 0.3s ease;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        color: var(--text-primary);
       }
 
       /* Sidebar */
@@ -160,6 +177,7 @@
         border-radius: 16px;
         margin-bottom: 24px;
         box-shadow: var(--card-shadow);
+        color: var(--text-primary);
         transition:
           transform 0.3s ease,
           box-shadow 0.3s ease,
@@ -347,7 +365,7 @@
       <div id="view-landing">
         <div
           class="container d-flex flex-column align-items-center justify-content-center"
-          style="min-height: 80vh"
+          style="min-height: 70vh"
         >
           <div class="text-center mb-5">
             <h1 class="display-4 fw-bold mb-3">Analyze YouTube Comments</h1>
@@ -357,7 +375,7 @@
             </p>
           </div>
 
-          <div class="search-container w-100">
+          <div class="search-container w-100 mb-4">
             <form action="" method="get">
               <div class="input-group input-group-dark input-group-lg">
                 <span
@@ -383,6 +401,90 @@
                 Example: https://www.youtube.com/watch?v=qpMvS1Q1sos
               </div>
             </form>
+          </div>
+
+          <!-- API Limit Alert -->
+          <div class="alert alert-warning border-0 shadow-sm" role="alert" style="background-color: var(--bg-warning); color: var(--text-warning); border-left: 4px solid var(--border-warning) !important; max-width: 600px;">
+            <div class="d-flex align-items-center">
+              <i class="fa-solid fa-triangle-exclamation me-3 fs-4"></i>
+              <div class="small text-start">
+                <strong>Heads up!</strong> Our API has a daily limit on YouTube data requests. If the tool isn't working, we might be tapped out for the day. Please check back tomorrow!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Sections -->
+        <div class="container pb-5">
+          <!-- How it Works -->
+          <div class="row g-4 mb-5 pt-4 border-top" style="border-color: var(--border-color) !important;">
+            <div class="col-12 text-center mb-4 mt-5">
+              <h2 class="fw-bold">How Quackerjack Works</h2>
+              <p class="text-secondary">Simple, fast, and transparent analytics.</p>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card h-100 border-0 bg-transparent shadow-none">
+                <div class="card-body text-center">
+                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(139, 92, 246, 0.1);">
+                    <i class="fa-solid fa-cloud-arrow-down fs-3" style="color: var(--accent-color);"></i>
+                  </div>
+                  <h4 class="fw-bold mb-2">1. Fetch</h4>
+                  <p class="text-secondary">We securely connect to the YouTube API to download comments from your chosen video in real-time.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card h-100 border-0 bg-transparent shadow-none">
+                <div class="card-body text-center">
+                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(236, 72, 153, 0.1);">
+                    <i class="fa-solid fa-brain fs-3" style="color: #ec4899;"></i>
+                  </div>
+                  <h4 class="fw-bold mb-2">2. Analyze</h4>
+                  <p class="text-secondary">Our Go backend uses Natural Language Processing (NLP) to detect sentiment, extract keywords, and count emojis.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <div class="card h-100 border-0 bg-transparent shadow-none">
+                <div class="card-body text-center">
+                  <div class="mb-3 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 64px; height: 64px; background: rgba(34, 197, 94, 0.1);">
+                    <i class="fa-solid fa-chart-pie fs-3" style="color: #22c55e;"></i>
+                  </div>
+                  <h4 class="fw-bold mb-2">3. Visualize</h4>
+                  <p class="text-secondary">The results are presented in an easy-to-read dashboard with interactive charts and filtered lists.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Who Made It -->
+          <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+              <div class="card">
+                <div class="card-body p-5 text-center">
+                  <h2 class="fw-bold mb-3">Who Made This?</h2>
+                  <p class="text-secondary mb-4">
+                    Quackerjack was created by <strong>Mike Flynn</strong> and is brought to you by
+                    <a href="https://c33tech.com" target="_blank" class="text-decoration-none fw-bold" style="color: var(--accent-color);">C33 Technology</a>.
+                  </p>
+                  <p class="text-secondary">
+                    It's an open-source project designed to make sentiment analysis accessible to everyone.
+                    Check out the code on GitHub to see how it's built or to contribute!
+                  </p>
+                  <div class="mt-4">
+                    <a href="https://github.com/mikeflynn/quackerjack" target="_blank" class="btn btn-outline-secondary me-2">
+                      <i class="fa-brands fa-github me-2"></i> View on GitHub
+                    </a>
+                    <a href="https://c33tech.com" target="_blank" class="btn btn-primary">
+                      Visit C33 Tech
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
