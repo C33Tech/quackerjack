@@ -29,11 +29,19 @@ _NOTE: Submissions of training data is more than welcome! YouTube comments are a
 
 ## Running
 
+The best way to deploy it is via Docker and the docker-compose.yaml file.
+
+To run it locally for development, use the following command:
+
+`go build && ./quackerjack -server -verbose`
+
+This will start the web server on port 8000.
+
 The script can be run via the command line, which will return a JSON object of the resulting data:
 
 `quackerjack -stopwords ./static/stopwords.txt[,/comma/delimited/textfiles] -post [post url] [-verbose]`
 
-You can also run quackerjack as a web service. Add the `-server` flag to start a web server that has two endpoints on port 8080: `/` is a simple web interface where you can enter post urls and it displays the results in a visual report. `/api` is the JSON web service route which takes a `?vid=` param and retuns a JSON response.
+You can also run quackerjack as a web service. Add the `-server` flag to start a web server that has two endpoints on port 8000: `/` is a simple web interface where you can enter post urls and it displays the results in a visual report. `/api` is the JSON web service route which takes a `?vid=` param and retuns a JSON response.
 
 ## Flags
 
@@ -68,12 +76,13 @@ app_1  | 2020/04/28 15:56:09 Web server running on 8000
 
 ## Development
 
-- go 1.14
-- Docker
-
 If you want to dig in to the code, you can clone this repo...
 
 `git clone https://github.com/mikeflynn/quackerjack.git`
+
+The way to run it locally for development is:
+
+`go build && ./quackerjack -server -verbose`
 
 I've included a Docker image and docker-compose config that will run the web service in verbose mode by default. You can also run `make docker-shell` to get a shell on the Docker instance for active development.
 
