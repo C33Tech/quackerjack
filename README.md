@@ -1,4 +1,4 @@
-# `Quackerjack` v3.1
+# `Quackerjack` v4
 
 ## A Comment Thread Analyzer and Report Generator
 
@@ -14,12 +14,17 @@ The report includes:
 - Sentiment over the first 30 days from upload.
 - Emoji usage analysis.
 
+v4 Changes:
+- New theme
+- Easier hosting
+- Caching
+
 v3 Changes:
 
-- New interface!
-- Mobile friendly!
-- No more redis!
-- Emoji analysis!
+- New interface
+- Mobile friendly
+- No more redis
+- Emoji analysis
 
 _NOTE: Submissions of training data is more than welcome! YouTube comments are a hard thing to analyze so the more data we can collect the better! Please submit a pull request or you can reach out to me on Mastodon: [@hydrox@defcon.social](https://defcon.social/@hydrox)_
 
