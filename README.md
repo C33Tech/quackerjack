@@ -15,6 +15,7 @@ The report includes:
 - Emoji usage analysis.
 
 v4 Changes:
+
 - New theme
 - Easier hosting
 - Caching
@@ -30,7 +31,36 @@ _NOTE: Submissions of training data is more than welcome! YouTube comments are a
 
 ## Installation
 
+There are two options to use Quackerjack via either the web or cli:
+
+1. You can install the go binary directly via `go get`:
+
 `go get github.com/mikeflynn/quackerjack`
+
+2. You can use docker:
+
+Here's an example docker-compose.yaml file.
+
+```
+services:
+  quackerjack:
+    image: mikeflynn/quackerjack:latest
+    restart: unless-stopped
+    volumes:
+      - ./quackerjack.conf:/go/src/quackerjack/docker.conf
+    ports:
+      - "8111:8000"
+```
+
+Either option will require a config file that lists the required AI keys such as:
+
+```
+server = true
+port = 8000
+ytkey = xxxxxxxxxxxxxx
+stopwords = /go/src/quackerjack/static/stopwords.txt
+cache_ttl = 3600
+```
 
 ## Running
 

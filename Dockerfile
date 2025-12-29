@@ -1,9 +1,9 @@
-FROM golang:1.24-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
-RUN apk update && \
-  apk add git && \
-  apk add gcc && \
-  apk add libc-dev
+ARG TARGETOS
+ARG TARGETARCH
+
+RUN apk add --no-cache git
 
 WORKDIR /go/src/quackerjack
 
@@ -12,7 +12,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o quackerjack-docker
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o quackerjack-docker
 
 FROM alpine:latest
 
