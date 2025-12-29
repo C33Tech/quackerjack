@@ -37,7 +37,7 @@ There are two options to use Quackerjack via either the web or cli:
 
 `go get github.com/mikeflynn/quackerjack`
 
-2. You can use docker:
+2. You can use docker with the [latest public image.](https://hub.docker.com/r/mikeflynn/quackerjack)
 
 Here's an example docker-compose.yaml file.
 
